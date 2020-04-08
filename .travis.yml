@@ -5,27 +5,34 @@ language: php
 before_script:
   - composer self-update
 
-env: GEOPHP_RUN_TESTS=1
+cache:
+  directories:
+  - $HOME/.composer/cache/files
 
 install:
-  - composer install --no-interaction
+  - composer install --prefer-dist --no-interaction
   # TODO Install geos library -- as a matrix test
   # TODO optionally set up a postgis database for testing
 
-script: 
+script:
+  - mkdir -p build/logs
+  - GEOS_DISABLED=1 vendor/bin/phpunit --coverage-clover build/logs/clover.xml
   - cd tests
-  - GEOS_DISABLED=1 ../vendor/bin/phpunit
   - php test.php
+  - php performanceTest.php
+  - cd ..
 
 # run tests on the following versions
 php:
-  - 5.4
-  - 5.5
   - 5.6
   - 7.0
   - 7.1
   - 7.2
-  - hhvm
+  - 7.3
+  - 7.4
 
 matrix:
   fast_finish: false
+
+after_success:
+  - travis_retry php vendor/bin/php-coveralls -v

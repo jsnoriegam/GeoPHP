@@ -2,13 +2,14 @@
     "name": "swen100/geophp",
     "license": "GPL-3.0-or-later",
     "type": "library",
-    "description": "GeoPHP is a open-source native PHP library for doing geometry operations. It is written entirely in PHP and can therefore run on shared hosts. It can read and write a wide variety of formats: WKT (including EWKT), WKB (including EWKB), GeoJSON, KML, GPX, GeoRSS). It works with all Simple-Feature geometries (Point, LineString, Polygon, GeometryCollection etc.) and can be used to get centroids, bounding-boxes, area, and a wide variety of other useful information.",
+    "description": "GeoPHP is an open-source native PHP library for doing geometry operations. It is written entirely in PHP and can therefore run on shared hosts. It can read and write a wide variety of formats: (E)WKT, (E)WKB, GeoJSON, KML, GPX, GeoRSS). It works with all Simple-Feature geometries (Point, LineString, Polygon, GeometryCollection etc.) and can be used to get centroids, bounding-boxes, area and a wide variety of other useful information.",
+    "keywords": ["geophp", "gis", "geometry", "converter", "linestring", "polygon", "wkt", "wkb", "kml", "gpx", "geojson", "twkb"],
     "homepage": "https://github.com/swen100/geoPHP",
     "authors":[
         {
             "name": "Patrick Hayes",
             "homepage": "https://github.com/Patrick-Hayes",
-            "role": "Developer"
+            "role": "Original creator"
         },
         {
             "name": "Báthory Péter",
@@ -21,16 +22,26 @@
             "role": "Developer"
         }
     ],
-    "require": {
-        "php": ">=5.4.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "4.8.*",
-        "satooshi/php-coveralls": "1.*"
-    },
     "autoload": {
-        "psr-4": {
-            "geoPHP\\": "src/"
-        }
+    "psr-4": {
+      "geoPHP\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "geoPHP\\": "tests/"
+    }
+  },
+  "require": {
+    "php": ">=5.5.0"
+  },
+  "require-dev": {
+    "php": ">=5.6.0",
+    "phpunit/phpunit": "5.* || 8.*",
+    "php-coveralls/php-coveralls": "2.*",
+    "squizlabs/php_codesniffer": "3.*"
+  },
+  "suggest": {
+    "ext-geos": "GEOS allows more advanced operations"
+  }
 }
