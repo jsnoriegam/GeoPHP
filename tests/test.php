@@ -317,7 +317,7 @@ function test_detection($value, $format, $file) {
   $detected = geoPHP::detectFormat($value);
   if ($detected != $format) {
     if ($detected) {
-      print 'detected as ' . $detected . "\n";
+      print 'detected as "' . $detected . "\" and not as \"$format\" !\n";
     } else {
       print "format not detected\n";
     }
