@@ -229,7 +229,7 @@ class geoPHP
         if (!is_array($geometries)) {
             $geometries = [$geometries];
         }
-
+        
         /**
          * So now we either have an array of geometries
          * @var Geometry[]|GeometryCollection[] $geometries
@@ -239,9 +239,7 @@ class geoPHP
         self::explodeCollections($geometries, $reducedGeometries, $geometryTypes);
 
         $geometryTypes = array_unique($geometryTypes);
-        if (empty($geometryTypes)) {
-            return false;
-        }
+        
         if (count($geometryTypes) == 1) {
             if (count($reducedGeometries) == 1) {
                 return $reducedGeometries[0];
@@ -252,9 +250,9 @@ class geoPHP
                     $geometryTypes[0];
                 return new $class($reducedGeometries);
             }
-        } else {
-            return new GeometryCollection($reducedGeometries);
         }
+        
+        return new GeometryCollection($reducedGeometries);
     }
 
     /**
