@@ -29,7 +29,7 @@ abstract class Collection extends Geometry
     public function __construct($components = [], $allowEmptyComponents = false, $allowedComponentType = Geometry::class)
     {
         if (!is_array($components)) {
-            throw new InvalidGeometryException("Component geometries must be passed as an array");
+            throw new InvalidGeometryException("Component geometries must be passed as array");
         }
         $componentCount = count($components);
         for ($i = 0; $i < $componentCount; ++$i) {
@@ -84,7 +84,7 @@ abstract class Collection extends Geometry
      *
      * @return Geometry[]
      */
-    public function getComponents()
+    public function getComponents(): array
     {
         return $this->components;
     }
@@ -165,7 +165,7 @@ abstract class Collection extends Geometry
      *
      * @return array
      */
-    public function asArray()
+    public function asArray(): array
     {
         $array = [];
         foreach ($this->components as $component) {
@@ -311,24 +311,23 @@ abstract class Collection extends Geometry
     }
 
     /**
-     *
-     * @return 
+     * @return void
      */
     public function flatten()
     {
-        if ($this->hasZ()) {
-            $new_components = [];
+        if ($this->hasZ() || $this->isMeasured()) {
             foreach ($this->components as $component) {
                 $component->flatten();
-                $new_components[] = $component;
             }
-            $type = geoPHP::CLASS_NAMESPACE . 'Geometry\\' . $this->geometryType();
-            return new $type($new_components);
-        } else {
-            return $this;
+            $this->hasZ = false;
+            $this->isMeasured = false;
+            $this->setGeos(null);
         }
     }
 
+    /**
+     * @return 
+     */
     public function distance($geometry)
     {
         if ($this->getGeos()) {

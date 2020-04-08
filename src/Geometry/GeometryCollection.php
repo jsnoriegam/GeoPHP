@@ -105,7 +105,7 @@ class GeometryCollection extends MultiGeometry
      *
      * @return array
      */
-    public function asArray()
+    public function asArray(): array
     {
         $array = [];
         foreach ($this->getComponents() as $component) {
