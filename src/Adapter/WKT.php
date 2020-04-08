@@ -53,7 +53,7 @@ class WKT implements GeoAdapter
         $srid = NULL;
         $m = [];
         // If it contains a ';', then it contains additional SRID data
-        if (preg_match('/^srid=(\d+);/', $wkt, $m)) {
+        if (preg_match('/^SRID=(\d+);/', $wkt, $m)) {
             $srid = $m[1];
             $wkt = substr($wkt, strlen($m[0]));
         }
