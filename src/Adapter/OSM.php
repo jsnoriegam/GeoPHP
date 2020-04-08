@@ -187,7 +187,10 @@ class OSM implements GeoAdapter
 
         // Process ways
         foreach ($ways as $way) {
-            if ((!$way['assigned'] || !empty($way['tags'])) && !isset($way['tags']['boundary']) && (!isset($way['tags']['natural']) || $way['tags']['natural'] !== 'mountain_range')
+            if (
+                (!$way['assigned'] || !empty($way['tags'])) &&
+                !isset($way['tags']['boundary']) &&
+                (!isset($way['tags']['natural']) || $way['tags']['natural'] !== 'mountain_range')
             ) {
                 $linePoints = [];
                 foreach ($way['nodes'] as $wayNode) {
@@ -235,17 +238,17 @@ class OSM implements GeoAdapter
                             unset($relationWays[$id]);
                             $waysAdded++;
                             // Last node of ring = last node of way => reverse way and put to the end of ring
-                        } else if ($line[count($line) - 1] === $wayNodes[count($wayNodes) - 1]) {
+                        } elseif ($line[count($line) - 1] === $wayNodes[count($wayNodes) - 1]) {
                             $line = array_merge($line, array_slice(array_reverse($wayNodes), 1));
                             unset($relationWays[$id]);
                             $waysAdded++;
                             // First node of ring = last node of way => put way to the beginning of ring
-                        } else if ($line[0] === $wayNodes[count($wayNodes) - 1]) {
+                        } elseif ($line[0] === $wayNodes[count($wayNodes) - 1]) {
                             $line = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $line);
                             unset($relationWays[$id]);
                             $waysAdded++;
                             // First node of ring = first node of way => reverse way and put to the beginning of ring
-                        } else if ($line[0] === $wayNodes[0]) {
+                        } elseif ($line[0] === $wayNodes[0]) {
                             $line = array_merge(array_reverse(array_slice($wayNodes, 1)), $line);
                             unset($relationWays[$id]);
                             $waysAdded++;
@@ -289,17 +292,17 @@ class OSM implements GeoAdapter
                             unset($relationWays[$id]);
                             $waysAdded++;
                             // Last node of ring = last node of way => reverse way and put to the end of ring
-                        } else if ($ring[count($ring) - 1] === $wayNodes[count($wayNodes) - 1]) {
+                        } elseif ($ring[count($ring) - 1] === $wayNodes[count($wayNodes) - 1]) {
                             $ring = array_merge($ring, array_slice(array_reverse($wayNodes), 1));
                             unset($relationWays[$id]);
                             $waysAdded++;
                             // First node of ring = last node of way => put way to the beginning of ring
-                        } else if ($ring[0] === $wayNodes[count($wayNodes) - 1]) {
+                        } elseif ($ring[0] === $wayNodes[count($wayNodes) - 1]) {
                             $ring = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $ring);
                             unset($relationWays[$id]);
                             $waysAdded++;
                             // First node of ring = first node of way => reverse way and put to the beginning of ring
-                        } else if ($ring[0] === $wayNodes[0]) {
+                        } elseif ($ring[0] === $wayNodes[0]) {
                             $ring = array_merge(array_reverse(array_slice($wayNodes, 1)), $ring);
                             unset($relationWays[$id]);
                             $waysAdded++;
@@ -345,7 +348,7 @@ class OSM implements GeoAdapter
           print ($containment[$i][$j] ? '1' : '0') . ' ';
           }
           print "<br>";
-          } */
+        }*/
 
         // Group rings (outers and inners)
 
@@ -510,16 +513,19 @@ class OSM implements GeoAdapter
     public static function downloadFromOSMByBbox($left, $bottom, $right, $top)
     {
         /** @noinspection PhpUnusedParameterInspection */
-        set_error_handler(function($errNO, $errStr, $errFile, $errLine, $errContext) {
-            if (isset($errContext['http_response_header'])) {
-                foreach ($errContext['http_response_header'] as $line) {
-                    if (strpos($line, 'Error: ') > -1) {
-                        throw new \Exception($line);
+        set_error_handler(
+            function ($errNO, $errStr, $errFile, $errLine, $errContext) {
+                if (isset($errContext['http_response_header'])) {
+                    foreach ($errContext['http_response_header'] as $line) {
+                        if (strpos($line, 'Error: ') > -1) {
+                            throw new \Exception($line);
+                        }
                     }
                 }
-            }
-            throw new \Exception('unknown error');
-        }, E_WARNING);
+                throw new \Exception('unknown error');
+            },
+            E_WARNING
+        );
 
         try {
             $osmFile = file_get_contents(self::OSM_API_URL . "map?bbox={$left},{$bottom},{$right},{$top}");

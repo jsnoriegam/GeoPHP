@@ -1,14 +1,6 @@
 <?php
 namespace geoPHP\Adapter;
 
-/*
- * Copyright (c) Patrick Hayes, Báthory Péter
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 /**
  * Class GpxTypes
  * Defines the available GPX types and their allowed elements following the GPX specification
@@ -37,10 +29,13 @@ class GpxTypes
     ];
 
     /**
+     * same as trkTypeElements
      * @var array Allowed elements in <rte>
      * @see http://www.topografix.com/gpx/1/1/#type_rteType
      */
-    public static $rteTypeElements = ['name', 'cmt', 'desc', 'src', 'link', 'number', 'type']; // same as trkTypeElements
+    public static $rteTypeElements = [
+        'name', 'cmt', 'desc', 'src', 'link', 'number', 'type'
+    ];
     /**
      * @var array Allowed elements in <wpt>
      * @see http://www.topografix.com/gpx/1/1/#type_wptType
@@ -51,17 +46,19 @@ class GpxTypes
     ];
 
     /**
+     * same as wptTypeElements
      * @var array Same as wptType
      */
-    public static $trkptTypeElements = [// same as wptTypeElements
+    public static $trkptTypeElements = [
         'ele', 'time', 'magvar', 'geoidheight', 'name', 'cmt', 'desc', 'src', 'link', 'sym', 'type',
         'fix', 'sat', 'hdop', 'vdop', 'pdop', 'ageofdgpsdata', 'dgpsid'
     ];
 
     /**
+     * same as wptTypeElements
      * @var array Same as wptType
      */
-    public static $rteptTypeElements = [// same as wptTypeElements
+    public static $rteptTypeElements = [
         'ele', 'time', 'magvar', 'geoidheight', 'name', 'cmt', 'desc', 'src', 'link', 'sym', 'type',
         'fix', 'sat', 'hdop', 'vdop', 'pdop', 'ageofdgpsdata', 'dgpsid'
     ];
@@ -89,7 +86,7 @@ class GpxTypes
      *                   Can be overwritten with an associative array, with type name in keys.
      *                   eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
      */
-    function __construct($allowedElements = null)
+    public function __construct($allowedElements = null)
     {
         $this->allowedGpxTypeElements = self::$gpxTypeElements;
         $this->allowedTrkTypeElements = self::$trkTypeElements;

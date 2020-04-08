@@ -49,11 +49,11 @@ class WKT implements GeoAdapter
         $this->hasZ = false;
         $this->measured = false;
 
-        $wkt = trim($wkt);
+        $wkt = trim(strtoupper($wkt));
         $srid = NULL;
         $m = [];
         // If it contains a ';', then it contains additional SRID data
-        if (preg_match('#^srid=(\d+);#i', $wkt, $m)) {
+        if (preg_match('/^srid=(\d+);/', $wkt, $m)) {
             $srid = $m[1];
             $wkt = substr($wkt, strlen($m[0]));
         }
@@ -63,7 +63,6 @@ class WKT implements GeoAdapter
             /** @noinspection PhpUndefinedClassInspection */
             $reader = new \GEOSWKTReader();
             try {
-                /** @noinspection PhpUndefinedMethodInspection */
                 $geom = geoPHP::geosToGeometry($reader->read($wkt));
                 if ($srid) {
                     $geom->setSRID($srid);
@@ -87,8 +86,9 @@ class WKT implements GeoAdapter
     }
 
     /**
-     * @param $wkt
+     * @param string $wkt
      * @return Geometry|null
+     * @throws \Exception
      */
     private function parseTypeAndGetData($wkt)
     {
@@ -104,22 +104,25 @@ class WKT implements GeoAdapter
                     $this->measured = $m[2] ?: null;
                     $dataString = $m[3] ?: $dataString;
                 }
-            }
-
-            $method = 'parse' . $geometryType;
-            return call_user_func([$this, $method], $dataString);
+                $method = 'parse' . $geometryType;
+                return call_user_func([$this, $method], $dataString);
+           }
+           throw new \Exception('Invalid WKT type "' . $m[1] . '"');
         }
-        return null;
+        throw new \Exception('Cannot parse WKT');
     }
 
     private function parsePoint($dataString)
     {
+        $dataString = trim($dataString);
+
         // If it's marked as empty, then return an empty point
         if ($dataString == 'EMPTY') {
             return new Point();
         }
+
         $z = $m = null;
-        $parts = explode(' ', trim($dataString));
+        $parts = explode(' ', $dataString);
         if (isset($parts[2])) {
             if ($this->measured) {
                 $m = $parts[2];
@@ -133,33 +136,31 @@ class WKT implements GeoAdapter
         return new Point($parts[0], $parts[1], $z, $m);
     }
 
-    private function parseLineString($data_string)
+    private function parseLineString($dataString)
     {
         // If it's marked as empty, then return an empty line
-        if ($data_string == 'EMPTY') {
+        if ($dataString == 'EMPTY') {
             return new LineString();
         }
 
-        $parts = explode(',', $data_string);
         $points = [];
-        foreach ($parts as $part) {
+        foreach (explode(',', $dataString) as $part) {
             $points[] = $this->parsePoint($part);
         }
         return new LineString($points);
     }
 
-    private function parsePolygon($data_string)
+    private function parsePolygon($dataString)
     {
         // If it's marked as empty, then return an empty polygon
-        if ($data_string == 'EMPTY') {
+        if ($dataString == 'EMPTY') {
             return new Polygon();
         }
 
         $lines = [];
         $m = [];
-        if (preg_match_all('/\(([^)(]*)\)/', $data_string, $m)) {
-            $parts = $m[1];
-            foreach ($parts as $part) {
+        if (preg_match_all('/\(([^)(]*)\)/', $dataString, $m)) {
+            foreach ($m[1] as $part) {
                 $lines[] = $this->parseLineString($part);
             }
         }
@@ -167,69 +168,62 @@ class WKT implements GeoAdapter
     }
 
     /** @noinspection PhpUnusedPrivateMethodInspection
-     * @param string $data_string
+     * @param string $dataString
      * @return MultiPoint
      */
-    private function parseMultiPoint($data_string)
+    private function parseMultiPoint($dataString)
     {
         // If it's marked as empty, then return an empty MultiPoint
-        if ($data_string == 'EMPTY') {
+        if ($dataString == 'EMPTY') {
             return new MultiPoint();
         }
 
         $points = [];
-        $m = [];
-        // Parse form: MULTIPOINT ((1 2), (3 4))
-        if (preg_match_all('/\((.*?)\)/', $data_string, $m)) {
-            $parts = $m[1];
-            foreach ($parts as $part) {
-                $points[] = $this->parsePoint($part);
-            }
-        } else { // Parse form: MULTIPOINT (1 2, 3 4)
-            foreach (explode(',', $data_string) as $part) {
-                $points[] = $this->parsePoint($part);
-            }
+        /* Should understand both forms:
+         * MULTIPOINT ((1 2), (3 4))
+         * MULTIPOINT (1 2, 3 4)
+         */
+        foreach (explode(',', $dataString) as $part) {
+            $points[] =  $this->parsePoint(trim($part, ' ()'));
         }
         return new MultiPoint($points);
     }
 
     /** @noinspection PhpUnusedPrivateMethodInspection
-     * @param string $data_string
+     * @param string $dataString
      * @return MultiLineString
      */
-    private function parseMultiLineString($data_string)
+    private function parseMultiLineString($dataString)
     {
         // If it's marked as empty, then return an empty multi-linestring
-        if ($data_string == 'EMPTY') {
+        if ($dataString == 'EMPTY') {
             return new MultiLineString();
         }
         $lines = [];
         $m = [];
-        if (preg_match_all('/\(([^\(].*?)\)/', $data_string, $m)) {
-            $parts = $m[1];
-            foreach ($parts as $part) {
-                $lines[] = $this->parseLineString($part);
+        if (preg_match_all('/(\([^(]+\)|EMPTY)/', $dataString, $m)) {
+            foreach ($m[1] as $part) {
+                $lines[] =  $this->parseLineString(trim($part, ' ()'));
             }
         }
         return new MultiLineString($lines);
     }
 
     /** @noinspection PhpUnusedPrivateMethodInspection
-     * @param string $data_string
+     * @param string $dataString
      * @return MultiPolygon
      */
-    private function parseMultiPolygon($data_string)
+    private function parseMultiPolygon($dataString)
     {
         // If it's marked as empty, then return an empty multi-polygon
-        if ($data_string == 'EMPTY') {
+        if ($dataString == 'EMPTY') {
             return new MultiPolygon();
         }
 
         $polygons = [];
         $m = [];
-        if (preg_match_all('/\(\(.*?\)\)/', $data_string, $m)) {
-            $parts = $m[0];
-            foreach ($parts as $part) {
+        if (preg_match_all('/(\(\([^(].+\)\)|EMPTY)/', $dataString, $m)) {
+            foreach ($m[0] as $part) {
                 $polygons[] = $this->parsePolygon($part);
             }
         }
@@ -237,30 +231,36 @@ class WKT implements GeoAdapter
     }
 
     /** @noinspection PhpUnusedPrivateMethodInspection
-     * @param string $data_string
+     * @param string $dataString
      * @return GeometryCollection
      */
-    private function parseGeometryCollection($data_string)
+    private function parseGeometryCollection($dataString)
     {
         // If it's marked as empty, then return an empty geom-collection
-        if ($data_string == 'EMPTY') {
+        if ($dataString == 'EMPTY') {
             return new GeometryCollection();
         }
 
         $geometries = [];
         $m = [];
-        while (strlen($data_string) > 0) {
-            if ($data_string[0] == ',') {
-                $data_string = substr($data_string, 1);
+        while (strlen($dataString) > 0) {
+            if ($dataString[0] == ',') {
+                $dataString = substr($dataString, 1);
             }
-            preg_match('/\((?>[^()]+|(?R))*\)/i', $data_string, $m, PREG_OFFSET_CAPTURE);
+            // Matches the first balanced parenthesis group (or term EMPTY)
+            preg_match(
+                '/\((?>[^()]+|(?R))*\)|EMPTY/',
+                $dataString,
+                $m,
+                PREG_OFFSET_CAPTURE
+            );
             if (!isset($m[0])) {
-                // something wired happened, we stop here before running to an infinite loop
+                // something weird happened, we stop here before running in an infinite loop
                 break;
             }
             $cutPosition = strlen($m[0][0]) + $m[0][1];
-            $geometries[] = $this->parseTypeAndGetData(trim(substr($data_string, 0, $cutPosition)));
-            $data_string = trim(substr($data_string, $cutPosition));
+            $geometries[] = $this->parseTypeAndGetData(trim(substr($dataString, 0, $cutPosition)));
+            $dataString = trim(substr($dataString, $cutPosition));
         }
 
         return new GeometryCollection($geometries);
@@ -339,7 +339,11 @@ class WKT implements GeoAdapter
             case Geometry::MULTI_LINE_STRING:
             case Geometry::MULTI_POLYGON:
                 foreach ($geometry->getComponents() as $component) {
-                    $parts[] = '(' . $this->extractData($component) . ')';
+                if ($component->isEmpty()) {
+                        $parts[] = 'EMPTY';
+                    } else {
+                        $parts[] = '(' . $this->extractData($component) . ')';
+                    }
                 }
                 return implode(', ', $parts);
             case Geometry::GEOMETRY_COLLECTION:
@@ -354,7 +358,10 @@ class WKT implements GeoAdapter
                     if ($this->measured) {
                         $extension .= 'M';
                     }
-                    $parts[] = strtoupper($component->geometryType()) . ($extension ? ' ' . $extension : '') . ' (' . $this->extractData($component) . ')';
+                    $data = $this->extractData($component);
+                    $parts[] = strtoupper($component->geometryType())
+                            . ($extension ? ' ' . $extension : '')
+                            . ($data ? ' (' . $data . ')' : ' EMPTY');
                 }
                 return implode(', ', $parts);
         }

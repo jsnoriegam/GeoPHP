@@ -122,10 +122,10 @@ class GeoRSS implements GeoAdapter
     protected function parsePoints()
     {
         $points = [];
-        $pt_elements = $this->xmlObject->getElementsByTagName('point');
-        foreach ($pt_elements as $pt) {
-            $point_array = $this->getPointsFromCoordinates(trim($pt->firstChild->nodeValue));
-            $points[] = !empty($point_array) ? $point_array[0] : new Point();
+        $pointElements = $this->xmlObject->getElementsByTagName('point');
+        foreach ($pointElements as $pt) {
+            $pointArray = $this->getPointsFromCoordinates(trim($pt->firstChild->nodeValue));
+            $points[] = !empty($pointArray) ? $pointArray[0] : new Point();
         }
         return $points;
     }
@@ -133,8 +133,8 @@ class GeoRSS implements GeoAdapter
     protected function parseLines()
     {
         $lines = [];
-        $line_elements = $this->xmlObject->getElementsByTagName('line');
-        foreach ($line_elements as $line) {
+        $lineElements = $this->xmlObject->getElementsByTagName('line');
+        foreach ($lineElements as $line) {
             $components = $this->getPointsFromCoordinates(trim($line->firstChild->nodeValue));
             $lines[] = new LineString($components);
         }
@@ -149,8 +149,8 @@ class GeoRSS implements GeoAdapter
             /** @noinspection PhpUndefinedMethodInspection */
             if ($polygon->hasChildNodes()) {
                 $points = $this->getPointsFromCoordinates(trim($polygon->firstChild->nodeValue));
-                $exterior_ring = new LineString($points);
-                $polygons[] = new Polygon([$exterior_ring]);
+                $exteriorRing = new LineString($points);
+                $polygons[] = new Polygon([$exteriorRing]);
             } else {
                 // It's an EMPTY polygon
                 $polygons[] = new Polygon();
@@ -163,8 +163,8 @@ class GeoRSS implements GeoAdapter
     protected function parseBoxes()
     {
         $polygons = [];
-        $box_elements = $this->xmlObject->getElementsByTagName('box');
-        foreach ($box_elements as $box) {
+        $boxElements = $this->xmlObject->getElementsByTagName('box');
+        foreach ($boxElements as $box) {
             $parts = explode(' ', trim($box->firstChild->nodeValue));
             $components = [
                 new Point($parts[3], $parts[2]),
@@ -173,8 +173,8 @@ class GeoRSS implements GeoAdapter
                 new Point($parts[1], $parts[2]),
                 new Point($parts[3], $parts[2]),
             ];
-            $exterior_ring = new LineString($components);
-            $polygons[] = new Polygon([$exterior_ring]);
+            $exteriorRing = new LineString($components);
+            $polygons[] = new Polygon([$exteriorRing]);
         }
         return $polygons;
     }
@@ -184,8 +184,8 @@ class GeoRSS implements GeoAdapter
     protected function parseCircles()
     {
         $points = [];
-        $circle_elements = $this->xmlObject->getElementsByTagName('circle');
-        foreach ($circle_elements as $circle) {
+        $circleElements = $this->xmlObject->getElementsByTagName('circle');
+        foreach ($circleElements as $circle) {
             $parts = explode(' ', trim($circle->firstChild->nodeValue));
             $points[] = new Point($parts[1], $parts[0]);
         }
@@ -194,7 +194,7 @@ class GeoRSS implements GeoAdapter
 
     /**
      * @param Geometry $geometry
-     * @return string
+     * @return string|null
      */
     protected function geometryToGeoRSS($geometry)
     {
@@ -251,10 +251,10 @@ class GeoRSS implements GeoAdapter
     private function polygonToGeoRSS($geometry)
     {
         $output = '<' . $this->nss . 'polygon>';
-        $exterior_ring = $geometry->exteriorRing();
-        foreach ($exterior_ring->getComponents() as $k => $point) {
+        $exteriorRing = $geometry->exteriorRing();
+        foreach ($exteriorRing->getComponents() as $k => $point) {
             $output .= $point->y() . ' ' . $point->x();
-            if ($k < ($exterior_ring->numGeometries() - 1)) {
+            if ($k < ($exteriorRing->numGeometries() - 1)) {
                 $output .= ' ';
             }
         }

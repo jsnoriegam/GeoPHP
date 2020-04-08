@@ -9,12 +9,17 @@ use geoPHP\geoPHP;
  * The Points are not connected or ordered in any semantically important way.
  * A MultiPoint is simple if no two Points in the MultiPoint are equal (have identical coordinate values in X and Y).
  * Every MultiPoint is spatially equal under the definition in OGC 06-103r4 Clause 6.1.15.3 to a simple Multipoint.
+ *
+ * @method Point[] getComponents()
+ * @property Point[] $components The elements of a MultiPoint are Points
  */
 class MultiPoint extends MultiGeometry
 {
-    /**
-     * @var Point[] $components The elements of a MultiPoint are Points
-     */
+
+    public function __construct($components = [])
+    {
+        parent::__construct($components, true, Point::class);
+    }
 
     /**
      * @return string
@@ -43,7 +48,9 @@ class MultiPoint extends MultiGeometry
     }
 
     /**
-     * A MultiPoint is simple if no two Points in the MultiPoint are equal (have identical coordinate values in X and Y).
+     * A MultiPoint is simple if no two Points in the MultiPoint are equal
+     * (have identical coordinate values in X and Y).
+     *
      * @return bool
      */
     public function isSimple()
@@ -80,8 +87,10 @@ class MultiPoint extends MultiGeometry
         }
 
         if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            // @codeCoverageIgnoreEnd
         }
 
         $x = 0;

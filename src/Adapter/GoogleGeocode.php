@@ -36,16 +36,16 @@ class GoogleGeocode implements GeoAdapter
      *
      * @param string $address Address to geocode
      * @param string $apiKey Your application's Google Maps Geocoding API key
-     * @param string $return_type Type of Geometry to return. Can either be 'points' or 'bounds' (polygon)
+     * @param string $returnType Type of Geometry to return. Can either be 'points' or 'bounds' (polygon)
      * @param array|bool|Geometry $bounds Limit the search area to within this region.
      *        For example by default geocoding "Cairo" will return the location of Cairo Egypt.
      *        If you pass a polygon of Illinois, it will return Cairo IL.
-     * @param boolean $return_multiple - Return all results in a multipoint or multipolygon
+     * @param boolean $returnMultiple - Return all results in a multipoint or multipolygon
      *
      * @return Geometry|GeometryCollection
      * @throws \Exception If geocoding fails
      */
-    public function read($address, $apiKey = null, $return_type = 'point', $bounds = false, $return_multiple = false)
+    public function read($address, $apiKey = null, $returnType = 'point', $bounds = false, $returnMultiple = false)
     {
         if (is_array($address)) {
             $address = join(',', $address);
@@ -55,33 +55,33 @@ class GoogleGeocode implements GeoAdapter
             $bounds = $bounds->getBBox();
         }
         if (gettype($bounds) == 'array') {
-            $bounds_string = '&bounds=' . $bounds['miny'] . ',' . $bounds['minx'] . '|' . $bounds['maxy'] . ',' . $bounds['maxx'];
+            $boundsString = '&bounds=' . $bounds['miny'] . ',' . $bounds['minx'] . '|' . $bounds['maxy'] . ',' . $bounds['maxx'];
         } else {
-            $bounds_string = '';
+            $boundsString = '';
         }
 
         $url = "http://maps.googleapis.com/maps/api/geocode/json";
         $url .= '?address=' . urlencode($address);
-        $url .= $bounds_string . ($apiKey ? '&key=' . $apiKey : '');
+        $url .= $boundsString . ($apiKey ? '&key=' . $apiKey : '');
         $this->result = json_decode(file_get_contents($url));
 
         if ($this->result->status == 'OK') {
-            if (!$return_multiple) {
-                if ($return_type == 'point') {
+            if (!$returnMultiple) {
+                if ($returnType == 'point') {
                     return $this->getPoint();
                 }
-                if ($return_type == 'bounds' || $return_type == 'polygon') {
+                if ($returnType == 'bounds' || $returnType == 'polygon') {
                     return $this->getPolygon();
                 }
             } else {
-                if ($return_type == 'point') {
+                if ($returnType == 'point') {
                     $points = [];
                     foreach ($this->result->results as $delta => $item) {
                         $points[] = $this->getPoint($delta);
                     }
                     return new MultiPoint($points);
                 }
-                if ($return_type == 'bounds' || $return_type == 'polygon') {
+                if ($returnType == 'bounds' || $returnType == 'polygon') {
                     $polygons = [];
                     foreach ($this->result->results as $delta => $item) {
                         $polygons[] = $this->getPolygon($delta);
@@ -89,13 +89,15 @@ class GoogleGeocode implements GeoAdapter
                     return new MultiPolygon($polygons);
                 }
             }
-        } else if ($this->result->status == 'ZERO_RESULTS') {
+        } elseif ($this->result->status == 'ZERO_RESULTS') {
             return null;
         } else {
             if ($this->result->status) {
-                throw new \Exception('Error in Google Reverse Geocoder: '
-                . $this->result->status
-                . (isset($this->result->error_message) ? '. ' . $this->result->error_message : ''));
+                throw new \Exception(
+                    'Error in Google Reverse Geocoder: '
+                    . $this->result->status
+                    . (isset($this->result->error_message) ? '. ' . $this->result->error_message : '')
+                );
             } else {
                 throw new \Exception('Unknown error in Google Reverse Geocoder');
             }
@@ -106,17 +108,18 @@ class GoogleGeocode implements GeoAdapter
     /**
      * Makes a Reverse Geocoding (address lookup) with the (center) point of Geometry
      * Detailed documentation of response values can be found in:
+     *
      * @see https://developers.google.com/maps/documentation/geocoding/intro#ReverseGeocoding
      *
      * @param Geometry $geometry
      * @param string $apiKey Your application's Google Maps Geocoding API key
-     * @param string $return_type Should be either 'string' or 'array' or 'both'
+     * @param string $returnType Should be either 'string' or 'array' or 'both'
      * @param string $language The language in which to return results. If not set, geocoder tries to use the native language of the domain.
      *
      * @return string|Object[]|null A formatted address or array of address components
      * @throws \Exception If geocoding fails
      */
-    public function write(Geometry $geometry, $apiKey = null, $return_type = 'string', $language = null)
+    public function write(Geometry $geometry, $apiKey = null, $returnType = 'string', $language = null)
     {
         $centroid = $geometry->centroid();
         $lat = $centroid->y();
@@ -130,25 +133,27 @@ class GoogleGeocode implements GeoAdapter
         $this->result = json_decode(file_get_contents($url));
 
         if ($this->result->status == 'OK') {
-            if ($return_type == 'string') {
+            if ($returnType == 'string') {
                 return $this->result->results[0]->formatted_address;
-            } else if ($return_type == 'array') {
+            } elseif ($returnType == 'array') {
                 return $this->result->results[0]->address_components;
-            } else if ($return_type == 'full') {
+            } elseif ($returnType == 'full') {
                 return $this->result->results[0];
             }
-        } else if ($this->result->status == 'ZERO_RESULTS') {
-            if ($return_type == 'string') {
+        } elseif ($this->result->status == 'ZERO_RESULTS') {
+            if ($returnType == 'string') {
                 return '';
             }
-            if ($return_type == 'array') {
+            if ($returnType == 'array') {
                 return $this->result->results;
             }
         } else {
             if ($this->result->status) {
-                throw new \Exception('Error in Google Reverse Geocoder: '
-                . $this->result->status
-                . (isset($this->result->error_message) ? '. ' . $this->result->error_message : ''));
+                throw new \Exception(
+                    'Error in Google Reverse Geocoder: '
+                    . $this->result->status
+                    . (isset($this->result->error_message) ? '. ' . $this->result->error_message : '')
+                );
             } else {
                 throw new \Exception('Unknown error in Google Reverse Geocoder');
             }
@@ -172,8 +177,8 @@ class GoogleGeocode implements GeoAdapter
             $this->getBottomLeft($delta),
             $this->getTopLeft($delta),
         ];
-        $outer_ring = new LineString($points);
-        return new Polygon([$outer_ring]);
+        $outerRing = new LineString($points);
+        return new Polygon([$outerRing]);
     }
 
     private function getTopLeft($delta = 0)

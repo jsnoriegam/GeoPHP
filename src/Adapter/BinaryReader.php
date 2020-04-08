@@ -52,7 +52,7 @@ class BinaryReader
     }
 
     /**
-     * @param self::BIG_ENDIAN|self::LITTLE_ENDIAN $endian
+     * @param int $endian self::BIG_ENDIAN or self::LITTLE_ENDIAN
      */
     public function setEndianness($endian)
     {
@@ -105,7 +105,9 @@ class BinaryReader
     public function readDoubles($length = 1)
     {
         $bin = fread($this->buffer, $length);
-        return $this->endianness == self::LITTLE_ENDIAN ? array_values(unpack("d*", $bin)) : array_reverse(unpack("d*", strrev($bin)));
+        return $this->endianness == self::LITTLE_ENDIAN
+                ? array_values(unpack("d*", $bin))
+                : array_reverse(unpack("d*", strrev($bin)));
     }
 
     /**

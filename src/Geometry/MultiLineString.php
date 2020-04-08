@@ -1,4 +1,5 @@
 <?php
+
 namespace geoPHP\Geometry;
 
 use geoPHP\geoPHP;
@@ -7,9 +8,15 @@ use geoPHP\geoPHP;
  * MultiLineString: A collection of LineStrings
  *
  * @method LineString[] getComponents()
+ * @property LineString[] $components
  */
 class MultiLineString extends MultiCurve
 {
+
+    public function __construct($components = [])
+    {
+        parent::__construct($components, true, LineString::class);
+    }
 
     /**
      * @var LineString[] The elements of a MultiLineString are LineStrings
@@ -28,13 +35,16 @@ class MultiLineString extends MultiCurve
         }
 
         if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            // @codeCoverageIgnoreEnd
         }
 
         $x = 0;
         $y = 0;
         $totalLength = 0;
+        $componentLength = 0;
         $components = $this->getComponents();
         foreach ($components as $line) {
             if ($line->isEmpty()) {

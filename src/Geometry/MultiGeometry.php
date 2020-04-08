@@ -1,4 +1,5 @@
 <?php
+
 namespace geoPHP\Geometry;
 
 use geoPHP\geoPHP;
@@ -11,14 +12,21 @@ use geoPHP\geoPHP;
 abstract class MultiGeometry extends Collection
 {
 
+    public function __construct($components = [], $allowEmptyComponents = true, $allowedComponentType = Geometry::class)
+    {
+        parent::__construct($components, $allowEmptyComponents, $allowedComponentType);
+    }
+
     /**
      * @return bool|null
      */
     public function isSimple()
     {
         if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             return $this->getGeos()->isSimple();
+            // @codeCoverageIgnoreEnd
         }
 
         // A collection is simple if all it's components are simple
@@ -39,22 +47,26 @@ abstract class MultiGeometry extends Collection
         }
 
         if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             return $this->getGeos()->boundary();
+            // @codeCoverageIgnoreEnd
         }
 
-        $components_boundaries = [];
+        $componentsBoundaries = [];
         foreach ($this->components as $component) {
-            $components_boundaries[] = $component->boundary();
+            $componentsBoundaries[] = $component->boundary();
         }
-        return geoPHP::buildGeometry($components_boundaries);
+        return geoPHP::buildGeometry($componentsBoundaries);
     }
 
     public function area()
     {
         if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             return $this->getGeos()->area();
+            // @codeCoverageIgnoreEnd
         }
 
         $area = 0;
@@ -89,7 +101,7 @@ abstract class MultiGeometry extends Collection
 
     /**
      * Returns the degree based Geometry' length in meters
-     * @param int $radius default is the semi-major axis of WGS84
+     * @param float|null $radius Default is the semi-major axis of WGS84
      * @return int the length in meters
      */
     public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS)
@@ -145,20 +157,20 @@ abstract class MultiGeometry extends Collection
         }
     }
 
-    public function elevationGain($vertical_tolerance = 0)
+    public function elevationGain($verticalTolerance = 0)
     {
         $gain = null;
         foreach ($this->components as $component) {
-            $gain += $component->elevationGain($vertical_tolerance);
+            $gain += $component->elevationGain($verticalTolerance);
         }
         return $gain;
     }
 
-    public function elevationLoss($vertical_tolerance = 0)
+    public function elevationLoss($verticalTolerance = 0)
     {
         $loss = null;
         foreach ($this->components as $component) {
-            $loss += $component->elevationLoss($vertical_tolerance);
+            $loss += $component->elevationLoss($verticalTolerance);
         }
         return $loss;
     }
@@ -186,6 +198,8 @@ abstract class MultiGeometry extends Collection
         }
         return $max > ~PHP_INT_MAX ? $max : null;
     }
+
+
 
     public function startPoint()
     {

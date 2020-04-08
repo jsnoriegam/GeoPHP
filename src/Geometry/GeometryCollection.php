@@ -4,7 +4,7 @@ namespace geoPHP\Geometry;
 use geoPHP\geoPHP;
 
 /**
- * GeometryCollection: A heterogenous collection of geometries  
+ * GeometryCollection: A heterogeneous collection of geometries  
  */
 class GeometryCollection extends MultiGeometry
 {
@@ -25,6 +25,9 @@ class GeometryCollection extends MultiGeometry
         return Geometry::GEOMETRY_COLLECTION;
     }
 
+    /**
+     * @return int Returns the highest spatial dimension of components
+     */
     public function dimension()
     {
         $dimension = 0;
@@ -46,11 +49,11 @@ class GeometryCollection extends MultiGeometry
     }
 
     /**
-     * In a GeometryCollection, the centroid is equal to the centroid of the set of component Geometries of highest dimension
+     * In a GeometryCollection, the centroid is equal to the centroid of
+     * the set of component Geometries of highest dimension.
      * (since the lower-dimension geometries contribute zero "weight" to the centroid).
      *
      * @return Point
-     *
      * @throws \Exception
      */
     public function centroid()
@@ -60,8 +63,10 @@ class GeometryCollection extends MultiGeometry
         }
 
         if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            // @codeCoverageIgnoreEnd
         }
 
         $geometries = $this->explodeGeometries();

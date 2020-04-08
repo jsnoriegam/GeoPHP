@@ -26,6 +26,7 @@ class GeoHash implements GeoAdapter
      * array of neighbouring hash character maps.
      */
     private static $neighbours = [
+        // north
         'top' => [
             'even' => 'p0r21436x8zb9dcf5h7kjnmqesgutwvy',
             'odd' => 'bc01fg45238967deuvhjyznpkmstqrwx'
@@ -51,6 +52,7 @@ class GeoHash implements GeoAdapter
      * array of bordering hash character maps.
      */
     private static $borders = [
+        // north
         'top' => [
             'even' => 'prxz',
             'odd' => 'bcfguvyz'
@@ -76,24 +78,29 @@ class GeoHash implements GeoAdapter
      * Convert the geoHash to a Point. The point is 2-dimensional.
      *
      * @param string $hash a GeoHash
-     * @param boolean $as_grid Return the center point of hash grid or the grid cell as Polygon
+     * @param boolean $asGrid Return the center point of hash grid or the grid cell as Polygon
+     *
      * @return Point|Polygon the converted GeoHash
      */
-    public function read($hash, $as_grid = false)
+    public function read($hash, $asGrid = false)
     {
         $decodedHash = $this->decode($hash);
-        if (!$as_grid) {
+        if (!$asGrid) {
             return new Point($decodedHash['centerLongitude'], $decodedHash['centerLatitude']);
         } else {
-            return new Polygon([
-                new LineString([
-                    new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
-                    new Point($decodedHash['maxLongitude'], $decodedHash['maxLatitude']),
-                    new Point($decodedHash['maxLongitude'], $decodedHash['minLatitude']),
-                    new Point($decodedHash['minLongitude'], $decodedHash['minLatitude']),
-                    new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
-                ])
-            ]);
+            return new Polygon(
+                [
+                    new LineString(
+                        [
+                            new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
+                            new Point($decodedHash['maxLongitude'], $decodedHash['maxLatitude']),
+                            new Point($decodedHash['maxLongitude'], $decodedHash['minLatitude']),
+                            new Point($decodedHash['minLongitude'], $decodedHash['minLatitude']),
+                            new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
+                        ]
+                    )
+                ]
+            );
         }
     }
 

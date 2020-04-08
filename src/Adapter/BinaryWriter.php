@@ -87,12 +87,12 @@ class BinaryWriter
     }
 
     /**
-     * Writes a positive intege as an unsigned base-128 varint
+     * Writes a positive integer as an unsigned base-128 varint
      *
      * Ported from https://github.com/cschwarz/wkx/blob/master/lib/binaryreader.js
      *
      * @param int $value
-     * @return int
+     * @return string The integer as a binary string
      */
     public function writeUVarInt($value)
     {
@@ -115,8 +115,8 @@ class BinaryWriter
 
     /**
      * Writes an integer as a signed base-128 varint
-     * @param $value
-     * @return int
+     * @param int $value
+     * @return string The integer as a binary string
      */
     public function writeSVarInt($value)
     {

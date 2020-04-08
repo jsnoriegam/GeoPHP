@@ -1,21 +1,37 @@
 <?php
 namespace geoPHP\Geometry;
 
+use geoPHP\Exception\InvalidGeometryException;
+
 /**
  * Class Curve
  * TODO write this
  *
  * @package geoPHP\Geometry
+ * @method Point[] getComponents()
+ * @property Point[] $components A curve consists of sequence of Points
  */
 abstract class Curve extends Collection
 {
 
     /**
-     * @var Point[] A curve consists of sequence of Points
+     * @var Point
      */
-    protected $components = [];
-    protected $startPoint = null;
-    protected $endPoint = null;
+    protected $startPoint;
+
+    /**
+     * @var Point
+     */
+    protected $endPoint;
+
+    public function __construct($components = [], $allowEmptyComponents = false, $allowedComponentType = Point::class)
+    {
+        parent::__construct($components, $allowEmptyComponents, $allowedComponentType);
+
+        if (count($this->components) === 1) {
+            throw new InvalidGeometryException("Cannot construct a " . static::class . " with a single point");
+        }
+    }
 
     public function geometryType()
     {
@@ -60,15 +76,13 @@ abstract class Curve extends Collection
      */
     public function boundary()
     {
-        if ($this->isEmpty()) {
-            return new LineString();
-        } else {
-            if ($this->isClosed()) {
-                return new MultiPoint();
-            } else {
-                return new MultiPoint([$this->startPoint(), $this->endPoint()]);
-            }
-        }
+        return $this->isEmpty() ?
+            new LineString() :
+              ($this->isClosed() ?
+                new MultiPoint() :
+                new MultiPoint([$this->startPoint(), $this->endPoint()]
+              )
+            );
     }
 
     // Not valid for this geometry type

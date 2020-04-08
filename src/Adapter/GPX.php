@@ -99,7 +99,9 @@ class GPX implements GeoAdapter
     {
         /** @var Geometry[] $geometries */
         $geometries = array_merge(
-            $this->parseWaypoints($xmlObject), $this->parseTracks($xmlObject), $this->parseRoutes($xmlObject)
+            $this->parseWaypoints($xmlObject),
+            $this->parseTracks($xmlObject),
+            $this->parseRoutes($xmlObject)
         );
 
         if (isset($this->trackFromRoute)) {
@@ -112,7 +114,8 @@ class GPX implements GeoAdapter
         $geometry = geoPHP::buildGeometry($geometries);
         if (in_array('metadata', $this->gpxTypes->get('gpxType')) && $xmlObject->getElementsByTagName('metadata')->length === 1) {
             $metadata = self::parseNodeProperties(
-                    $xmlObject->getElementsByTagName('metadata')->item(0), $this->gpxTypes->get('metadataType')
+                $xmlObject->getElementsByTagName('metadata')->item(0),
+                $this->gpxTypes->get('metadataType')
             );
             if ($geometry->getData() !== null && $metadata !== null) {
                 $geometry = new GeometryCollection([$geometry]);
@@ -169,8 +172,8 @@ class GPX implements GeoAdapter
             return [];
         }
         $points = [];
-        $wpt_elements = $xmlObject->getElementsByTagName('wpt');
-        foreach ($wpt_elements as $wpt) {
+        $wptElements = $xmlObject->getElementsByTagName('wpt');
+        foreach ($wptElements as $wpt) {
             $point = $this->parsePoint($wpt);
             $point->setData('gpxType', 'waypoint');
             $points[] = $point;
@@ -187,30 +190,33 @@ class GPX implements GeoAdapter
         if (!in_array('trk', $this->gpxTypes->get('gpxType'))) {
             return [];
         }
-        $collection = [];
-        $trk_elements = $xmlObject->getElementsByTagName('trk');
-        foreach ($trk_elements as $trk) {
-            $lines = [];
+        $tracks = [];
+        $trkElements = $xmlObject->getElementsByTagName('trk');
+        foreach ($trkElements as $trk) {
+            $segments = [];
             /** @noinspection SpellCheckingInspection */
-            foreach ($this->childElements($trk, 'trkseg') as $trackSegment) {
+            foreach ($this->childElements($trk, 'trkseg') as $trkseg) {
                 $points = [];
                 /** @noinspection SpellCheckingInspection */
-                foreach ($this->childElements($trackSegment, 'trkpt') as $trkpt) {
-                    /** @noinspection SpellCheckingInspection */
+                foreach ($this->childElements($trkseg, 'trkpt') as $trkpt) {
                     $points[] = $this->parsePoint($trkpt);
                 }
+                // Avoids creating invalid LineString
                 if (count($points)>1) {
-                    $lines[] = new LineString($points);
+                    $segments[] = new LineString($points);
                 }
             }
-            if (!empty($lines)) {
-                $multiLine = new MultiLineString($lines);
-                $multiLine->setData($this->parseNodeProperties($trk, $this->gpxTypes->get('trkType')));
-                $multiLine->setData('gpxType', 'track');
-                $collection[] = $multiLine;
+            if (!empty($segments)) {
+                $track = count($segments) === 1 ?
+                   $segments[0] :
+                   new MultiLineString($segments);
+                $track->setData($this->parseNodeProperties($trk, $this->gpxTypes->get('trkType')));
+                $track->setData('gpxType', 'track');
+                $tracks[] = $track;
             }
         }
-        return $collection;
+
+        return $tracks;
     }
 
     /**
@@ -223,8 +229,8 @@ class GPX implements GeoAdapter
             return [];
         }
         $lines = [];
-        $rte_elements = $xmlObject->getElementsByTagName('rte');
-        foreach ($rte_elements as $rte) {
+        $rteElements = $xmlObject->getElementsByTagName('rte');
+        foreach ($rteElements as $rte) {
             $points = [];
             /** @noinspection SpellCheckingInspection */
             foreach ($this->childElements($rte, 'rtept') as $routePoint) {
@@ -264,9 +270,9 @@ class GPX implements GeoAdapter
                         $result[$childNode->nodeName] = self::parseNodeProperties($childNode);
                     }
                 }
-            } else if ($childNode->nodeType === 1 && in_array($childNode->nodeName, $tagList ?: [])) {
+            } elseif ($childNode->nodeType === 1 && in_array($childNode->nodeName, $tagList ?: [])) {
                 $result[$childNode->nodeName] = self::parseNodeProperties($childNode);
-            } else if ($childNode->nodeType === 3) {
+            } elseif ($childNode->nodeType === 3) {
                 $result = $childNode->nodeValue;
             }
         }
@@ -419,7 +425,8 @@ class GPX implements GeoAdapter
     public function collectionToGPX($geometry)
     {
         $metadata = self::processGeometryData($geometry, $this->gpxTypes->get('metadataType'));
-        $metadata = empty($metadata) || !in_array('metadataType', $this->gpxTypes->get('gpxType')) ? '' : "<metadata>\n{$metadata}</metadata>\n\n";
+        $metadata = empty($metadata) || !in_array('metadataType', $this->gpxTypes->get('gpxType'))
+            ? '' : "<metadata>\n{$metadata}</metadata>\n\n";
         $wayPoints = $routes = $tracks = "";
 
         foreach ($geometry->getComponents() as $component) {

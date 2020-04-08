@@ -11,10 +11,13 @@ use geoPHP\Exception\InvalidGeometryException;
 class Point extends Geometry
 {
 
-    protected $_x = null;
-    protected $_y = null;
-    protected $_z = null;
-    protected $_m = null;
+    protected $x = null;
+
+    protected $y = null;
+
+    protected $z = null;
+
+    protected $m = null;
 
     /**
      * Constructor
@@ -35,8 +38,8 @@ class Point extends Geometry
             }
 
             // Convert to float in case they are passed in as a string or integer etc.
-            $this->_x = floatval($x);
-            $this->_y = floatval($y);
+            $this->x = floatval($x);
+            $this->y = floatval($y);
         }
 
         // Check to see if this point has Z (height) value
@@ -45,7 +48,7 @@ class Point extends Geometry
                 throw new InvalidGeometryException("Cannot construct Point. z should be numeric");
             }
             $this->hasZ = true;
-            $this->_z = $this->_x !== null ? floatval($z) : null;
+            $this->z = $this->x !== null ? floatval($z) : null;
         }
 
         // Check to see if this is a measure
@@ -54,12 +57,18 @@ class Point extends Geometry
                 throw new InvalidGeometryException("Cannot construct Point. m should be numeric");
             }
             $this->isMeasured = true;
-            $this->_m = $this->_x !== null ? floatval($m) : null;
+            $this->m = $this->x !== null ? floatval($m) : null;
         }
     }
 
+    /**
+     * @param array $coordinates
+     * @return Point
+     * @throws \Exception
+     */
     public static function fromArray($coordinates)
     {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return (new \ReflectionClass(get_called_class()))->newInstanceArgs($coordinates);
     }
 
@@ -80,7 +89,7 @@ class Point extends Geometry
      */
     public function x()
     {
-        return $this->_x;
+        return $this->x;
     }
 
     /**
@@ -90,7 +99,7 @@ class Point extends Geometry
      */
     public function y()
     {
-        return $this->_y;
+        return $this->y;
     }
 
     /**
@@ -100,7 +109,7 @@ class Point extends Geometry
      */
     public function z()
     {
-        return $this->_z;
+        return $this->z;
     }
 
     /**
@@ -110,7 +119,7 @@ class Point extends Geometry
      */
     public function m()
     {
-        return $this->_m;
+        return $this->m;
     }
 
     /**
@@ -121,9 +130,9 @@ class Point extends Geometry
      * */
     public function invertXY()
     {
-        $x = $this->_x;
-        $this->_x = $this->_y;
-        $this->_y = $x;
+        $x = $this->x;
+        $this->x = $this->y;
+        $this->y = $x;
         $this->setGeos(null);
         return $this;
     }
@@ -144,26 +153,29 @@ class Point extends Geometry
         ];
     }
 
-    public function asArray()
+    /**
+     * @return array
+     */
+    public function asArray(): array
     {
         if ($this->isEmpty()) {
             return [NAN, NAN];
         }
         if (!$this->hasZ && !$this->isMeasured) {
-            return [$this->_x, $this->_y];
+            return [$this->x, $this->y];
         }
         if ($this->hasZ && $this->isMeasured) {
-            return [$this->_x, $this->_y, $this->_z, $this->_m];
+            return [$this->x, $this->y, $this->z, $this->m];
         }
         if ($this->hasZ) {
-            return [$this->_x, $this->_y, $this->_z];
+            return [$this->x, $this->y, $this->z];
         }
         // if ($this->isMeasured)
-        return [$this->_x, $this->_y, null, $this->_m];
+        return [$this->x, $this->y, null, $this->m];
     }
 
     /**
-     * The boundary of a MultiPoint is the empty set.
+     * The boundary of a Point is the empty set.
      * @return GeometryCollection
      */
     public function boundary()
@@ -171,21 +183,38 @@ class Point extends Geometry
         return new GeometryCollection();
     }
 
+    /**
+     * @return bool
+     */
     public function isEmpty()
     {
-        return $this->_x === null;
+        return $this->x === null;
     }
 
+    /**
+     * @return int Returns always 1
+     */
     public function numPoints()
     {
         return 1;
     }
 
+    /**
+     * @return Point[]
+     */
     public function getPoints()
     {
         return [$this];
     }
 
+    /**
+     * @return Point[]
+     */
+    public function getComponents(): array
+    {
+        return [$this];
+    }
+    
     /**
      * Determines weather the specified geometry is spatially equal to this Point
      *
@@ -199,11 +228,9 @@ class Point extends Geometry
      */
     public function equals($geometry)
     {
-        if ($geometry->geometryType() === Geometry::POINT) {
-            return (abs($this->x() - $geometry->x()) <= 1.0E-9 && abs($this->y() - $geometry->y()) <= 1.0E-9);
-        } else {
-            return false;
-        }
+        return $geometry->geometryType() === Geometry::POINT
+            ? (abs($this->x() - $geometry->x()) <= 1.0E-9 && abs($this->y() - $geometry->y()) <= 1.0E-9)
+            : false;
     }
 
     public function isSimple()
@@ -213,8 +240,8 @@ class Point extends Geometry
 
     public function flatten()
     {
-        $this->_z = null;
-        $this->_m = null;
+        $this->z = null;
+        $this->m = null;
         $this->hasZ = false;
         $this->isMeasured = false;
         $this->setGeos(null);
@@ -230,27 +257,33 @@ class Point extends Geometry
             return null;
         }
         if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             return $this->getGeos()->distance($geometry->getGeos());
+            // @codeCoverageIgnoreEnd
         }
         if ($geometry->geometryType() == Geometry::POINT) {
-            return sqrt(pow(($this->x() - $geometry->x()), 2) + pow(($this->y() - $geometry->y()), 2));
+            return sqrt(
+               pow(($this->x() - $geometry->x()), 2) +
+               pow(($this->y() - $geometry->y()), 2)
+            );
         }
-        if ($geometry->geometryType() == Geometry::MULTI_POINT || $geometry->geometryType() == Geometry::GEOMETRY_COLLECTION) {
+        if ($geometry->geometryType() == Geometry::MULTI_POINT ||
+            $geometry->geometryType() == Geometry::GEOMETRY_COLLECTION) {
             $distance = NULL;
             foreach ($geometry->getComponents() as $component) {
-                $check_distance = $this->distance($component);
-                if ($check_distance === 0) {
+                $checkDistance = $this->distance($component);
+                if ($checkDistance === 0) {
                     return 0.0;
                 }
-                if ($check_distance === NULL) {
+                if ($checkDistance === NULL) {
                     continue;
                 }
                 if ($distance === NULL) {
-                    $distance = $check_distance;
+                    $distance = $checkDistance;
                 }
-                if ($check_distance < $distance) {
-                    $distance = $check_distance;
+                if ($checkDistance < $distance) {
+                    $distance = $checkDistance;
                 }
             }
             return $distance;
@@ -270,8 +303,8 @@ class Point extends Geometry
                 $py = $y2 - $y1;
                 $d = ($px * $px) + ($py * $py);
                 if ($d == 0) {
-                    // Line-segment's endpoints are identical. This is merely a point masquerading as a line-sigment.
-                    $check_distance = $this->distance($seg[1]);
+                    // Line-segment's endpoints are identical. This is merely a point masquerading as a line-segment.
+                    $checkDistance = $this->distance($seg[1]);
                 } else {
                     $x3 = $this->x();
                     $y3 = $this->y();
@@ -286,13 +319,13 @@ class Point extends Geometry
                     $y = $y1 + ($u * $py);
                     $dx = $x - $x3;
                     $dy = $y - $y3;
-                    $check_distance = sqrt(($dx * $dx) + ($dy * $dy));
+                    $checkDistance = sqrt(($dx * $dx) + ($dy * $dy));
                 }
                 if ($distance === NULL) {
-                    $distance = $check_distance;
+                    $distance = $checkDistance;
                 }
-                if ($check_distance < $distance) {
-                    $distance = $check_distance;
+                if ($checkDistance < $distance) {
+                    $distance = $checkDistance;
                 }
                 if ($distance === 0.0) {
                     return 0.0;
@@ -321,6 +354,7 @@ class Point extends Geometry
     {
         return $this->isMeasured ? $this->m() : null;
     }
+
     /* The following methods are not valid for this geometry type */
 
     public function area()
@@ -353,12 +387,12 @@ class Point extends Geometry
         return null;
     }
 
-    public function elevationGain($vertical_tolerance)
+    public function elevationGain($verticalTolerance = 0)
     {
         return null;
     }
 
-    public function elevationLoss($vertical_tolerance)
+    public function elevationLoss($verticalTolerance = 0)
     {
         return null;
     }

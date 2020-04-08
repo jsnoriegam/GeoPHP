@@ -15,6 +15,11 @@ namespace geoPHP\Geometry;
 abstract class Surface extends Collection
 {
 
+    public function __construct($components = [], $allowEmptyComponents = true, $allowedComponentType = Curve::class)
+    {
+        parent::__construct($components, $allowEmptyComponents, $allowedComponentType);
+    }
+
     public function geometryType()
     {
         return Geometry::SURFACE;
@@ -90,12 +95,12 @@ abstract class Surface extends Collection
         return null;
     }
 
-    public function elevationGain($tolerance)
+    public function elevationGain($verticalTolerance = 0)
     {
         return null;
     }
 
-    public function elevationLoss($tolerance)
+    public function elevationLoss($verticalTolerance = 0)
     {
         return null;
     }
