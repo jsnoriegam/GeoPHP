@@ -47,7 +47,7 @@ class GeoJSON implements GeoAdapter
      * @param object $input stdClass
      * @return Geometry
      */
-    private function parseJSONObjects(object $input): Geometry
+    private function parseJSONObjects(\stdClass $input): Geometry
     {
         // FeatureCollection
         if ($input->type === 'FeatureCollection') {
