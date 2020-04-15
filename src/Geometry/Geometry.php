@@ -57,7 +57,7 @@ abstract class Geometry
     protected $isMeasured = false;
 
     /** @var int|null $srid Spatial Reference System Identifier (http://en.wikipedia.org/wiki/SRID) */
-    protected $srid = null;
+    protected $srid;
 
     /**
      * @var mixed|null Custom (meta)data
@@ -262,12 +262,7 @@ abstract class Geometry
     {
         return $this->isMeasured;
     }
-
-    public function SRID()
-    {
-        return $this->srid;
-    }
-
+    
     /**
      * @param int $srid Spatial Reference System Identifier
      */
@@ -315,17 +310,22 @@ abstract class Geometry
     /**
      * Tells whether the geometry has data with the specified name
      * @param string $property The name of the property
-     * @return bool True if the geometry has data with the specified name
+     * @return bool True if the geometry has data with the specified name, otherwise false.
      */
-    public function hasDataProperty($property)
+    public function hasDataProperty($property): bool
     {
         return array_key_exists($property, $this->data ?: []);
     }
 
+    /**
+     * returns the envelope of a geometry or the geometry itself if is a point
+     * 
+     * @return \geoPHP\Geometry\Polygon|\geoPHP\Geometry\type|$this
+     */
     public function envelope()
     {
         if ($this->isEmpty()) {
-            $type = geoPHP::CLASS_NAMESPACE . 'Geometry\\' . $this->geometryType();
+            $type = '\\geoPHP\\Geometry\\' . $this->geometryType();
             return new $type();
         }
         if ($this->geometryType() === Geometry::POINT) {
@@ -350,23 +350,26 @@ abstract class Geometry
         return new Polygon([new LineString($points)]);
     }
 
-    // Public: Non-Standard -- Common to all geometries
-    // ------------------------------------------------
-    // $this->out($format, $other_args);
+    /**
+     * Public: Non-Standard -- Common to all geometries
+     * $this->out($format, $other_args);
+     */
     public function out()
     {
         $args = func_get_args();
         $format = strtolower(array_shift($args));
-        if (strstr($format, 'xdr')) {   //Big Endian WKB
+        
+        // Big Endian WKB
+        if (strstr($format, 'xdr')) {
             $args[] = true;
             $format = str_replace('xdr', '', $format);
         }
 
-        $processorType = geoPHP::CLASS_NAMESPACE . 'Adapter\\' . geoPHP::getAdapterMap()[$format];
-        $processor = new $processorType();
+        $processorType = '\\geoPHP\\Adapter\\' . geoPHP::getAdapterMap()[$format];
+        $processor = new $processorType;
         array_unshift($args, $this);
         $result = call_user_func_array([$processor, 'write'], $args);
-
+        
         return $result;
     }
 
@@ -473,7 +476,7 @@ abstract class Geometry
 
     public function getSRID()
     {
-        return $this->SRID();
+        return $this->srid;
     }
 
     public function asText()

@@ -85,7 +85,7 @@ function test_geometry($geometry) {
   $geometry->interiorRingN(1);
   $geometry->coordinateDimension();
   $geometry->geometryType();
-  $geometry->SRID();
+  $geometry->getSRID();
   $geometry->setSRID(4326);
   $geometry->hasZ();
   $geometry->isMeasured();
