@@ -264,8 +264,8 @@ class WKB implements GeoAdapter
      * Serialize geometries into WKB string.
      *
      * @param Geometry $geometry The geometry
-     * @param boolean $writeAsHex Write the result in binary or hexadecimal system
-     * @param boolean $bigEndian Write in BigEndian or LittleEndian byte order
+     * @param boolean $writeAsHex Write the result in binary or hexadecimal system. Default false.
+     * @param boolean $bigEndian Write in BigEndian byte order. Default false.
      *
      * @return string The WKB string representation of the input geometries
      */

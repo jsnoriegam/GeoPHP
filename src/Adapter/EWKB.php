@@ -9,6 +9,15 @@ use geoPHP\Geometry\Geometry;
 class EWKB extends WKB
 {
 
+    /**
+     * Serialize geometries into WKB string.
+     *
+     * @param Geometry $geometry The geometry
+     * @param boolean $writeAsHex Write the result in binary or hexadecimal system. Default false.
+     * @param boolean $bigEndian Write in BigEndian byte order. Default false.
+     *
+     * @return string The WKB string representation of the input geometries
+     */
     public function write(Geometry $geometry, bool $writeAsHex = false, bool $bigEndian = false): string
     {
         $this->SRID = $geometry->getSRID();
@@ -16,7 +25,12 @@ class EWKB extends WKB
         return parent::write($geometry, $writeAsHex, $bigEndian);
     }
 
-    protected function writeType($type, $writeSRID = false): string
+    /**
+     * @param Geometry $type
+     * @param bool $writeSRID default false
+     * @return string
+     */
+    protected function writeType(Geometry $type, bool $writeSRID = false): string
     {
         return parent::writeType($type, true);
     }
