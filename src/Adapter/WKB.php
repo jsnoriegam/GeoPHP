@@ -71,12 +71,10 @@ class WKB implements GeoAdapter
      *
      * @param string $wkb Well-known-binary string
      * @param bool $isHexString If this is a hexadecimal string that is in need of packing
-     *
      * @return Geometry
-     *
      * @throws \Exception
      */
-    public function read($wkb, $isHexString = FALSE)
+    public function read($wkb, $isHexString = false): Geometry
     {
         if ($isHexString) {
             $wkb = pack('H*', $wkb);
@@ -87,9 +85,7 @@ class WKB implements GeoAdapter
         }
 
         $this->reader = new BinaryReader($wkb);
-
         $geometry = $this->getGeometry();
-
         $this->reader->close();
 
         return $geometry;
@@ -99,7 +95,7 @@ class WKB implements GeoAdapter
      * @return Geometry
      * @throws \Exception
      */
-    protected function getGeometry()
+    protected function getGeometry(): Geometry
     {
         $this->hasZ = false;
         $this->hasM = false;
@@ -173,29 +169,29 @@ class WKB implements GeoAdapter
         return $geometry;
     }
 
-    protected function getPoint()
+    /**
+     * @return Point
+     */
+    protected function getPoint(): Point
     {
         $coordinates = $this->reader->readDoubles($this->dimension * 8);
-        $point = null;
+        
         switch (count($coordinates)) {
             case 2:
-                $point = new Point($coordinates[0], $coordinates[1]);
-                break;
+                return new Point($coordinates[0], $coordinates[1]);
             case 3:
-                if ($this->hasZ) {
-                    $point = new Point($coordinates[0], $coordinates[1], $coordinates[2]);
-                } else {
-                    $point = new Point($coordinates[0], $coordinates[1], null, $coordinates[2]);
-                }
-                break;
+                return $this->hasZ ?
+                    new Point($coordinates[0], $coordinates[1], $coordinates[2]) :
+                    new Point($coordinates[0], $coordinates[1], null, $coordinates[2]);
             case 4:
-                $point = new Point($coordinates[0], $coordinates[1], $coordinates[2], $coordinates[3]);
-                break;
+                return new Point($coordinates[0], $coordinates[1], $coordinates[2], $coordinates[3]);
         }
-        return $point;
     }
 
-    protected function getLineString()
+    /**
+     * @return LineString
+     */
+    protected function getLineString(): LineString
     {
         // Get the number of points expected in this string out of the first 4 bytes
         $lineLength = $this->reader->readUInt32();
@@ -215,7 +211,10 @@ class WKB implements GeoAdapter
         return new LineString($components);
     }
 
-    protected function getPolygon()
+    /**
+     * @return Polygon
+     */
+    protected function getPolygon(): Polygon
     {
         // Get the number of linestring expected in this poly out of the first 4 bytes
         $polyLength = $this->reader->readUInt32();
@@ -233,7 +232,11 @@ class WKB implements GeoAdapter
         return new Polygon($components);
     }
 
-    protected function getMulti($type)
+    /**
+     * @param string $type
+     * @return MultiLineString|MultiPolygon|GeometryCollection|MultiPoint
+     */
+    protected function getMulti(string $type)
     {
         // Get the number of items expected in this multi out of the first 4 bytes
         $multiLength = $this->reader->readUInt32();
@@ -266,11 +269,9 @@ class WKB implements GeoAdapter
      *
      * @return string The WKB string representation of the input geometries
      */
-    public function write(Geometry $geometry, $writeAsHex = false, $bigEndian = false)
+    public function write(Geometry $geometry, $writeAsHex = false, $bigEndian = false): string
     {
-
         $this->writer = new BinaryWriter($bigEndian ? BinaryWriter::BIG_ENDIAN : BinaryWriter::LITTLE_ENDIAN);
-
         $wkb = $this->writeGeometry($geometry);
 
         return $writeAsHex ? current(unpack('H*', $wkb)) : $wkb;
@@ -280,7 +281,7 @@ class WKB implements GeoAdapter
      * @param Geometry $geometry
      * @return string
      */
-    protected function writeGeometry($geometry)
+    protected function writeGeometry(Geometry $geometry): string
     {
         $this->hasZ = $geometry->hasZ();
         $this->hasM = $geometry->isMeasured();
@@ -324,7 +325,7 @@ class WKB implements GeoAdapter
      * @param Point $point
      * @return string
      */
-    protected function writePoint($point)
+    protected function writePoint(Point $point): string
     {
         if ($point->isEmpty()) {
             return $this->writer->writeDouble(NAN) . $this->writer->writeDouble(NAN);
@@ -344,7 +345,7 @@ class WKB implements GeoAdapter
      * @param LineString $line
      * @return string
      */
-    protected function writeLineString($line)
+    protected function writeLineString(LineString $line): string
     {
         // Set the number of points in this line
         $wkb = $this->writer->writeUInt32($line->numPoints());
@@ -361,7 +362,7 @@ class WKB implements GeoAdapter
      * @param Polygon $poly
      * @return string
      */
-    protected function writePolygon($poly)
+    protected function writePolygon(Polygon $poly): string
     {
         // Set the number of lines in this poly
         $wkb = $this->writer->writeUInt32($poly->numGeometries());
@@ -378,7 +379,7 @@ class WKB implements GeoAdapter
      * @param MultiPoint|MultiPolygon|MultiLineString|GeometryCollection $geometry
      * @return string
      */
-    protected function writeMulti($geometry)
+    protected function writeMulti(Geometry $geometry): string
     {
         // Set the number of components
         $wkb = $this->writer->writeUInt32($geometry->numGeometries());
@@ -396,7 +397,7 @@ class WKB implements GeoAdapter
      * @param bool $writeSRID
      * @return string
      */
-    protected function writeType($geometry, $writeSRID = false)
+    protected function writeType(Geometry $geometry, $writeSRID = false): string
     {
         $type = self::$typeMap[$geometry->geometryType()];
         // Binary OR to mix in additional properties
