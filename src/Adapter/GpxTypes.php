@@ -2,7 +2,6 @@
 namespace geoPHP\Adapter;
 
 /**
- * Class GpxTypes
  * Defines the available GPX types and their allowed elements following the GPX specification
  *
  * @see http://www.topografix.com/gpx/1/1/
@@ -11,54 +10,52 @@ namespace geoPHP\Adapter;
 class GpxTypes
 {
 
-    // TODO: convert these static properties to constants once HHVM fixes this bug: https://github.com/facebook/hhvm/issues/4277
     /**
-     * @var array Allowed elements in <gpx>
+     * @var array allowed elements in <gpx>
      * @see http://www.topografix.com/gpx/1/1/#type_gpxType
      */
-    public static $gpxTypeElements = [
+    const GPX_TYPE_ELEMENTS = [
         'metadata', 'wpt', 'rte', 'trk'
     ];
 
     /**
-     * @var array Allowed elements in <trk>
+     * @var array allowed elements in <trk>
      * @see http://www.topografix.com/gpx/1/1/#type_trkType
      */
-    public static $trkTypeElements = [
+    const TRK_TYPE_ELEMENTS = [
         'name', 'cmt', 'desc', 'src', 'link', 'number', 'type'
     ];
 
     /**
-     * same as trkTypeElements
+     * same as TRK_TYPE_ELEMENTS
      * @var array Allowed elements in <rte>
      * @see http://www.topografix.com/gpx/1/1/#type_rteType
      */
-    public static $rteTypeElements = [
+    const RTE_TYPE_ELEMENTS = [
         'name', 'cmt', 'desc', 'src', 'link', 'number', 'type'
     ];
+    
     /**
-     * @var array Allowed elements in <wpt>
+     * @var array allowed elements in <wpt>
      * @see http://www.topografix.com/gpx/1/1/#type_wptType
      */
-    public static $wptTypeElements = [
+    const WPT_TYPE_ELEMENTS = [
         'ele', 'time', 'magvar', 'geoidheight', 'name', 'cmt', 'desc', 'src', 'link', 'sym', 'type',
         'fix', 'sat', 'hdop', 'vdop', 'pdop', 'ageofdgpsdata', 'dgpsid'
     ];
 
     /**
-     * same as wptTypeElements
-     * @var array Same as wptType
+     * @var array same as WPT_TYPE_ELEMENTS
      */
-    public static $trkptTypeElements = [
+    const TRKPT_TYPE_ELEMENTS = [
         'ele', 'time', 'magvar', 'geoidheight', 'name', 'cmt', 'desc', 'src', 'link', 'sym', 'type',
         'fix', 'sat', 'hdop', 'vdop', 'pdop', 'ageofdgpsdata', 'dgpsid'
     ];
 
     /**
-     * same as wptTypeElements
-     * @var array Same as wptType
+     * @var array Same as WPT_TYPE_ELEMENTS
      */
-    public static $rteptTypeElements = [
+    const RTEPT_TYPE_ELEMENTS = [
         'ele', 'time', 'magvar', 'geoidheight', 'name', 'cmt', 'desc', 'src', 'link', 'sym', 'type',
         'fix', 'sat', 'hdop', 'vdop', 'pdop', 'ageofdgpsdata', 'dgpsid'
     ];
@@ -67,9 +64,10 @@ class GpxTypes
      * @var array Allowed elements in <metadata>
      * @see http://www.topografix.com/gpx/1/1/#type_metadataType
      */
-    public static $metadataTypeElements = [
+    const METADATA_TYPE_ELEMENTS = [
         'name', 'desc', 'author', 'copyright', 'link', 'time', 'keywords', 'bounds'
     ];
+    
     protected $allowedGpxTypeElements;
     protected $allowedTrkTypeElements;
     protected $allowedRteTypeElements;
@@ -88,18 +86,20 @@ class GpxTypes
      */
     public function __construct(array $allowedElements = [])
     {
-        $this->allowedGpxTypeElements = self::$gpxTypeElements;
-        $this->allowedTrkTypeElements = self::$trkTypeElements;
-        $this->allowedRteTypeElements = self::$rteTypeElements;
-        $this->allowedWptTypeElements = self::$wptTypeElements;
-        $this->allowedTrkptTypeElements = self::$trkTypeElements;
-        $this->allowedRteptTypeElements = self::$rteptTypeElements;
-        $this->allowedMetadataTypeElements = self::$metadataTypeElements;
+        $this->allowedGpxTypeElements = self::GPX_TYPE_ELEMENTS;
+        $this->allowedTrkTypeElements = self::TRK_TYPE_ELEMENTS;
+        $this->allowedRteTypeElements = self::RTE_TYPE_ELEMENTS;
+        $this->allowedWptTypeElements = self::WPT_TYPE_ELEMENTS;
+        $this->allowedTrkptTypeElements = self::TRKPT_TYPE_ELEMENTS;
+        $this->allowedRteptTypeElements = self::RTEPT_TYPE_ELEMENTS;
+        $this->allowedMetadataTypeElements = self::METADATA_TYPE_ELEMENTS;
 
         foreach ($allowedElements as $type => $elements) {
             $elements = is_array($elements) ? $elements : [$elements];
             $this->{'allowed' . ucfirst($type) . 'Elements'} = [];
-            foreach ($this::${$type . 'Elements'} as $availableType) {
+            
+            $constName = $type . '_TYPE_ELEMENTS';
+            foreach (self::$constName as $availableType) {
                 if (in_array($availableType, $elements)) {
                     $this->{'allowed' . ucfirst($type) . 'Elements'}[] = $availableType;
                 }
@@ -112,14 +112,12 @@ class GpxTypes
      * eg. "gpxType" returns ['metadata', 'wpt', 'rte', 'trk']
      *
      * @param string $type One of the following GPX types: gpxType, trkType, rteType, wptType, trkptType, rteptType, metadataType
-     * @return string[]
+     * @return array
      */
-    public function get($type)
+    public function get($type): array
     {
         $propertyName = 'allowed' . ucfirst($type) . 'Elements';
-        if (isset($this->{$propertyName})) {
-            return $this->{$propertyName};
-        }
-        return [];
+
+        return isset($this->{$propertyName}) ? $this->{$propertyName} : [];
     }
 }
