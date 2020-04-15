@@ -74,7 +74,7 @@ class WKB implements GeoAdapter
      * @return Geometry
      * @throws \Exception
      */
-    public function read($wkb, $isHexString = false): Geometry
+    public function read(string $wkb, bool $isHexString = false): Geometry
     {
         if ($isHexString) {
             $wkb = pack('H*', $wkb);

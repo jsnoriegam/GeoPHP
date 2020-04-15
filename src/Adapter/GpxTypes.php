@@ -81,12 +81,12 @@ class GpxTypes
     /**
      * GpxTypes constructor.
      *
-     * @param array|null $allowedElements Which elements can be used in each GPX type
-     *                   If not specified, every element defined in the GPX specification can be used
-     *                   Can be overwritten with an associative array, with type name in keys.
-     *                   eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
+     * @param array $allowedElements Which elements can be used in each GPX type
+     *              If not specified, every element defined in the GPX specification can be used
+     *              Can be overwritten with an associative array, with type name in keys.
+     *              eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
      */
-    public function __construct($allowedElements = null)
+    public function __construct(array $allowedElements = [])
     {
         $this->allowedGpxTypeElements = self::$gpxTypeElements;
         $this->allowedTrkTypeElements = self::$trkTypeElements;
@@ -96,14 +96,12 @@ class GpxTypes
         $this->allowedRteptTypeElements = self::$rteptTypeElements;
         $this->allowedMetadataTypeElements = self::$metadataTypeElements;
 
-        if (is_array($allowedElements)) {
-            foreach ($allowedElements as $type => $elements) {
-                $elements = is_array($elements) ? $elements : [$elements];
-                $this->{'allowed' . ucfirst($type) . 'Elements'} = [];
-                foreach ($this::${$type . 'Elements'} as $availableType) {
-                    if (in_array($availableType, $elements)) {
-                        $this->{'allowed' . ucfirst($type) . 'Elements'}[] = $availableType;
-                    }
+        foreach ($allowedElements as $type => $elements) {
+            $elements = is_array($elements) ? $elements : [$elements];
+            $this->{'allowed' . ucfirst($type) . 'Elements'} = [];
+            foreach ($this::${$type . 'Elements'} as $availableType) {
+                if (in_array($availableType, $elements)) {
+                    $this->{'allowed' . ucfirst($type) . 'Elements'}[] = $availableType;
                 }
             }
         }

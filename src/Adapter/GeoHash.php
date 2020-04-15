@@ -82,26 +82,26 @@ class GeoHash implements GeoAdapter
      *
      * @return Point|Polygon the converted GeoHash
      */
-    public function read($hash, $asGrid = false)
+    public function read(string $hash, $asGrid = false): Geometry
     {
         $decodedHash = $this->decode($hash);
         if (!$asGrid) {
             return new Point($decodedHash['centerLongitude'], $decodedHash['centerLatitude']);
-        } else {
-            return new Polygon(
-                [
-                    new LineString(
-                        [
-                            new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
-                            new Point($decodedHash['maxLongitude'], $decodedHash['maxLatitude']),
-                            new Point($decodedHash['maxLongitude'], $decodedHash['minLatitude']),
-                            new Point($decodedHash['minLongitude'], $decodedHash['minLatitude']),
-                            new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
-                        ]
-                    )
-                ]
-            );
         }
+        
+        return new Polygon(
+            [
+                new LineString(
+                    [
+                        new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
+                        new Point($decodedHash['maxLongitude'], $decodedHash['maxLatitude']),
+                        new Point($decodedHash['maxLongitude'], $decodedHash['minLatitude']),
+                        new Point($decodedHash['minLongitude'], $decodedHash['minLatitude']),
+                        new Point($decodedHash['minLongitude'], $decodedHash['maxLatitude']),
+                    ]
+                )
+            ]
+        );
     }
 
     /**

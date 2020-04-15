@@ -40,7 +40,7 @@ class GeoRSS implements GeoAdapter
      * @return Geometry|GeometryCollection
      * @throws \Exception
      */
-    public function read($georss)
+    public function read(string $georss): Geometry
     {
         return $this->geomFromText($georss);
     }

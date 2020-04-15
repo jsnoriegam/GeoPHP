@@ -46,7 +46,7 @@ class KML implements GeoAdapter
      * @return Geometry|GeometryCollection
      */
 
-    public function read($kml)
+    public function read(string $kml): Geometry
     {
         return $this->geomFromText($kml);
     }

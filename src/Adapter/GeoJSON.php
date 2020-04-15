@@ -28,7 +28,7 @@ class GeoJSON implements GeoAdapter
      * @return Geometry
      * @throws \Exception
      */
-    public function read($input)
+    public function read(string $input): Geometry
     {
         if (is_string($input)) {
             $input = json_decode($input);
@@ -209,9 +209,8 @@ class GeoJSON implements GeoAdapter
     /**
      * Serializes an object into a geojson string
      *
-     *
      * @param Geometry $geometry The object to serialize
-     * @param boolean  $returnAsArray
+     * @param boolean $returnAsArray
      *
      * @return string|array The GeoJSON string
      */
@@ -225,12 +224,12 @@ class GeoJSON implements GeoAdapter
     /**
      * Creates a geoJSON array
      *
-     * If the root geometry is a GeometryCollection, and any of its geometries has data,
-     * the root element will be a FeatureCollection with Feature elements (with the data)
-     * If the root geometry has data, it will be included in a Feature object that contains the data
+     * If the root geometry is a GeometryCollection and any of its geometries has data,
+     * the root element will be a FeatureCollection with Feature elements (with the data).
+     * If the root geometry has data, it will be included in a Feature object that contains the data.
      *
      * The geometry should have geographical coordinates since CRS support has been removed from from geoJSON specification (RFC 7946)
-     * The geometry should'nt be measured, since geoJSON specification (RFC 7946) only supports the dimensional positions
+     * The geometry should'nt be measured, since geoJSON specification (RFC 7946) only supports the dimensional positions.
      *
      * @param Geometry|GeometryCollection $geometry
      * @param bool|null $isRoot Is geometry the root geometry?

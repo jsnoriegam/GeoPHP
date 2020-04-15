@@ -45,7 +45,13 @@ class GoogleGeocode implements GeoAdapter
      * @return Geometry|GeometryCollection
      * @throws \Exception If geocoding fails
      */
-    public function read($address, $apiKey = null, $returnType = 'point', $bounds = false, $returnMultiple = false)
+    public function read(
+            string $address,
+            $apiKey = null,
+            string $returnType = 'point',
+            bool $bounds = false,
+            bool $returnMultiple = false
+        ): Geometry
     {
         if (is_array($address)) {
             $address = join(',', $address);

@@ -41,11 +41,10 @@ class OSM implements GeoAdapter
      * Read OpenStreetMap XML string into geometry objects
      *
      * @param string $osm An OSM XML string
-     *
      * @return Geometry|GeometryCollection
      * @throws \Exception
      */
-    public function read($osm)
+    public function read(string $osm): Geometry
     {
         // Load into DOMDocument
         $xmlobj = new \DOMDocument();

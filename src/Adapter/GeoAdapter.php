@@ -25,7 +25,7 @@ interface GeoAdapter
      * @param string $input
      * @return Geometry
      */
-    public function read($input);
+    public function read(string $input): Geometry;
 
     /**
      * Write out a Geometry in the adapter's format

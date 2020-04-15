@@ -46,14 +46,14 @@ class GPX implements GeoAdapter
      * Read GPX string into geometry object
      *
      * @param string $gpx A GPX string
-     * @param array|null $allowedElements Which elements can be read from each GPX type
-     *                   If not specified, every element defined in the GPX specification can be read
-     *                   Can be overwritten with an associative array, with type name in keys.
-     *                   eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
+     * @param array $allowedElements Which elements can be read from each GPX type
+     *              If not specified, every element defined in the GPX specification can be read
+     *              Can be overwritten with an associative array, with type name in keys.
+     *              eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
      * @return Geometry|GeometryCollection
      * @throws \Exception If GPX is not a valid XML
      */
-    public function read($gpx, $allowedElements = null): Geometry
+    public function read(string $gpx, array $allowedElements = []): Geometry
     {
         // Converts XML tags to lower-case (DOMDocument functions are case sensitive)
         $gpx = preg_replace_callback("/(<\/?\w+)(.*?>)/", function ($m) {
@@ -309,7 +309,7 @@ class GPX implements GeoAdapter
      *                   eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
      * @return string The GPX string representation of the input geometries
      */
-    public function write(Geometry $geometry, $namespace = null, $allowedElements = null): string
+    public function write(Geometry $geometry, $namespace = null, array $allowedElements = []): string
     {
         if ($namespace) {
             $this->nss = $namespace . ':';
