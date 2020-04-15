@@ -102,12 +102,11 @@ class geoPHP
 
     /**
      * Converts data to Geometry using geo adapters
+     * If $data is an array, all passed in values will be combined into a single geometry.
      *
-     * If $data is an array, all passed in values will be combined into a single geometry
-     *
-     * @param mixed $data The data in any supported format, including geoPHP Geometry
-     * @var null|string $type Data type. Tries to detect if omitted
-     * @var mixed|null $otherArgs Arguments will be passed to the geo adapter
+     * @param mixed $data The data in any supported format, including geoPHP Geometry.
+     * @var null|string $type Data type. Tries to detect it if omitted.
+     * @var mixed|null $otherArgs Arguments will be passed to the geo adapter.
      *
      * @return Collection|Geometry
      * @throws \Exception
@@ -130,7 +129,7 @@ class geoPHP
 
             $detected = geoPHP::detectFormat($data);
             if (!$detected) {
-                throw new \Exception("Can not detect format");
+                throw new \Exception("Unable to detect the data format.");
             }
             $format = explode(':', $detected);
             $type = array_shift($format);
@@ -140,8 +139,8 @@ class geoPHP
         if (!array_key_exists($type, self::$adapterMap)) {
             throw new \Exception('geoPHP could not find an adapter of type ' . htmlentities($type));
         }
-        $adapterType = 'geoPHP\\Adapter\\' . self::$adapterMap[$type];
-
+        
+        $adapterType = '\\geoPHP\\Adapter\\' . self::$adapterMap[$type];
         $adapter = new $adapterType();
 
         // Data is not an array, just pass it normally
@@ -264,7 +263,7 @@ class geoPHP
             if (count($reducedGeometries) === 1) {
                 return $reducedGeometries[0];
             } else {
-                $class = 'geoPHP\\Geometry\\' .
+                $class = '\\geoPHP\\Geometry\\' .
                         (strpos($geometryTypes[0], 'Multi') === false ? 'Multi' : '') .
                         $geometryTypes[0];
                 return new $class($reducedGeometries);
@@ -339,7 +338,7 @@ class geoPHP
                         return new GeometryCollection($geometries);
                     }
                 }
-                $class = 'geoPHP\\Geometry\\' . $newType;
+                $class = '\\geoPHP\\Geometry\\' . $newType;
                 return new $class($geometries);
             }
         }
@@ -349,13 +348,12 @@ class geoPHP
     /**
      * Detect a format given a value. This function is meant to be SPEEDY.
      * It could make a mistake in XML detection if you are mixing or using namespaces in weird ways
-     * (ie, KML inside an RSS feed)
+     * (i.e. KML inside an RSS feed)
      *
      * @param mixed $input
-     *
      * @return string|false
      */
-    public static function detectFormat(&$input)
+    public static function detectFormat($input)
     {
         $mem = fopen('php://memory', 'x+');
         fwrite($mem, $input, 11); // Write 11 bytes - we can detect the vast majority of formats in the first 11 bytes
@@ -370,7 +368,7 @@ class geoPHP
         }
 
         // First char is a tab, space or carriage-return. trim it and try again
-        if ($bytes[1] == 9 || $bytes[1] == 10 || $bytes[1] == 32) {
+        if (in_array($bytes[1], [9,10,32], true)) {
             $input = ltrim($input);
             return geoPHP::detectFormat($input);
         }
@@ -442,12 +440,8 @@ class geoPHP
         if (isset($matches[0]) && $matches[0] == $string && strlen($input) <= 13) {
             return 'geohash';
         }
-
         preg_match('/^[a-f0-9]+$/', $string, $matches);
-        if (isset($matches[0])) {
-            return 'twkb:true';
-        } else {
-            return 'twkb';
-        }
+        
+        return isset($matches[0]) ? 'twkb:true' : 'twkb';
     }
 }

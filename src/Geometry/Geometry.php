@@ -67,7 +67,7 @@ abstract class Geometry
     /**
      * @var \GEOSGeometry|null
      */
-    private $geos = null;
+    private $geos;
 
     /****************************************
      *  Basic methods on geometric objects  *
@@ -262,7 +262,7 @@ abstract class Geometry
     {
         return $this->isMeasured;
     }
-    
+
     /**
      * @param int $srid Spatial Reference System Identifier
      */
@@ -488,9 +488,11 @@ abstract class Geometry
     {
         return $this->out('wkb');
     }
-    // Public: GEOS Only Functions
-    // ------------------------------------------------
 
+    /****************************************
+     * Public: GEOS Only Functions  *
+     * **************************************/
+    
     /**
      * Returns the GEOS representation of Geometry if GEOS is installed
      *
@@ -515,6 +517,9 @@ abstract class Geometry
         return $this->geos;
     }
 
+    /**
+     * @param GEOSGeometry $geos
+     */
     public function setGeos($geos)
     {
         $this->geos = $geos;
