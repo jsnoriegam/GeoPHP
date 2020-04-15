@@ -17,10 +17,6 @@ use geoPHP\Geometry\GeometryCollection;
 class geoPHP
 {
 
-    static function version()
-    {
-        return '2.0-dev';
-    }
     // Earth radius constants in meters
 
     /** WGS84 semi-major axis (a), aka equatorial radius */
@@ -47,8 +43,10 @@ class geoPHP
     /** IUGG R2: Earth's authalic ("equal area") radius is the radius of a hypothetical perfect sphere
      * which has the same surface area as the reference ellipsoid. */
     const EARTH_AUTHALIC_RADIUS = 6371007.2;
-    const CLASS_NAMESPACE = 'geoPHP\\';
 
+    /**
+     * @var array
+     */
     private static $adapterMap = [
         'wkt' => 'WKT',
         'ewkt' => 'EWKT',
@@ -65,11 +63,9 @@ class geoPHP
         'osm' => 'OSM',
     ];
 
-    public static function getAdapterMap()
-    {
-        return self::$adapterMap;
-    }
-
+    /**
+     * @var array
+     */
     private static $geometryList = [
         'point' => 'Point',
         'linestring' => 'LineString',
@@ -80,7 +76,26 @@ class geoPHP
         'geometrycollection' => 'GeometryCollection',
     ];
 
-    public static function getGeometryList()
+    /**
+     * @return string
+     */
+    static function version(): string
+    {
+        return '2.0-dev';
+    }
+    
+    /**
+     * @return array returns the supported adapter-map, e.g. ['wkt' => 'WKT',...]
+     */
+    public static function getAdapterMap(): array
+    {
+        return self::$adapterMap;
+    }
+
+    /**
+     * @return array returns the mapped geometry-list, e.g. ['point' => 'Point',...]
+     */
+    public static function getGeometryList(): array
     {
         return self::$geometryList;
     }
@@ -125,7 +140,7 @@ class geoPHP
         if (!array_key_exists($type, self::$adapterMap)) {
             throw new \Exception('geoPHP could not find an adapter of type ' . htmlentities($type));
         }
-        $adapterType = self::CLASS_NAMESPACE . 'Adapter\\' . self::$adapterMap[$type];
+        $adapterType = 'geoPHP\\Adapter\\' . self::$adapterMap[$type];
 
         $adapter = new $adapterType();
 
@@ -145,9 +160,15 @@ class geoPHP
         return $result;
     }
 
-    public static function geosInstalled($force = null)
+    /**
+     * @staticvar bool $geosInstalled
+     * @param bool $force
+     * @return bool
+     */
+    public static function geosInstalled($force = null): bool
     {
         static $geosInstalled = null;
+        
         if ($force !== null) {
             $geosInstalled = $force;
         }
@@ -157,6 +178,7 @@ class geoPHP
         if ($geosInstalled !== null) {
             return $geosInstalled;
         }
+        
         $geosInstalled = class_exists('GEOSGeometry', false);
 
         return $geosInstalled;
@@ -201,10 +223,9 @@ class geoPHP
             return false;
         }
 
-        /*
-         * If it is a single geometry
-         */
+        // If it is a single geometry
         if ($geometries instanceof Geometry) {
+            var_dump($geometries->geometryType());
             // If the geometry cannot even theoretically be reduced more, then pass it back
             $singleGeometries = ['Point', 'LineString', 'Polygon'];
             if (in_array($geometries->geometryType(), $singleGeometries)) {
@@ -215,14 +236,15 @@ class geoPHP
             // If it does, then pass the member, if not, then just pass back the geometry
             if (strpos($geometries->geometryType(), 'Multi') === 0) {
                 $components = $geometries->getComponents();
-                if (count($components) == 1) {
+                if (count($components) === 1) {
                     return $components[0];
                 } else {
                     return $geometries;
                 }
             }
-        } else if (is_array($geometries) && count($geometries) == 1) {
-            // If it's an array of one, then just parse the one
+        }
+        // If it's an array of one, then just parse the one
+        else if (is_array($geometries) && count($geometries) === 1) {
             return geoPHP::geometryReduce(array_shift($geometries));
         }
 
@@ -230,24 +252,21 @@ class geoPHP
             $geometries = [$geometries];
         }
         
-        /**
-         * So now we either have an array of geometries
-         * @var Geometry[]|GeometryCollection[] $geometries
-         */
+        // So now we either have an array of geometries
+        // @var Geometry[]|GeometryCollection[] $geometries
         $reducedGeometries = [];
         $geometryTypes = [];
         self::explodeCollections($geometries, $reducedGeometries, $geometryTypes);
 
         $geometryTypes = array_unique($geometryTypes);
         
-        if (count($geometryTypes) == 1) {
-            if (count($reducedGeometries) == 1) {
+        if (count($geometryTypes) === 1) {
+            if (count($reducedGeometries) === 1) {
                 return $reducedGeometries[0];
             } else {
-                $class = self::CLASS_NAMESPACE . 
-                    'Geometry\\' .
-                    (strstr($geometryTypes[0], 'Multi') ? '' : 'Multi') .
-                    $geometryTypes[0];
+                $class = 'geoPHP\\Geometry\\' .
+                        (strpos($geometryTypes[0], 'Multi') === false ? 'Multi' : '') .
+                        $geometryTypes[0];
                 return new $class($reducedGeometries);
             }
         }
@@ -261,11 +280,12 @@ class geoPHP
     private static function explodeCollections($unreduced, &$reduced, &$types)
     {
         foreach ($unreduced as $item) {
-            if ($item->geometryType() == 'GeometryCollection' || strpos($item->geometryType(), 'Multi') === 0) {
+            $geometryType = $item->geometryType();
+            if ($geometryType === 'GeometryCollection' || strpos($geometryType, 'Multi') === 0) {
                 self::explodeCollections($item->getComponents(), $reduced, $types);
             } else {
                 $reduced[] = $item;
-                $types[] = $item->geometryType();
+                $types[] = $geometryType;
             }
         }
     }
@@ -296,10 +316,8 @@ class geoPHP
             return self::buildGeometry(array_shift($geometries));
         }
 
-        /**
-         * So now we either have an array of geometries
-         * @var Geometry[]|GeometryCollection[] $geometries
-         */
+        // So now we either have an array of geometries
+        // @var Geometry[]|GeometryCollection[] $geometries
         $geometryTypes = [];
         foreach ($geometries as $item) {
             if ($item) {
@@ -321,7 +339,7 @@ class geoPHP
                         return new GeometryCollection($geometries);
                     }
                 }
-                $class = self::CLASS_NAMESPACE . 'Geometry\\' . $newType;
+                $class = 'geoPHP\\Geometry\\' . $newType;
                 return new $class($geometries);
             }
         }
@@ -374,11 +392,8 @@ class geoPHP
         // The shortest possible WKB string (LINESTRING EMPTY) is 18 hex-chars (9 encoded bytes) long
         // This differentiates it from a geohash, which is always shorter than 13 characters.
         if ($bytes[1] == 48 && ($bytes[2] == 49 || $bytes[2] == 48) && strlen($input) > 12) {
-            if ((current(unpack($bytes[2] == 49 ? 'V' : 'N', hex2bin(substr($bin, 2, 8)))) & Adapter\WKB::SRID_MASK) == Adapter\WKB::SRID_MASK) {
-                return 'ewkb:true';
-            } else {
-                return 'wkb:true';
-            }
+            $mask = current(unpack($bytes[2] == 49 ? 'V' : 'N', hex2bin(substr($bin, 2, 8)))) & Adapter\WKB::SRID_MASK;
+            return $mask == Adapter\WKB::SRID_MASK ? 'ewkb:true' : 'wkb:true';
         }
 
         // Detect GeoJSON - first char starts with {
@@ -434,8 +449,5 @@ class geoPHP
         } else {
             return 'twkb';
         }
-
-        // What do you get when you cross an elephant with a rhino?
-        // http://youtu.be/RCBn5J83Poc
     }
 }
