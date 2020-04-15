@@ -166,6 +166,7 @@ class WKB implements GeoAdapter
         if ($geometry && $SRID) {
             $geometry->setSRID($SRID);
         }
+        
         return $geometry;
     }
 
@@ -236,7 +237,7 @@ class WKB implements GeoAdapter
      * @param string $type
      * @return MultiLineString|MultiPolygon|GeometryCollection|MultiPoint
      */
-    protected function getMulti(string $type)
+    private function getMulti(string $type): Geometry
     {
         // Get the number of items expected in this multi out of the first 4 bytes
         $multiLength = $this->reader->readUInt32();
@@ -257,7 +258,6 @@ class WKB implements GeoAdapter
             case 'Geometry':
                 return new GeometryCollection($components);
         }
-        return null;
     }
 
     /**
@@ -269,7 +269,7 @@ class WKB implements GeoAdapter
      *
      * @return string The WKB string representation of the input geometries
      */
-    public function write(Geometry $geometry, $writeAsHex = false, $bigEndian = false): string
+    public function write(Geometry $geometry, bool $writeAsHex = false, bool $bigEndian = false): string
     {
         $this->writer = new BinaryWriter($bigEndian ? BinaryWriter::BIG_ENDIAN : BinaryWriter::LITTLE_ENDIAN);
         $wkb = $this->writeGeometry($geometry);
@@ -394,12 +394,13 @@ class WKB implements GeoAdapter
 
     /**
      * @param Geometry $geometry
-     * @param bool $writeSRID
+     * @param bool $writeSRID default false
      * @return string
      */
-    protected function writeType(Geometry $geometry, $writeSRID = false): string
+    protected function writeType(Geometry $geometry, bool $writeSRID = false): string
     {
         $type = self::$typeMap[$geometry->geometryType()];
+        
         // Binary OR to mix in additional properties
         if ($this->hasZ) {
             $type = $type | $this::Z_MASK;
@@ -407,10 +408,11 @@ class WKB implements GeoAdapter
         if ($this->hasM) {
             $type = $type | $this::M_MASK;
         }
-        if ($geometry->getSRID() && $writeSRID) {
+        if ($writeSRID && $geometry->getSRID()) {
             $type = $type | $this::SRID_MASK;
         }
+        
         return $this->writer->writeUInt32($type) .
-            ($geometry->getSRID() && $writeSRID ? $this->writer->writeUInt32($this->SRID) : '');
+            ($writeSRID && $geometry->getSRID() ? $this->writer->writeUInt32($this->SRID) : '');
     }
 }

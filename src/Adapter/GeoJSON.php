@@ -28,7 +28,7 @@ class GeoJSON implements GeoAdapter
      * @return Geometry
      * @throws \Exception
      */
-    public function read(string $input): Geometry
+    public function read($input): Geometry
     {
         if (is_string($input)) {
             $input = json_decode($input);
@@ -41,7 +41,7 @@ class GeoJSON implements GeoAdapter
         }
 
         // Check to see if it's a FeatureCollection
-        if ($input->type == 'FeatureCollection') {
+        if ($input->type === 'FeatureCollection') {
             $geometries = [];
             foreach ($input->features as $feature) {
                 $geometries[] = $this->read($feature);
@@ -50,7 +50,7 @@ class GeoJSON implements GeoAdapter
         }
 
         // Check to see if it's a Feature
-        if ($input->type == 'Feature') {
+        if ($input->type === 'Feature') {
             return $this->geoJSONFeatureToGeometry($input);
         }
 
@@ -70,6 +70,7 @@ class GeoJSON implements GeoAdapter
             preg_match('#EPSG[:]+(\d+)#', $input->crs->properties->name, $m);
             return isset($m[1]) ? $m[1] : null;
         }
+        
         return null;
     }
 
@@ -78,7 +79,7 @@ class GeoJSON implements GeoAdapter
      * @return Geometry
      * @throws \Exception
      */
-    private function geoJSONFeatureToGeometry($obj)
+    private function geoJSONFeatureToGeometry($obj): Geometry
     {
         $geometry = $this->read($obj->geometry);
         if (isset($obj->properties)) {
@@ -95,7 +96,7 @@ class GeoJSON implements GeoAdapter
      * @return Geometry
      * @throws \Exception
      */
-    private function geoJSONObjectToGeometry($obj)
+    private function geoJSONObjectToGeometry($obj): Geometry
     {
         $type = $obj->type;
 
@@ -106,6 +107,7 @@ class GeoJSON implements GeoAdapter
         /** @var GeometryCollection $geometry */
         $geometry = $this->$method($obj->coordinates);
         $geometry->setSRID($this->getSRID($obj));
+        
         return $geometry;
     }
 
@@ -113,7 +115,7 @@ class GeoJSON implements GeoAdapter
      * @param array $coordinates Array of coordinates
      * @return Point
      */
-    private function arrayToPoint($coordinates)
+    private function arrayToPoint(array $coordinates): Point
     {
         switch (count($coordinates)) {
             case 2:
@@ -127,7 +129,11 @@ class GeoJSON implements GeoAdapter
         }
     }
 
-    private function arrayToLineString($array)
+    /**
+     * @param array $array
+     * @return LineString
+     */
+    private function arrayToLineString(array $array): LineString
     {
         $points = [];
         foreach ($array as $componentArray) {
@@ -136,7 +142,11 @@ class GeoJSON implements GeoAdapter
         return new LineString($points);
     }
 
-    private function arrayToPolygon($array)
+    /**
+     * @param array $array
+     * @return Polygon
+     */
+    private function arrayToPolygon(array $array): Polygon
     {
         $lines = [];
         foreach ($array as $componentArray) {
@@ -145,12 +155,12 @@ class GeoJSON implements GeoAdapter
         return new Polygon($lines);
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
     /**
+     * @noinspection PhpUnusedPrivateMethodInspection
      * @param array $array
      * @return MultiPoint
      */
-    private function arrayToMultiPoint($array)
+    private function arrayToMultiPoint(array $array): MultiPoint
     {
         $points = [];
         foreach ($array as $componentArray) {
@@ -159,12 +169,12 @@ class GeoJSON implements GeoAdapter
         return new MultiPoint($points);
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
     /**
+     * @noinspection PhpUnusedPrivateMethodInspection
      * @param array $array
      * @return MultiLineString
      */
-    private function arrayToMultiLineString($array)
+    private function arrayToMultiLineString(array $array): MultiLineString
     {
         $lines = [];
         foreach ($array as $componentArray) {
@@ -173,12 +183,12 @@ class GeoJSON implements GeoAdapter
         return new MultiLineString($lines);
     }
 
-    /** @noinspection PhpUnusedPrivateMethodInspection */
     /**
+     * @noinspection PhpUnusedPrivateMethodInspection
      * @param array $array
      * @return MultiPolygon
      */
-    private function arrayToMultiPolygon($array)
+    private function arrayToMultiPolygon(array $array): MultiPolygon
     {
         $polygons = [];
         foreach ($array as $componentArray) {
@@ -192,17 +202,20 @@ class GeoJSON implements GeoAdapter
      * @throws \Exception
      * @return GeometryCollection
      */
-    private function geoJSONObjectToGeometryCollection($obj)
+    private function geoJSONObjectToGeometryCollection($obj): GeometryCollection
     {
-        $geometries = [];
         if (!isset($obj->geometries) || !is_array($obj->geometries)) {
-            throw new \Exception('Invalid GeoJSON: GeometryCollection with no component geometries');
+            throw new \Exception('Invalid GeoJSON: GeometryCollection with no component geometries.');
         }
+        
+        $geometries = [];
         foreach ($obj->geometries as $componentObject) {
             $geometries[] = $this->geoJSONObjectToGeometry($componentObject);
         }
+        
         $collection = new GeometryCollection($geometries);
         $collection->setSRID($this->getSRID($obj));
+        
         return $collection;
     }
 
@@ -210,15 +223,11 @@ class GeoJSON implements GeoAdapter
      * Serializes an object into a geojson string
      *
      * @param Geometry $geometry The object to serialize
-     * @param boolean $returnAsArray
-     *
-     * @return string|array The GeoJSON string
+     * @return string The GeoJSON string
      */
-    public function write(Geometry $geometry, $returnAsArray = false)
+    public function write(Geometry $geometry): string
     {
-        return $returnAsArray
-            ? $this->getArray($geometry)
-            : json_encode($this->getArray($geometry));
+        return json_encode($this->getArray($geometry));
     }
 
     /**
@@ -235,7 +244,7 @@ class GeoJSON implements GeoAdapter
      * @param bool|null $isRoot Is geometry the root geometry?
      * @return array
      */
-    public function getArray($geometry, $isRoot = true)
+    public function getArray(Geometry $geometry, $isRoot = true): array
     {
         if ($geometry->geometryType() === Geometry::GEOMETRY_COLLECTION) {
             $components = [];

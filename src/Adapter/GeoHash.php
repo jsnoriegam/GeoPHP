@@ -79,10 +79,9 @@ class GeoHash implements GeoAdapter
      *
      * @param string $hash a GeoHash
      * @param boolean $asGrid Return the center point of hash grid or the grid cell as Polygon
-     *
      * @return Point|Polygon the converted GeoHash
      */
-    public function read(string $hash, $asGrid = false): Geometry
+    public function read(string $hash, bool $asGrid = false): Geometry
     {
         $decodedHash = $this->decode($hash);
         if (!$asGrid) {
@@ -111,7 +110,7 @@ class GeoHash implements GeoAdapter
      * @param float|null $precision
      * @return string the GeoHash or null when the $geometry is not a Point
      */
-    public function write(Geometry $geometry, $precision = null)
+    public function write(Geometry $geometry, $precision = null): string
     {
         if ($geometry->isEmpty()) {
             return '';

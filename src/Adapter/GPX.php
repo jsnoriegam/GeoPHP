@@ -23,7 +23,10 @@ use geoPHP\Geometry\MultiLineString;
 class GPX implements GeoAdapter
 {
 
-    protected $nss = ''; // Name-space string. eg 'georss:'
+    /**
+     * @var string Name-space string. eg 'georss:'
+     */
+    private $nss = '';
 
     /**
      * @var GpxTypes
@@ -34,11 +37,19 @@ class GPX implements GeoAdapter
      * @var \DOMXPath
      */
     protected $xpath;
-    protected $parseGarminRpt = false;
-    protected $trackFromRoute = null;
     
     /**
-     * @var boolean add elevation-data to every coordinate
+     * @var bool
+     */
+    protected $parseGarminRpt = false;
+    
+    /**
+     * @var Point[]
+     */
+    protected $trackFromRoute;
+    
+    /**
+     * @var bool add elevation-data to every coordinate
      */
     public $withElevation = false;
 
@@ -302,16 +313,17 @@ class GPX implements GeoAdapter
      * Serialize geometries into a GPX string.
      *
      * @param Geometry|GeometryCollection $geometry
-     * @param string|null $namespace
-     * @param array|null $allowedElements Which elements can be added to each GPX type
-     *                   If not specified, every element defined in the GPX specification can be added
-     *                   Can be overwritten with an associative array, with type name in keys.
-     *                   eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
+     * @param string $namespace
+     * @param array $allowedElements Which elements can be added to each GPX type
+     *              If not specified, every element defined in the GPX specification can be added
+     *              Can be overwritten with an associative array, with type name in keys.
+     *              eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
      * @return string The GPX string representation of the input geometries
      */
-    public function write(Geometry $geometry, $namespace = null, array $allowedElements = []): string
+    public function write(Geometry $geometry, string $namespace = '', array $allowedElements = []): string
     {
-        if ($namespace) {
+        $namespace = trim($namespace);
+        if (!empty($namespace)) {
             $this->nss = $namespace . ':';
         }
         $this->gpxTypes = new GpxTypes($allowedElements);

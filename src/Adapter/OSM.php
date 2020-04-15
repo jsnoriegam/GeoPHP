@@ -1,4 +1,5 @@
 <?php
+
 /*
  * @author Báthory Péter
  * @since 2016-02-27
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace geoPHP\Adapter;
 
 use geoPHP\Geometry\Collection;
@@ -31,10 +33,24 @@ class OSM implements GeoAdapter
     const OSM_COORDINATE_PRECISION = '%.7f';
     const OSM_API_URL = 'http://openstreetmap.org/api/0.6/';
 
-    /** @var  \DOMDocument $xmlObj */
+    /**
+     * @var \DOMDocument
+     */
     protected $xmlObj;
+    
+    /**
+     * @var array
+     */
     protected $nodes = [];
+    
+    /**
+     * @var array
+     */
     protected $ways = [];
+    
+    /**
+     * @var int
+     */
     protected $idCounter = 0;
 
     /**
@@ -63,7 +79,12 @@ class OSM implements GeoAdapter
         return $geom;
     }
 
-    protected function geomFromXML()
+    /**
+     * @staticvar array $polygonalTypes
+     * @staticvar array $linearTypes
+     * @return Geometry
+     */
+    protected function geomFromXML(): Geometry
     {
         $geometries = [];
 
@@ -187,9 +208,9 @@ class OSM implements GeoAdapter
         // Process ways
         foreach ($ways as $way) {
             if (
-                (!$way['assigned'] || !empty($way['tags'])) &&
-                !isset($way['tags']['boundary']) &&
-                (!isset($way['tags']['natural']) || $way['tags']['natural'] !== 'mountain_range')
+                    (!$way['assigned'] || !empty($way['tags'])) &&
+                    !isset($way['tags']['boundary']) &&
+                    (!isset($way['tags']['natural']) || $way['tags']['natural'] !== 'mountain_range')
             ) {
                 $linePoints = [];
                 foreach ($way['nodes'] as $wayNode) {
@@ -216,12 +237,16 @@ class OSM implements GeoAdapter
         }
 
         //var_dump($geometries);
-        return count($geometries) == 1 ? $geometries[0] : new GeometryCollection($geometries);
+        return count($geometries) === 1 ? $geometries[0] : new GeometryCollection($geometries);
     }
 
-    protected function processRoutes(&$relationWays, &$nodes)
+    /**
+     * @param array $relationWays
+     * @param array $nodes
+     * @return array $lineStrings
+     */
+    protected function processRoutes(array &$relationWays, array $nodes): array
     {
-
         // Construct lines
         /** @var LineString[] $lines */
         $lineStrings = [];
@@ -235,22 +260,22 @@ class OSM implements GeoAdapter
                         if ($line[count($line) - 1] === $wayNodes[0]) {
                             $line = array_merge($line, array_slice($wayNodes, 1));
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                             // Last node of ring = last node of way => reverse way and put to the end of ring
                         } elseif ($line[count($line) - 1] === $wayNodes[count($wayNodes) - 1]) {
                             $line = array_merge($line, array_slice(array_reverse($wayNodes), 1));
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                             // First node of ring = last node of way => put way to the beginning of ring
                         } elseif ($line[0] === $wayNodes[count($wayNodes) - 1]) {
                             $line = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $line);
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                             // First node of ring = first node of way => reverse way and put to the beginning of ring
                         } elseif ($line[0] === $wayNodes[0]) {
                             $line = array_merge(array_reverse(array_slice($wayNodes, 1)), $line);
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                         }
                     }
                     // If line members are not ordered, we need to repeat end matching some times
@@ -268,7 +293,12 @@ class OSM implements GeoAdapter
         return $lineStrings;
     }
 
-    protected function processMultipolygon(&$relationWays, &$nodes)
+    /**
+     * @param array $relationWays
+     * @param array $nodes
+     * @return array $relationPolygons
+     */
+    protected function processMultipolygon(array &$relationWays, array $nodes): array
     {
         /* TODO: what to do with broken rings?
          * I propose to force-close if start -> end point distance is less then 10% of line length, otherwise drop it.
@@ -289,22 +319,22 @@ class OSM implements GeoAdapter
                         if ($ring[count($ring) - 1] === $wayNodes[0]) {
                             $ring = array_merge($ring, array_slice($wayNodes, 1));
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                             // Last node of ring = last node of way => reverse way and put to the end of ring
                         } elseif ($ring[count($ring) - 1] === $wayNodes[count($wayNodes) - 1]) {
                             $ring = array_merge($ring, array_slice(array_reverse($wayNodes), 1));
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                             // First node of ring = last node of way => put way to the beginning of ring
                         } elseif ($ring[0] === $wayNodes[count($wayNodes) - 1]) {
                             $ring = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $ring);
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                             // First node of ring = first node of way => reverse way and put to the beginning of ring
                         } elseif ($ring[0] === $wayNodes[0]) {
                             $ring = array_merge(array_reverse(array_slice($wayNodes, 1)), $ring);
                             unset($relationWays[$id]);
-                            $waysAdded++;
+                            ++$waysAdded;
                         }
                     }
                     // If ring members are not ordered, we need to repeat end matching some times
@@ -380,7 +410,7 @@ class OSM implements GeoAdapter
             }
             foreach ($ringsFound as $ringId) {
                 $found[$ringId] = true;
-                $foundCount++;
+                ++$foundCount;
                 if ($round % 2 === 1) {
                     foreach ($polygonsRingIds as $outerId => $polygon) {
                         if ($containment[$outerId][$ringId]) {
@@ -406,9 +436,12 @@ class OSM implements GeoAdapter
         return $relationPolygons;
     }
 
-    public function write(Geometry $geometry)
+    /**
+     * @param Geometry $geometry
+     * @return string
+     */
+    public function write(Geometry $geometry): string
     {
-
         $this->processGeometry($geometry);
 
         $osm = "<?xml version='1.0' encoding='UTF-8'?>\n<osm version='0.6' upload='false' generator='geoPHP'>\n";
@@ -425,6 +458,7 @@ class OSM implements GeoAdapter
         }
 
         $osm .= "</osm>";
+        
         return $osm;
     }
 
@@ -512,17 +546,16 @@ class OSM implements GeoAdapter
     public static function downloadFromOSMByBbox($left, $bottom, $right, $top)
     {
         /** @noinspection PhpUnusedParameterInspection */
-        set_error_handler(
-            function ($errNO, $errStr, $errFile, $errLine, $errContext) {
-                if (isset($errContext['http_response_header'])) {
-                    foreach ($errContext['http_response_header'] as $line) {
-                        if (strpos($line, 'Error: ') > -1) {
-                            throw new \Exception($line);
-                        }
+        set_error_handler( function ($errNO, $errStr, $errFile, $errLine, $errContext) {
+            if (isset($errContext['http_response_header'])) {
+                foreach ($errContext['http_response_header'] as $line) {
+                    if (strpos($line, 'Error: ') > -1) {
+                        throw new \Exception($line);
                     }
                 }
-                throw new \Exception('unknown error');
-            },
+            }
+            throw new \Exception('unknown error');
+        },
             E_WARNING
         );
 
@@ -535,4 +568,5 @@ class OSM implements GeoAdapter
             throw new \Exception("Failed to download from OSM. " . $e->getMessage());
         }
     }
+
 }

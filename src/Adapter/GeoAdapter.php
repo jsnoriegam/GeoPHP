@@ -33,5 +33,5 @@ interface GeoAdapter
      * @param Geometry $geometry
      * @return string
      */
-    public function write(Geometry $geometry);
+    public function write(Geometry $geometry): string;
 }

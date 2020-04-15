@@ -54,8 +54,9 @@ class GeoRSS implements GeoAdapter
      */
     public function write(Geometry $geometry, $namespace = null): string
     {
+        $namespace = trim($namespace);
         if (!empty($namespace)) {
-            $this->nss = trim($namespace) . ':';
+            $this->nss = $namespace . ':';
         }
         return $this->geometryToGeoRSS($geometry);
     }
