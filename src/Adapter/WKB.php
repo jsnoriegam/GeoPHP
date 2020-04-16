@@ -328,7 +328,7 @@ class WKB implements GeoAdapter
     protected function writePoint(Point $point): string
     {
         if ($point->isEmpty()) {
-            return $this->writer->writeDouble(NAN) . $this->writer->writeDouble(NAN);
+            return $this->writer->writeDouble(null) . $this->writer->writeDouble(null);
         }
         $wkb = $this->writer->writeDouble($point->x()) . $this->writer->writeDouble($point->y());
 
