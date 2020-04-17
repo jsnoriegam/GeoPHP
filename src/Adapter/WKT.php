@@ -122,7 +122,7 @@ class WKT implements GeoAdapter
         $dataString = trim($dataString);
 
         // If it's marked as empty, then return an empty point
-        if ($dataString == 'EMPTY') {
+        if ($dataString === 'EMPTY') {
             return new Point();
         }
 
@@ -148,7 +148,7 @@ class WKT implements GeoAdapter
     private function parseLineString(string $dataString): LineString
     {
         // If it's marked as empty, then return an empty line
-        if ($dataString == 'EMPTY') {
+        if ($dataString === 'EMPTY') {
             return new LineString();
         }
 
@@ -166,7 +166,7 @@ class WKT implements GeoAdapter
     private function parsePolygon(string $dataString): Polygon
     {
         // If it's marked as empty, then return an empty polygon
-        if ($dataString == 'EMPTY') {
+        if ($dataString === 'EMPTY') {
             return new Polygon();
         }
 
@@ -188,7 +188,7 @@ class WKT implements GeoAdapter
     private function parseMultiPoint(string $dataString): MultiPoint
     {
         // If it's marked as empty, then return an empty MultiPoint
-        if ($dataString == 'EMPTY') {
+        if ($dataString === 'EMPTY') {
             return new MultiPoint();
         }
 
@@ -211,12 +211,12 @@ class WKT implements GeoAdapter
     private function parseMultiLineString(string $dataString): MultiLineString
     {
         // If it's marked as empty, then return an empty multi-linestring
-        if ($dataString == 'EMPTY') {
+        if ($dataString === 'EMPTY') {
             return new MultiLineString();
         }
         $lines = [];
         $m = [];
-        if (preg_match_all('/(\([^(]+\)|EMPTY)/', $dataString, $m)) {
+        if (preg_match_all('/(\([^(]+?\)|EMPTY)/', $dataString, $m)) {
             foreach ($m[1] as $part) {
                 $lines[] =  $this->parseLineString(trim($part, ' ()'));
             }
@@ -232,13 +232,13 @@ class WKT implements GeoAdapter
     private function parseMultiPolygon(string $dataString): MultiPolygon
     {
         // If it's marked as empty, then return an empty multi-polygon
-        if ($dataString == 'EMPTY') {
+        if ($dataString === 'EMPTY') {
             return new MultiPolygon();
         }
 
         $polygons = [];
         $m = [];
-        if (preg_match_all('/(\(\([^(].+\)\)|EMPTY)/', $dataString, $m)) {
+        if (preg_match_all('/(\(\([^(].+?\)\)|EMPTY)/', $dataString, $m)) {
             foreach ($m[0] as $part) {
                 $polygons[] = $this->parsePolygon($part);
             }
@@ -254,14 +254,14 @@ class WKT implements GeoAdapter
     private function parseGeometryCollection(string $dataString): GeometryCollection
     {
         // If it's marked as empty, then return an empty geom-collection
-        if ($dataString == 'EMPTY') {
+        if ($dataString === 'EMPTY') {
             return new GeometryCollection();
         }
 
         $geometries = [];
         $m = [];
         while (strlen($dataString) > 0) {
-            if ($dataString[0] == ',') {
+            if ($dataString[0] === ',') {
                 $dataString = substr($dataString, 1);
             }
             // Matches the first balanced parenthesis group (or term EMPTY)

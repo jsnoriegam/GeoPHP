@@ -57,10 +57,10 @@ class GoogleGeocode implements GeoAdapter
             $address = join(',', $address);
         }
 
-        if (gettype($bounds) == 'object') {
+        if (gettype($bounds) === 'object') {
             $bounds = $bounds->getBBox();
         }
-        if (gettype($bounds) == 'array') {
+        if (gettype($bounds) === 'array') {
             $boundsString = '&bounds=' . $bounds['miny'] . ',' . $bounds['minx'] . '|' . $bounds['maxy'] . ',' . $bounds['maxx'];
         } else {
             $boundsString = '';
@@ -71,23 +71,23 @@ class GoogleGeocode implements GeoAdapter
         $url .= $boundsString . ($apiKey ? '&key=' . $apiKey : '');
         $this->result = json_decode(file_get_contents($url));
 
-        if ($this->result->status == 'OK') {
+        if ($this->result->status === 'OK') {
             if (!$returnMultiple) {
-                if ($returnType == 'point') {
+                if ($returnType === 'point') {
                     return $this->getPoint();
                 }
-                if ($returnType == 'bounds' || $returnType == 'polygon') {
+                if ($returnType === 'bounds' || $returnType === 'polygon') {
                     return $this->getPolygon();
                 }
             } else {
-                if ($returnType == 'point') {
+                if ($returnType === 'point') {
                     $points = [];
                     foreach ($this->result->results as $delta => $item) {
                         $points[] = $this->getPoint($delta);
                     }
                     return new MultiPoint($points);
                 }
-                if ($returnType == 'bounds' || $returnType == 'polygon') {
+                if ($returnType === 'bounds' || $returnType === 'polygon') {
                     $polygons = [];
                     foreach ($this->result->results as $delta => $item) {
                         $polygons[] = $this->getPolygon($delta);
@@ -95,7 +95,7 @@ class GoogleGeocode implements GeoAdapter
                     return new MultiPolygon($polygons);
                 }
             }
-        } elseif ($this->result->status == 'ZERO_RESULTS') {
+        } elseif ($this->result->status === 'ZERO_RESULTS') {
             return null;
         } else {
             if ($this->result->status) {
@@ -139,19 +139,19 @@ class GoogleGeocode implements GeoAdapter
 
         $this->result = json_decode(file_get_contents($url));
 
-        if ($this->result->status == 'OK') {
-            if ($returnType == 'string') {
+        if ($this->result->status === 'OK') {
+            if ($returnType === 'string') {
                 return $this->result->results[0]->formatted_address;
-            } elseif ($returnType == 'array') {
+            } elseif ($returnType === 'array') {
                 return $this->result->results[0]->address_components;
-            } elseif ($returnType == 'full') {
+            } elseif ($returnType === 'full') {
                 return $this->result->results[0];
             }
-        } elseif ($this->result->status == 'ZERO_RESULTS') {
-            if ($returnType == 'string') {
+        } elseif ($this->result->status === 'ZERO_RESULTS') {
+            if ($returnType === 'string') {
                 return '';
             }
-            if ($returnType == 'array') {
+            if ($returnType === 'array') {
                 return $this->result->results;
             }
         }

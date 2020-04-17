@@ -159,7 +159,7 @@ class OSM implements GeoAdapter
             static $linearTypes = ['route', 'waterway'];
             $relationType = null;
             foreach ($relation->getElementsByTagName('tag') as $tag) {
-                if ($tag->attributes->getNamedItem('k')->nodeValue == 'type') {
+                if ($tag->attributes->getNamedItem('k')->nodeValue === 'type') {
                     $relationType = $tag->attributes->getNamedItem('v')->nodeValue;
                 }
             }
@@ -191,17 +191,17 @@ class OSM implements GeoAdapter
             // Assemble relation geometries
             $geometryCollection = [];
             if (!empty($relationPolygons)) {
-                $geometryCollection[] = count($relationPolygons) == 1 ? $relationPolygons[0] : new MultiPolygon($relationPolygons);
+                $geometryCollection[] = count($relationPolygons) === 1 ? $relationPolygons[0] : new MultiPolygon($relationPolygons);
             }
             if (!empty($relationLines)) {
-                $geometryCollection[] = count($relationLines) == 1 ? $relationLines[0] : new MultiLineString($relationLines);
+                $geometryCollection[] = count($relationLines) === 1 ? $relationLines[0] : new MultiLineString($relationLines);
             }
             if (!empty($relationPoints)) {
-                $geometryCollection[] = count($relationPoints) == 1 ? $relationPoints[0] : new MultiPoint($relationPoints);
+                $geometryCollection[] = count($relationPoints) === 1 ? $relationPoints[0] : new MultiPoint($relationPoints);
             }
 
             if (!empty($geometryCollection)) {
-                $geometries[] = count($geometryCollection) == 1 ? $geometryCollection[0] : new GeometryCollection($geometryCollection);
+                $geometries[] = count($geometryCollection) === 1 ? $geometryCollection[0] : new GeometryCollection($geometryCollection);
             }
         }
 

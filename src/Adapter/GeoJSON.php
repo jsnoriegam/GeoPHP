@@ -109,7 +109,7 @@ class GeoJSON implements GeoAdapter
     {
         $type = $obj->type;
 
-        if ($type == 'GeometryCollection') {
+        if ($type === 'GeometryCollection') {
             return $this->geoJSONObjectToGeometryCollection($obj);
         }
         $method = 'arrayTo' . $type;

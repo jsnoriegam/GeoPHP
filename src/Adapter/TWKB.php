@@ -243,10 +243,10 @@ class TWKB implements GeoAdapter
             return new LineString();
         }
 
-        $pointCount = $this->reader->readUVarInt();
+        $numPoints = $this->reader->readUVarInt();
 
         $points = [];
-        for ($i = 0; $i < $pointCount; $i++) {
+        for ($i = 0; $i < $numPoints; $i++) {
             $points[] = $this->getPoint($options);
         }
 

@@ -69,7 +69,7 @@ class KML implements GeoAdapter
         try {
             $geom = $this->geomFromXML();
         } catch (\Exception $e) {
-            throw new \Exception("Cannot Read Geometry From KML: " . $text . ' ' . $e->getMessage());
+            throw new \Exception("Cannot read geometry from KML: " . $text . ' ' . $e->getMessage());
         }
 
         return $geom;
@@ -90,7 +90,7 @@ class KML implements GeoAdapter
                 $geometry = null;
                 foreach ($placemark->childNodes as $child) {
                     // Node names are all the same, except for MultiGeometry, which maps to GeometryCollection
-                    $nodeName = $child->nodeName == 'multigeometry' ? 'geometrycollection' : $child->nodeName;
+                    $nodeName = $child->nodeName === 'multigeometry' ? 'geometrycollection' : $child->nodeName;
                     if (array_key_exists($nodeName, geoPHP::getGeometryList())) {
                         $function = 'parse' . geoPHP::getGeometryList()[$nodeName];
                         $geometry = $this->$function($child);
@@ -98,18 +98,20 @@ class KML implements GeoAdapter
                         $data[$child->nodeName] = $child->nodeValue;
                     }
                 }
-                if ($geometry) {
-                    if (count($data)) {
+                
+                if (isset($geometry)) {
+                    if (!empty($data)) {
                         $geometry->setData($data);
                     }
                     $geometries[] = $geometry;
                 }
             }
+            
             return new GeometryCollection($geometries);
         }
         
         // The document does not have a placemark, try to create a valid geometry from the root element
-        $nodeName = $this->xmlObject->documentElement->nodeName == 'multigeometry' ?
+        $nodeName = $this->xmlObject->documentElement->nodeName === 'multigeometry' ?
                 'geometrycollection' :
                 $this->xmlObject->documentElement->nodeName;
 
@@ -219,7 +221,7 @@ class KML implements GeoAdapter
 
             }
         }
-
+        
         return new Polygon($components);
     }
 
@@ -234,9 +236,9 @@ class KML implements GeoAdapter
         
         foreach ($xml->childNodes as $child) {
             /** @noinspection SpellCheckingInspection */
-            $nodeName = ($child->nodeName == 'linearring')
+            $nodeName = ($child->nodeName === 'linearring')
                     ? 'linestring'
-                    : ($child->nodeName == 'multigeometry'
+                    : ($child->nodeName === 'multigeometry'
                             ? 'geometrycollection'
                             : $child->nodeName);
             if (array_key_exists($nodeName, $geometryTypes)) {
