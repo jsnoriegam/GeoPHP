@@ -12,7 +12,7 @@
             "role": "Original creator"
         },
         {
-            "name": "Báthory Péter",
+            "name": "Péter Báthory",
             "homepage": "https://github.com/BathoryPeter",
             "role": "Developer"
         },
@@ -23,25 +23,51 @@
         }
     ],
     "autoload": {
-    "psr-4": {
-      "geoPHP\\": "src/"
+        "psr-4": {
+            "geoPHP\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "geoPHP\\Tests\\": "tests/unit"
+        }
+    },
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "require-dev": {
+        "php": ">=7.0.0",
+        "phpunit/phpunit": "5.* || 8.*",
+        "php-coveralls/php-coveralls": "2.*",
+        "squizlabs/php_codesniffer": "3.*",
+        "phpstan/phpstan": "^0.12.18"
+    },
+    "suggest": {
+        "ext-geos": "GEOS allows more advanced operations"
+    },
+    "scripts": {
+        "tests": [
+            "@cs",
+            "@cs-warning",
+            "@stan",
+            "@unit",
+            "@test-input",
+            "@performance"
+        ],
+        "tests-ci": [
+            "@cs",
+            "@stan",
+            "@unit-clover",
+            "@test-input",
+            "@performance"
+        ],
+        "cs": "vendor/bin/phpcs --cache -n -p --standard=PSR2 src/",
+        "cs-warning": "vendor/bin/phpcs --cache -p --standard=PSR2 src/ || true",
+        "cs-fix": "vendor/bin/phpcbf --cache -n -p --standard=PSR2 src/",
+        "stan" : "vendor/bin/phpstan analyze src",
+        "unit": "GEOS_DISABLED=1 vendor/bin/phpunit --color=always --coverage-html build/coverage/",
+        "unit-clover": "GEOS_DISABLED=1 vendor/bin/phpunit --color=always --coverage-clover build/logs/clover.xml",
+        "test-input": "cd tests && php test.php && cd ..",
+        "performance": "cd tests && php geometryPerformance.php && cd .."
     }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "geoPHP\\": "tests/"
-    }
-  },
-  "require": {
-    "php": ">=7.0.0"
-  },
-  "require-dev": {
-    "php": ">=7.0.0",
-    "phpunit/phpunit": "5.* || 8.*",
-    "php-coveralls/php-coveralls": "2.*",
-    "squizlabs/php_codesniffer": "3.*"
-  },
-  "suggest": {
-    "ext-geos": "GEOS allows more advanced operations"
-  }
 }
