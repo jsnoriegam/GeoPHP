@@ -27,7 +27,7 @@ class BinaryWriter extends BinaryAdapter
 
     /**
      * Writes a signed 8-bit integer
-     * 
+     *
      * @param int $value
      * @return string The integer as a binary string
      */
@@ -38,7 +38,7 @@ class BinaryWriter extends BinaryAdapter
 
     /**
      * Writes an unsigned 8-bit integer
-     * 
+     *
      * @param int $value
      * @return string The integer as a binary string
      */
@@ -49,7 +49,7 @@ class BinaryWriter extends BinaryAdapter
 
     /**
      * Writes an unsigned 32-bit integer
-     * 
+     *
      * @param int $value
      * @return string The integer as a binary string
      */
@@ -60,7 +60,7 @@ class BinaryWriter extends BinaryAdapter
 
     /**
      * Writes a double
-     * 
+     *
      * @param float $value
      * @return string The floating point number as a binary string
      */
@@ -97,13 +97,13 @@ class BinaryWriter extends BinaryAdapter
 
     /**
      * Writes an integer as a signed base-128 varint
-     * 
+     *
      * @param int $value
      * @return string The integer as a binary string
      */
     public function writeSVarInt(int $value): string
     {
-        return $this->writeUVarInt(self::ZigZagEncode($value));
+        return $this->writeUVarInt(self::zigZagEncode($value));
     }
 
     /**
@@ -112,7 +112,7 @@ class BinaryWriter extends BinaryAdapter
      * @param int $value Signed integer
      * @return int Encoded positive integer value
      */
-    public static function ZigZagEncode(int $value): int
+    public static function zigZagEncode(int $value): int
     {
         return ($value << 1) ^ ($value >> 31);
     }

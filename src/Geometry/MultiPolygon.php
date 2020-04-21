@@ -6,26 +6,32 @@ use geoPHP\geoPHP;
 /**
  * MultiPolygon: A collection of Polygons
  *
- * @method Polygon[] getComponents()
+ * @method   Polygon[] getComponents()
  * @property Polygon[] $components
  */
 class MultiPolygon extends MultiSurface
 {
 
-    public function __construct($components = [])
+    public function __construct(array $components = [])
     {
         parent::__construct($components, true, Polygon::class);
     }
 
-    public function geometryType()
+    /**
+     * @return string "MultiPolygon"
+     */
+    public function geometryType(): string
     {
         return Geometry::MULTI_POLYGON;
     }
 
-    public function centroid()
+    /**
+     * @return Point
+     */
+    public function getCentroid(): Point
     {
         if ($this->isEmpty()) {
-            return null;
+            return new Point;
         }
 
         if ($this->getGeos()) {
@@ -42,37 +48,43 @@ class MultiPolygon extends MultiSurface
             if ($component->isEmpty()) {
                 continue;
             }
-            $componentArea = $component->area();
+            $componentArea = $component->getArea();
             $totalArea += $componentArea;
-            $componentCentroid = $component->centroid();
-            $x += $componentCentroid->x() * $componentArea;
-            $y += $componentCentroid->y() * $componentArea;
+            $componentCentroid = $component->getCentroid();
+            $x += $componentCentroid->getX() * $componentArea;
+            $y += $componentCentroid->getY() * $componentArea;
         }
         return new Point($x / $totalArea, $y / $totalArea);
     }
 
-    public function area()
+    /**
+     * @return float
+     */
+    public function getArea(): float
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->area();
+            return (float) $this->getGeos()->area();
             // @codeCoverageIgnoreEnd
         }
 
         $area = 0;
         foreach ($this->components as $component) {
-            $area += $component->area();
+            $area += $component->getArea();
         }
-        return $area;
+        return (float) $area;
     }
 
-    public function boundary()
+    /**
+     * @return LineString|MultiLineString
+     */
+    public function boundary(): Geometry
     {
         $rings = [];
         foreach ($this->getComponents() as $component) {
             $rings = array_merge($rings, $component->components);
         }
-        return new MultiLineString($rings);
+        return geoPHP::geometryReduce(new MultiLineString($rings));
     }
 }

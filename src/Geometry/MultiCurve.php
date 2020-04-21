@@ -1,26 +1,40 @@
 <?php
+
 namespace geoPHP\Geometry;
 
 /**
- * Class MultiCurve
- * TODO write this
+ * MultiCurve: A collection of Curves
  *
- * @package geoPHP\Geometry
+ * @package GeoPHPGeometry
  */
 abstract class MultiCurve extends MultiGeometry
 {
 
-    public function __construct($components = [], $allowEmptyComponents = true, $allowedComponentType = Curve::class)
-    {
+    /**
+     * @param array  $components
+     * @param bool   $allowEmptyComponents
+     * @param string $allowedComponentType
+     */
+    public function __construct(
+        array $components = [],
+        bool $allowEmptyComponents = true,
+        string $allowedComponentType = Curve::class
+    ) {
         parent::__construct($components, $allowEmptyComponents, $allowedComponentType);
     }
 
-    public function geometryType()
+    /**
+     * @return string returns "MultiCurve"
+     */
+    public function geometryType(): string
     {
         return Geometry::MULTI_CURVE;
     }
 
-    public function dimension()
+    /**
+     * @return int 1
+     */
+    public function dimension(): int
     {
         return 1;
     }
@@ -30,7 +44,7 @@ abstract class MultiCurve extends MultiGeometry
      *
      * @return bool
      */
-    public function isClosed()
+    public function isClosed(): bool
     {
         foreach ($this->getComponents() as $line) {
             if (!$line->isClosed()) {

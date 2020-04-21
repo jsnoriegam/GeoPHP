@@ -73,10 +73,10 @@ class TWKB implements GeoAdapter
      */
     protected static $typeMap = [
         Geometry::POINT => 1,
-        Geometry::LINE_STRING => 2,
+        Geometry::LINESTRING => 2,
         Geometry::POLYGON => 3,
         Geometry::MULTI_POINT => 4,
-        Geometry::MULTI_LINE_STRING => 5,
+        Geometry::MULTI_LINESTRING => 5,
         Geometry::MULTI_POLYGON => 6,
         Geometry::GEOMETRY_COLLECTION => 7
     ];
@@ -117,7 +117,7 @@ class TWKB implements GeoAdapter
         $metadataHeader = $this->reader->readUInt8();
 
         $geometryType = $type & 0x0F;
-        $options['precision'] = BinaryReader::ZigZagDecode($type >> 4);
+        $options['precision'] = BinaryReader::zigZagDecode($type >> 4);
         $options['precisionFactor'] = pow(10, $options['precision']);
 
         $options['hasBoundingBox'] = ($metadataHeader >> 0 & 1) == 1;
@@ -212,15 +212,15 @@ class TWKB implements GeoAdapter
             return new Point();
         }
         $x = round(
-            $this->lastPoint->x() + $this->reader->readSVarInt() / $options['precisionFactor'],
+            $this->lastPoint->getX() + $this->reader->readSVarInt() / $options['precisionFactor'],
             $options['precision']
         );
         $y = round(
-            $this->lastPoint->y() + $this->reader->readSVarInt() / $options['precisionFactor'],
+            $this->lastPoint->getY() + $this->reader->readSVarInt() / $options['precisionFactor'],
             $options['precision']
         );
         $z = $options['hasZ'] ? round(
-            $this->lastPoint->z() + $this->reader->readSVarInt() / $options['zPrecisionFactor'],
+            $this->lastPoint->getZ() + $this->reader->readSVarInt() / $options['zPrecisionFactor'],
             $options['zPrecision']
         ) : null;
         $m = $options['hasM'] ? round(
@@ -327,9 +327,15 @@ class TWKB implements GeoAdapter
      *
      * @return string binary or hexadecimal representation of TWKB
      */
-    public function write(Geometry $geometry, bool $writeAsHex = false, $decimalDigitsXY = null, $decimalDigitsZ = null,
-            $decimalDigitsM = null, bool $includeSizes = false, bool $includeBoundingBoxes = false): string
-    {
+    public function write(
+        Geometry $geometry,
+        bool $writeAsHex = false,
+        $decimalDigitsXY = null,
+        $decimalDigitsZ = null,
+        $decimalDigitsM = null,
+        bool $includeSizes = false,
+        bool $includeBoundingBoxes = false
+    ): string {
         $this->writer = new BinaryWriter();
 
         $this->writeOptions = [
@@ -364,7 +370,7 @@ class TWKB implements GeoAdapter
 
         // Type and precision
         $type = self::$typeMap[$geometry->geometryType()] +
-            (BinaryWriter::ZigZagEncode($this->writeOptions['decimalDigitsXY']) << 4);
+            (BinaryWriter::zigZagEncode($this->writeOptions['decimalDigitsXY']) << 4);
         $twkbHead = $this->writer->writeUInt8($type);
 
         // Is there extended precision information?
@@ -390,7 +396,7 @@ class TWKB implements GeoAdapter
                     /** @var Point $geometry */
                     $twkbGeom .= $this->writePoint($geometry);
                     break;
-                case Geometry::LINE_STRING:
+                case Geometry::LINESTRING:
                     /** @var LineString $geometry */
                     $twkbGeom .= $this->writeLineString($geometry);
                     break;
@@ -399,7 +405,7 @@ class TWKB implements GeoAdapter
                     $twkbGeom .= $this->writePolygon($geometry);
                     break;
                 case Geometry::MULTI_POINT:
-                case Geometry::MULTI_LINE_STRING:
+                case Geometry::MULTI_LINESTRING:
                 case Geometry::MULTI_POLYGON:
                 case Geometry::GEOMETRY_COLLECTION:
                     /** @var Collection $geometry */
@@ -454,22 +460,23 @@ class TWKB implements GeoAdapter
      */
     protected function writePoint(Point $geometry): string
     {
-        $x = round($geometry->x() * $this->writeOptions['xyFactor']);
-        $y = round($geometry->y() * $this->writeOptions['xyFactor']);
-        $z = round($geometry->z() * $this->writeOptions['zFactor']);
+        $x = round($geometry->getX() * $this->writeOptions['xyFactor']);
+        $y = round($geometry->getY() * $this->writeOptions['xyFactor']);
+        $z = round($geometry->getZ() * $this->writeOptions['zFactor']);
         $m = round($geometry->m() * $this->writeOptions['mFactor']);
 
-        $twkb = $this->writer->writeSVarInt($x - $this->lastPoint->x());
-        $twkb .= $this->writer->writeSVarInt($y - $this->lastPoint->y());
+        $twkb = $this->writer->writeSVarInt($x - $this->lastPoint->getX());
+        $twkb .= $this->writer->writeSVarInt($y - $this->lastPoint->getY());
         if ($this->writeOptions['hasZ']) {
-            $twkb .= $this->writer->writeSVarInt($z - $this->lastPoint->z());
+            $twkb .= $this->writer->writeSVarInt($z - $this->lastPoint->getZ());
         }
         if ($this->writeOptions['hasM']) {
             $twkb .= $this->writer->writeSVarInt($m - $this->lastPoint->m());
         }
 
         $this->lastPoint = new Point(
-            $x, $y,
+            $x,
+            $y,
             $this->writeOptions['hasZ'] ? $z : null,
             $this->writeOptions['hasM'] ? $m : null
         );
@@ -512,9 +519,9 @@ class TWKB implements GeoAdapter
     {
         $twkb = $this->writer->writeUVarInt($geometry->numGeometries());
         //if ($geometry->hasIdList()) {
-        //	foreach ($geometry->getComponents() as $component) {
-        //		$this->writer->writeUVarInt($component->getId());
-        //	}
+        //  foreach ($geometry->getComponents() as $component) {
+        //      $this->writer->writeUVarInt($component->getId());
+        //  }
         //}
         foreach ($geometry->getComponents() as $component) {
             if ($geometry->geometryType() !== Geometry::GEOMETRY_COLLECTION) {

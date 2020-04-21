@@ -1,15 +1,13 @@
 <?php
+
 namespace geoPHP\Geometry;
 
 use geoPHP\Exception\InvalidGeometryException;
 
 /**
- * Class Curve
- * TODO write this
+ * A curve consists of a sequence of Points.
  *
- * @package geoPHP\Geometry
- * @method Point[] getComponents()
- * @property Point[] $components A curve consists of sequence of Points
+ * @package GeoPHPGeometry
  */
 abstract class Curve extends Collection
 {
@@ -24,8 +22,11 @@ abstract class Curve extends Collection
      */
     protected $endPoint;
 
-    public function __construct($components = [], $allowEmptyComponents = false, $allowedComponentType = Point::class)
-    {
+    public function __construct(
+        array $components = [],
+        bool $allowEmptyComponents = false,
+        string $allowedComponentType = Point::class
+    ) {
         parent::__construct($components, $allowEmptyComponents, $allowedComponentType);
 
         if (count($this->components) === 1) {
@@ -33,16 +34,25 @@ abstract class Curve extends Collection
         }
     }
 
-    public function geometryType()
+    /**
+     * @return string "Curve"
+     */
+    public function geometryType(): string
     {
         return Geometry::CURVE;
     }
 
-    public function dimension()
+    /**
+     * @return int 1
+     */
+    public function dimension(): int
     {
         return 1;
     }
 
+    /**
+     * @return Point
+     */
     public function startPoint()
     {
         if (!isset($this->startPoint)) {
@@ -51,6 +61,9 @@ abstract class Curve extends Collection
         return $this->startPoint;
     }
 
+    /**
+     * @return Point
+     */
     public function endPoint()
     {
         if (!isset($this->endPoint)) {
@@ -59,51 +72,68 @@ abstract class Curve extends Collection
         return $this->endPoint;
     }
 
-    public function isClosed()
+    /**
+     * @return bool
+     */
+    public function isClosed(): bool
     {
         return ($this->startPoint() && $this->endPoint() ? $this->startPoint()->equals($this->endPoint()) : false);
     }
 
-    public function isRing()
+    /**
+     * @return bool
+     */
+    public function isRing(): bool
     {
         return ($this->isClosed() && $this->isSimple());
     }
-
+    
     /**
-     * The boundary of a non-closed Curve consists of its end Points
+     * Tests whether this geometry is simple.
+     * According to the OGR specification a ring is only simple if its start and end point are equal (in all values).
+     * Currently, neither GEOS, nor PostGIS support it.
+     *
+     * @return bool
+     */
+    public function isSimple(): bool
+    {
+        return $this->startPoint()->equals($this->endPoint());
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        if ($this->getGeos()) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            return $this->getGeos()->checkValidity()['valid'];
+        }
+        return $this->isSimple();
+    }
+    
+    /**
+     * The boundary of a non-closed Curve consists of its end Points.
      *
      * @return LineString|MultiPoint
      */
-    public function boundary()
+    public function boundary(): Geometry
     {
         return $this->isEmpty() ?
-            new LineString() :
-              ($this->isClosed() ?
-                new MultiPoint() :
-                new MultiPoint([$this->startPoint(), $this->endPoint()]
-              )
-            );
+                new LineString() :
+                ($this->isClosed() ?
+                    new MultiPoint() :
+                    new MultiPoint([$this->startPoint(), $this->endPoint()])
+                );
     }
 
-    // Not valid for this geometry type
-    // --------------------------------
-    public function area()
+    /**
+     * Not valid for this geometry type
+     *
+     * @return float 0.0
+     */
+    public function getArea(): float
     {
-        return 0;
-    }
-
-    public function exteriorRing()
-    {
-        return null;
-    }
-
-    public function numInteriorRings()
-    {
-        return null;
-    }
-
-    public function interiorRingN($n)
-    {
-        return null;
+        return 0.0;
     }
 }

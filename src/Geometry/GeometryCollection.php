@@ -4,23 +4,29 @@ namespace geoPHP\Geometry;
 use geoPHP\geoPHP;
 
 /**
- * GeometryCollection: A heterogeneous collection of geometries  
+ * GeometryCollection: A heterogeneous collection of geometries.
+ *
+ * @package GeoPHPGeometry
+ * @author  Patrick Hayes, Péter Báthory, Swen Zanon
  */
 class GeometryCollection extends MultiGeometry
 {
 
     /**
      * @param Geometry[] $components Array of geometries. Components of GeometryCollection can be
-     *     any of valid Geometry types, including empty geometry
+     *                               any of valid Geometry types, including empty geometry
      *
-     * @throws \Exception
+     * @throws \InvalidGeometryException
      */
-    public function __construct($components = [])
+    public function __construct(array $components = [])
     {
         parent::__construct($components, true);
     }
 
-    public function geometryType()
+    /**
+     * @return string "GeometryCollection"
+     */
+    public function geometryType(): string
     {
         return Geometry::GEOMETRY_COLLECTION;
     }
@@ -28,7 +34,7 @@ class GeometryCollection extends MultiGeometry
     /**
      * @return int Returns the highest spatial dimension of components
      */
-    public function dimension()
+    public function dimension(): int
     {
         $dimension = 0;
         foreach ($this->getComponents() as $component) {
@@ -40,12 +46,14 @@ class GeometryCollection extends MultiGeometry
     }
 
     /**
-     * Not valid for this geometry type
-     * @return null
+     * Prior version 2.0 PostGIS throws an exception if used with GEOMETRYCOLLECTION. From 2.0.0 up it returns NULL.
+     * GEOS throws an IllegalArgumentException with "Operation not supported by GeometryCollection".
+     *
+     * @return \geoPHP\Geometry\Geometry
      */
-    public function isSimple()
+    public function boundary(): Geometry
     {
-        return null;
+        return new GeometryCollection();
     }
 
     /**
@@ -56,7 +64,7 @@ class GeometryCollection extends MultiGeometry
      * @return Point
      * @throws \Exception
      */
-    public function centroid()
+    public function getCentroid(): Point
     {
         if ($this->isEmpty()) {
             return new Point();
@@ -90,9 +98,10 @@ class GeometryCollection extends MultiGeometry
 
         $reducedGeometry = geoPHP::geometryReduce($highestDimensionGeometries);
         if ($reducedGeometry->geometryType() === Geometry::GEOMETRY_COLLECTION) {
-            throw new \Exception('Internal error: GeometryCollection->centroid() calculation failed.');
+            throw new \Exception('Internal error: GeometryCollection->getCentroid() calculation failed.');
         }
-        return $reducedGeometry->centroid();
+        
+        return $reducedGeometry->getCentroid();
     }
 
     /**
@@ -120,23 +129,19 @@ class GeometryCollection extends MultiGeometry
     /**
      * @return Geometry[]|Collection[]
      */
-    public function explodeGeometries()
+    public function explodeGeometries(): array
     {
         $geometries = [];
+        
         foreach ($this->components as $component) {
             if ($component->geometryType() === Geometry::GEOMETRY_COLLECTION) {
-                /** @var GeometryCollection $component */
+                // @var GeometryCollection $component
                 $geometries = array_merge($geometries, $component->explodeGeometries());
             } else {
                 $geometries[] = $component;
             }
         }
+        
         return $geometries;
-    }
-
-    // Not valid for this geometry
-    public function boundary()
-    {
-        return NULL;
     }
 }

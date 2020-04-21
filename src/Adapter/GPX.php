@@ -350,8 +350,8 @@ class GPX implements GeoAdapter
             case Geometry::POINT:
                 /** @var Point $geometry */
                 return $this->pointToGPX($geometry);
-            case Geometry::LINE_STRING:
-            case Geometry::MULTI_LINE_STRING:
+            case Geometry::LINESTRING:
+            case Geometry::MULTI_LINESTRING:
                 /** @var LineString $geometry */
                 return $this->linestringToGPX($geometry);
             case Geometry::POLYGON:
@@ -378,7 +378,7 @@ class GPX implements GeoAdapter
         if ($geom->hasZ() || $geom->getData() !== null) {
             $node = $indent . "<" . $this->nss . $tag . " lat=\"" . $geom->getY() . "\" lon=\"" . $geom->getX() . "\">\n";
             if ($geom->hasZ()) {
-                $geom->setData('ele', $geom->z());
+                $geom->setData('ele', $geom->getZ());
             }
             $node .= self::processGeometryData($geom, $this->gpxTypes->get($tag . 'Type'), $indent . "\t") .
                 $indent . "</" . $this->nss . $tag . ">\n";
@@ -407,7 +407,6 @@ class GPX implements GeoAdapter
         }
 
         if ($isTrack) { // write as <trk>
-
             /** @noinspection SpellCheckingInspection */
             $gpx = "<" . $this->nss . "trk>\n" . self::processGeometryData($geom, $this->gpxTypes->get('trkType'));
             $components = $geom->geometryType() === 'LineString' ? [$geom] : $geom->getComponents();
@@ -421,7 +420,6 @@ class GPX implements GeoAdapter
             /** @noinspection SpellCheckingInspection */
             $gpx .= "</" . $this->nss . "trk>\n";
         } else { // write as <rte>
-
             /** @noinspection SpellCheckingInspection */
             $gpx = "<" . $this->nss . "rte>\n" . self::processGeometryData($geom, $this->gpxTypes->get('rteType'));
             foreach ($geom->getPoints() as $point) {
@@ -446,7 +444,6 @@ class GPX implements GeoAdapter
         $wayPoints = $routes = $tracks = "";
 
         foreach ($geometry->getComponents() as $component) {
-            
             $geometryType = $component->geometryType();
             
             if (strpos($geometryType, 'Point') !== false) {

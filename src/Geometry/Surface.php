@@ -10,103 +10,62 @@ namespace geoPHP\Geometry;
  * simple affine rotation matrix that rotates the patch onto the plane z = 0. If the patch is not vertical, the
  * projection onto the same plane is an isomorphism, and can be represented as a linear transformation, i.e. an affine.
  *
- * @package geoPHP\Geometry
+ * @package GeoPHPGeometry
  */
 abstract class Surface extends Collection
 {
 
-    public function __construct($components = [], $allowEmptyComponents = true, $allowedComponentType = Curve::class)
-    {
+    /**
+     * @param array  $components
+     * @param bool   $allowEmptyComponents
+     * @param string $allowedComponentType
+     */
+    public function __construct(
+        array $components = [],
+        bool $allowEmptyComponents = true,
+        string $allowedComponentType = Curve::class
+    ) {
         parent::__construct($components, $allowEmptyComponents, $allowedComponentType);
     }
 
-    public function geometryType()
+    /**
+     * @return string "Surface"
+     */
+    public function geometryType(): string
     {
         return Geometry::SURFACE;
     }
 
-    public function dimension()
+    /**
+     * @return int 2
+     */
+    public function dimension(): int
     {
         return 2;
     }
 
-    public function startPoint()
+    public function isClosed(): bool
     {
-        return null;
+        return true;
     }
 
-    public function endPoint()
+    public function getLength(): float
     {
-        return null;
+        return 0.0;
     }
 
-    public function pointN($n)
+    public function length3D(): float
     {
-        return null;
+        return 0.0;
     }
 
-    public function isClosed()
+    public function haversineLength(): float
     {
-        return null;
+        return 0.0;
     }
 
-    public function isRing()
+    public function greatCircleLength(float $radius = null): float
     {
-        return null;
-    }
-
-    public function length()
-    {
-        return 0;
-    }
-
-    public function length3D()
-    {
-        return 0;
-    }
-
-    public function haversineLength()
-    {
-        return 0;
-    }
-
-    public function greatCircleLength($radius = null)
-    {
-        return 0;
-    }
-
-    public function minimumZ()
-    {
-        return null;
-    }
-
-    public function maximumZ()
-    {
-        return null;
-    }
-
-    public function minimumM()
-    {
-        return null;
-    }
-
-    public function maximumM()
-    {
-        return null;
-    }
-
-    public function elevationGain($verticalTolerance = 0)
-    {
-        return null;
-    }
-
-    public function elevationLoss($verticalTolerance = 0)
-    {
-        return null;
-    }
-
-    public function zDifference()
-    {
-        return null;
+        return 0.0;
     }
 }

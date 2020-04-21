@@ -7,19 +7,24 @@ use geoPHP\geoPHP;
  * A LineString is defined by a sequence of points, (X,Y) pairs, which define the reference points of the line string.
  * Linear interpolation between the reference points defines the resulting linestring.
  *
- * @method Point[] getComponents()
- * @property Point[] $components
- * @method Point geometryN($n)
+ * @package GeoPHPGeometry
  */
 class LineString extends Curve
 {
 
-    public function geometryType()
+    /**
+     * @return string "LineString"
+     */
+    public function geometryType(): string
     {
-        return Geometry::LINE_STRING;
+        return Geometry::LINESTRING;
     }
 
-    public static function fromArray($array)
+    /**
+     * @param  array $array
+     * @return LineString
+     */
+    public static function fromArray(array $array): LineString
     {
         $points = [];
         foreach ($array as $point) {
@@ -33,7 +38,7 @@ class LineString extends Curve
      *
      * @return int
      */
-    public function numPoints()
+    public function numPoints(): int
     {
         return count($this->components);
     }
@@ -42,22 +47,22 @@ class LineString extends Curve
      * Returns the 1-based Nth point of the LineString.
      * Negative values are counted backwards from the end of the LineString.
      *
-     * @param int $n Nth point of the LineString
+     * @param  int $n Nth point of the LineString
      * @return Point|null
      */
-    public function pointN($n)
+    public function pointN(int $n)
     {
+        $n = $n < $this->numPoints() ? $n : $this->numPoints();
+        
         return $n >= 0
                 ? $this->geometryN($n)
                 : $this->geometryN(count($this->components) - abs($n + 1));
     }
 
-    public function centroid()
-    {
-        return $this->getCentroidAndLength();
-    }
-
-    public function getCentroidAndLength(&$length = 0)
+    /**
+     * @return Point
+     */
+    public function getCentroid(): Point
     {
         if ($this->isEmpty()) {
             return new Point();
@@ -72,34 +77,33 @@ class LineString extends Curve
 
         $x = 0;
         $y = 0;
-        $length = 0;
-        /** @var Point $previousPoint */
-        $previousPoint = null;
-        foreach ($this->getPoints() as $point) {
-            if ($previousPoint) {
-                // Equivalent to $previousPoint->distance($point) but much faster
-                $segmentLength = sqrt(
-                    pow(($previousPoint->x() - $point->x()), 2) +
-                    pow(($previousPoint->y() - $point->y()), 2)
-                );
-                $length += $segmentLength;
-                $x += ($previousPoint->x() + $point->x()) / 2 * $segmentLength;
-                $y += ($previousPoint->y() + $point->y()) / 2 * $segmentLength;
-            }
-            $previousPoint = $point;
+        $length = 0.0;
+        $points = $this->getPoints();
+        $numPoints = count($points)-1;
+        for ($i=0; $i<$numPoints; ++$i) {
+            $currX = $points[$i]->getX();
+            $currY = $points[$i]->getY();
+            $nextX = $points[$i+1]->getX();
+            $nextY = $points[$i+1]->getY();
+            
+            $dx = $nextX - $currX;
+            $dy = $nextY - $currY;
+            $segmentLength = sqrt($dx*$dx + $dy*$dy);
+            $length += $segmentLength;
+            $x += ($currX + $nextX) / 2 * $segmentLength;
+            $y += ($currY + $nextY) / 2 * $segmentLength;
         }
-        if ($length == 0) {
-            return $this->startPoint();
-        }
-        return new Point($x / $length, $y / $length);
+
+        return $length === 0.0 ? $this->startPoint() : new Point($x / $length, $y / $length);
     }
 
     /**
-     *  Returns the length of this Curve in its associated spatial reference.
-     * Eg. if Geometry is in geographical coordinate system it returns the length in degrees
-     * @return float|int
+     * Returns the length of this Curve in its associated spatial reference.
+     * E.g. if Geometry is in geographical coordinate system it returns the length in degrees.
+     *
+     * @return float
      */
-    public function length()
+    public function getLength(): float
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -107,32 +111,38 @@ class LineString extends Curve
             return $this->getGeos()->length();
             // @codeCoverageIgnoreEnd
         }
-        $length = 0;
-        /** @var Point $previousPoint */
-        $previousPoint = null;
-        foreach ($this->getPoints() as $point) {
-            if ($previousPoint) {
-                $length += sqrt(
-                    pow(($previousPoint->x() - $point->x()), 2) +
-                    pow(($previousPoint->y() - $point->y()), 2)
-                );
-            }
-            $previousPoint = $point;
+        
+        $length = 0.0;
+        $points = $this->getPoints();
+        $numPoints = count($points)-1;
+        for ($i=0; $i<$numPoints; ++$i) {
+            $length += sqrt(
+                pow(($points[$i]->getX() - $points[$i+1]->getX()), 2) +
+                pow(($points[$i]->getY() - $points[$i+1]->getY()), 2)
+            );
         }
+        
         return $length;
     }
 
-    public function length3D()
+    /**
+     * Returns the length of a 3-dimensional geometry.
+     *
+     * @return float
+     */
+    public function length3D(): float
     {
-        $length = 0;
-        /** @var Point $previousPoint */
+        $length = 0.0;
+        /**
+ * @var Point $previousPoint
+*/
         $previousPoint = null;
         foreach ($this->getPoints() as $point) {
             if ($previousPoint) {
                 $length += sqrt(
-                    pow(($previousPoint->x() - $point->x()), 2) +
-                    pow(($previousPoint->y() - $point->y()), 2) +
-                    pow(($previousPoint->z() - $point->z()), 2)
+                    pow(($previousPoint->getX() - $point->getX()), 2) +
+                    pow(($previousPoint->getY() - $point->getY()), 2) +
+                    pow(($previousPoint->getZ() - $point->getZ()), 2)
                 );
             }
             $previousPoint = $point;
@@ -141,21 +151,21 @@ class LineString extends Curve
     }
 
     /**
-     * @param float|null $radius Earth radius
-     * @return float Length in meters
+     * @param  float $radius Default is the semi-major axis of WGS84.
+     * @return float length in meters
      */
-    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS)
+    public function greatCircleLength(float $radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
-        $length = 0;
+        $length = 0.0;
         $rad = M_PI / 180;
         $points = $this->getPoints();
         $numPoints = $this->numPoints() - 1;
         for ($i = 0; $i < $numPoints; ++$i) {
             // Simplified Vincenty formula with equal major and minor axes (a sphere)
-            $lat1 = $points[$i]->y() * $rad;
-            $lat2 = $points[$i + 1]->y() * $rad;
-            $lon1 = $points[$i]->x() * $rad;
-            $lon2 = $points[$i + 1]->x() * $rad;
+            $lat1 = $points[$i]->getY() * $rad;
+            $lat2 = $points[$i + 1]->getY() * $rad;
+            $lon1 = $points[$i]->getX() * $rad;
+            $lon2 = $points[$i + 1]->getX() * $rad;
             $deltaLon = $lon2 - $lon1;
             $d = $radius *
                 atan2(
@@ -165,26 +175,26 @@ class LineString extends Curve
                     ),
                     sin($lat1) * sin($lat2) +
                     cos($lat1) * cos($lat2) * cos($deltaLon)
-            );
+                );
             if ($points[$i]->is3D()) {
                 $d = sqrt(
                     pow($d, 2) +
-                    pow($points[$i + 1]->z() - $points[$i]->z(), 2)
+                    pow($points[$i + 1]->getZ() - $points[$i]->getZ(), 2)
                 );
             }
 
             $length += $d;
         }
-        // Returns length in meters.
+        
         return $length;
     }
 
     /**
      * @return float Haversine length of geometry in degrees
      */
-    public function haversineLength()
+    public function haversineLength(): float
     {
-        $distance = 0;
+        $distance = 0.0;
         $points = $this->getPoints();
         $numPoints = $this->numPoints() - 1;
         for ($i = 0; $i < $numPoints; ++$i) {
@@ -192,9 +202,9 @@ class LineString extends Curve
             $nextPoint = $points[$i + 1];
             $degree = (geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS *
                 acos(
-                    sin(deg2rad($point->y())) * sin(deg2rad($nextPoint->y())) +
-                    cos(deg2rad($point->y())) * cos(deg2rad($nextPoint->y())) *
-                    cos(deg2rad(abs($point->x() - $nextPoint->x())))
+                    sin(deg2rad($point->getY())) * sin(deg2rad($nextPoint->getY())) +
+                    cos(deg2rad($point->getY())) * cos(deg2rad($nextPoint->getY())) *
+                    cos(deg2rad(abs($point->getX() - $nextPoint->getX())))
                 )
             );
             if (!is_nan($degree)) {
@@ -205,25 +215,25 @@ class LineString extends Curve
     }
 
     /**
-     * @source https://github.com/mjaschen/phpgeo/blob/master/src/Location/Distance/Vincenty.php
-     * @author Marcus Jaschen <mjaschen@gmail.com>
+     * @source  https://github.com/mjaschen/phpgeo/blob/master/src/Location/Distance/Vincenty.php
+     * @author  Marcus Jaschen <mjaschen@gmail.com>
      * @license https://opensource.org/licenses/GPL-3.0 GPL
      * (note: geoPHP uses "GPL version 2 (or later)" license which is compatible with GPLv3)
      *
      * @return float Length in meters
      */
-    public function vincentyLength()
+    public function vincentyLength(): float
     {
-        $length = 0;
+        $length = 0.0;
         $rad = M_PI / 180;
         $points = $this->getPoints();
-        $numPoints = $this->numPoints() - 1;
+        $numPoints = count($points) - 1;
         for ($i = 0; $i < $numPoints; ++$i) {
             // Inverse Vincenty formula
-            $lat1 = $points[$i]->y() * $rad;
-            $lat2 = $points[$i + 1]->y() * $rad;
-            $lng1 = $points[$i]->x() * $rad;
-            $lng2 = $points[$i + 1]->x() * $rad;
+            $lat1 = $points[$i]->getY() * $rad;
+            $lat2 = $points[$i + 1]->getY() * $rad;
+            $lng1 = $points[$i]->getX() * $rad;
+            $lng2 = $points[$i + 1]->getX() * $rad;
 
             $a = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS;
             $b = geoPHP::EARTH_WGS84_SEMI_MINOR_AXIS;
@@ -279,60 +289,71 @@ class LineString extends Curve
         return $length;
     }
 
+    /**
+     * @return int|float|null
+     */
     public function minimumZ()
     {
         $min = PHP_INT_MAX;
         foreach ($this->getPoints() as $point) {
-            if ($point->hasZ() && $point->z() < $min) {
-                $min = $point->z();
+            if (null !== ($z = $point->getZ()) && $z < $min) {
+                $min = $z;
             }
         }
-        return $min < PHP_INT_MAX ? $min : null;
+        return $min !== PHP_INT_MAX ? $min : null;
     }
 
+    /**
+     * @return int|float|null
+     */
     public function maximumZ()
     {
-        $max = ~PHP_INT_MAX;
+        $max = PHP_INT_MIN;
         foreach ($this->getPoints() as $point) {
-            if ($point->hasZ() && $point->z() > $max) {
-                $max = $point->z();
+            if (null !== ($z = $point->getZ()) && $z > $max) {
+                $max = $z;
             }
         }
 
-        return $max > ~PHP_INT_MAX ? $max : null;
+        return $max !== PHP_INT_MIN ? $max : null;
     }
 
+    /**
+     * @return int|float|null
+     */
     public function zDifference()
     {
         if ($this->startPoint()->hasZ() && $this->endPoint()->hasZ()) {
-            return abs($this->startPoint()->z() - $this->endPoint()->z());
-        } else {
-            return null;
+            return abs($this->startPoint()->getZ() - $this->endPoint()->getZ());
         }
+        
+        return null;
     }
 
     /**
      * Returns the cumulative elevation gain of the LineString
      *
      * @param int|float|null $verticalTolerance Smoothing factor filtering noisy elevation data.
-     *      Its unit equals to the z-coordinates unit (meters for geographical coordinates)
-     *      If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
+     *                                          Its unit equals to the z-coordinates unit (meters for geographical coordinates)
+     *                                          If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
      *
      * @return float
      */
     public function elevationGain($verticalTolerance = 0)
     {
         $gain = 0.0;
-        $lastEle = $this->startPoint()->z();
-        $pointCount = $this->numPoints();
+        $lastEle = $this->startPoint()->getZ();
+        $numPoints = $this->numPoints();
+        
         foreach ($this->getPoints() as $i => $point) {
-            if (abs($point->z() - $lastEle) > $verticalTolerance || $i === $pointCount - 1) {
-                if ($point->z() > $lastEle) {
-                    $gain += $point->z() - $lastEle;
+            if (abs($point->getZ() - $lastEle) > $verticalTolerance || $i === $numPoints - 1) {
+                if ($point->getZ() > $lastEle) {
+                    $gain += $point->getZ() - $lastEle;
                 }
-                $lastEle = $point->z();
+                $lastEle = $point->getZ();
             }
         }
+        
         return $gain;
     }
 
@@ -340,24 +361,26 @@ class LineString extends Curve
      * Returns the cumulative elevation loss of the LineString
      *
      * @param int|float|null $verticalTolerance Smoothing factor filtering noisy elevation data.
-     *      Its unit equals to the z-coordinates unit (meters for geographical coordinates)
-     *      If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
+     *                                          Its unit equals to the z-coordinates unit (meters for geographical coordinates)
+     *                                          If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
      *
      * @return float
      */
     public function elevationLoss($verticalTolerance = 0)
     {
         $loss = 0.0;
-        $lastEle = $this->startPoint()->z();
-        $pointCount = $this->numPoints();
+        $lastEle = $this->startPoint()->getZ();
+        $numPoints = $this->numPoints();
+        
         foreach ($this->getPoints() as $i => $point) {
-            if (abs($point->z() - $lastEle) > $verticalTolerance || $i === $pointCount - 1) {
-                if ($point->z() < $lastEle) {
-                    $loss += $lastEle - $point->z();
+            if (abs($point->getZ() - $lastEle) > $verticalTolerance || $i === $numPoints - 1) {
+                if ($point->getZ() < $lastEle) {
+                    $loss += $lastEle - $point->getZ();
                 }
-                $lastEle = $point->z();
+                $lastEle = $point->getZ();
             }
         }
+        
         return $loss;
     }
 
@@ -369,28 +392,28 @@ class LineString extends Curve
                 $min = $point->m();
             }
         }
-        return $min < PHP_INT_MAX ? $min : null;
+        return $min !== PHP_INT_MAX ? $min : null;
     }
 
     public function maximumM()
     {
-        $max = ~PHP_INT_MAX;
+        $max = PHP_INT_MIN;
         foreach ($this->getPoints() as $point) {
             if ($point->isMeasured() && $point->m() > $max) {
                 $max = $point->m();
             }
         }
 
-        return $max > ~PHP_INT_MAX ? $max : null;
+        return $max !== PHP_INT_MIN ? $max : null;
     }
 
     /**
      * Get all line segments
-     * @param bool $toArray return segments as LineString or array of start and end points
      *
+     * @param  bool $toArray return segments as LineString or array of start and end points
      * @return LineString[]|array[Point]
      */
-    public function explode($toArray = false)
+    public function explode(bool $toArray = false): array
     {
         $points = $this->getPoints();
         $numPoints = count($points);
@@ -408,9 +431,9 @@ class LineString extends Curve
     /**
      * Checks that LineString is a Simple Geometry
      *
-     * @return boolean
+     * @return bool
      */
-    public function isSimple()
+    public function isSimple(): bool
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -418,16 +441,7 @@ class LineString extends Curve
             return $this->getGeos()->isSimple();
             // @codeCoverageIgnoreEnd
         }
-
-        // As of OGR specification a ring is simple only if its start and end points equals in all coordinates
-        // Neither GEOS, nor PostGIS support it
-//        if ($this->hasZ()
-//                && $this->startPoint()->equals($this->endPoint())
-//                && $this->startPoint()->z() !== $this->endPoint()->z()
-//        ) {
-//            return false;
-//        }
-
+        
         $segments = $this->explode(true);
         foreach ($segments as $i => $segment) {
             foreach ($segments as $j => $checkSegment) {
@@ -438,14 +452,40 @@ class LineString extends Curve
                 }
             }
         }
+        
         return true;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        if ($this->getGeos()) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            return $this->getGeos()->checkValidity()['valid'];
+        }
+        
+        // there should only be unique points but there have to be at least 2 of them
+        $pts = [];
+        foreach ($this->components as $pt) {
+            if ($pt->isEmpty()) {
+                continue;
+            }
+            $pts[] = $pt->asText();
+        }
+        if (count(array_unique($pts)) < 2) {
+            return false;
+        }
+        
+        return $this->isSimple();
     }
 
     /**
-     * @param LineString $segment
+     * @param  LineString $segment
      * @return bool
      */
-    public function lineSegmentIntersect($segment)
+    public function lineSegmentIntersect($segment): bool
     {
         return Geometry::segmentIntersects(
             $this->startPoint(),
@@ -456,10 +496,10 @@ class LineString extends Curve
     }
 
     /**
-     * @param Geometry|Collection $geometry
-     * @return float|null
+     * @param  Geometry|Collection $geometry
+     * @return float
      */
-    public function distance($geometry)
+    public function distance(Geometry $geometry): float
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -468,42 +508,39 @@ class LineString extends Curve
             // @codeCoverageIgnoreEnd
         }
 
-        if ($geometry->geometryType() == Geometry::POINT) {
+        if ($geometry->geometryType() === Geometry::POINT) {
             // This is defined in the Point class nicely
-            return $geometry->distance($this);
+            return (float) $geometry->distance($this);
         }
-        if ($geometry->geometryType() == Geometry::LINE_STRING) {
-            $distance = NULL;
+        
+        if ($geometry->geometryType() === Geometry::LINESTRING) {
+            $distance = PHP_INT_MAX;
             $geometrySegments = $geometry->explode();
             foreach ($this->explode() as $seg1) {
-                /** @var LineString $seg2 */
+                // @var LineString $seg2
                 foreach ($geometrySegments as $seg2) {
                     if ($seg1->lineSegmentIntersect($seg2)) {
-                        return 0;
+                        return 0.0;
                     }
                     // Because line-segments are straight, the shortest distance will occur at an endpoint.
-                    // If they are parallel an endpoint calculation is still accurate.
-                    $checkDistance1 = $seg1->startPoint()->distance($seg2);
-                    $checkDistance2 = $seg1->endPoint()->distance($seg2);
-                    $checkDistance3 = $seg2->startPoint()->distance($seg1);
-                    $checkDistance4 = $seg2->endPoint()->distance($seg1);
+                    // If they are parallel, an endpoint calculation is still accurate.
+                    $distance = min(
+                        $distance,
+                        $seg1->startPoint()->distance($seg2),
+                        $seg1->endPoint()->distance($seg2),
+                        $seg2->startPoint()->distance($seg1),
+                        $seg2->endPoint()->distance($seg1)
+                    );
 
-                    $checkDistance = min($checkDistance1, $checkDistance2, $checkDistance3, $checkDistance4);
-                    if ($distance === null) {
-                        $distance = $checkDistance;
-                    }
-                    if ($checkDistance < $distance) {
-                        $distance = $checkDistance;
-                    }
                     if ($distance === 0.0) {
-                        return 0;
+                        return 0.0;
                     }
                 }
             }
-            return $distance;
-        } else {
-            // It can be treated as collection
-            return parent::distance($geometry);
+            return (float) $distance;
         }
+        
+        // It can be treated as a collection
+        return parent::distance($geometry);
     }
 }

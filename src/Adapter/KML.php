@@ -217,8 +217,6 @@ class KML implements GeoAdapter
             /** @noinspection SpellCheckingInspection */
             foreach ($this->childElements($innerBoundaryElement, 'linearring') as $innerRingElement) {
                 $components[] = $this->parseLineString($innerRingElement);
-
-
             }
         }
         
@@ -305,14 +303,14 @@ class KML implements GeoAdapter
             case Geometry::POINT:
                 /** @var Point $geometry */
                 return $this->pointToKML($geometry);
-            case Geometry::LINE_STRING:
+            case Geometry::LINESTRING:
                 /** @var LineString $geometry */
                 return $this->linestringToKML($geometry);
             case Geometry::POLYGON:
                 /** @var Polygon $geometry */
                 return $this->polygonToKML($geometry);
             case Geometry::MULTI_POINT:
-            case Geometry::MULTI_LINE_STRING:
+            case Geometry::MULTI_LINESTRING:
             case Geometry::MULTI_POLYGON:
             case Geometry::GEOMETRY_COLLECTION:
             /** @var Collection $geometry */
@@ -331,7 +329,7 @@ class KML implements GeoAdapter
         if ($geometry->isEmpty()) {
             $str .= "0,0";
         } else {
-            $str .= $geometry->x() . ',' . $geometry->y() . ($geometry->hasZ() ? ',' . $geometry->z() : '');
+            $str .= $geometry->getX() . ',' . $geometry->getY() . ($geometry->hasZ() ? ',' . $geometry->getZ() : '');
         }
         return $str . '</' . $this->nss . 'coordinates></' . $this->nss . "Point>\n";
     }
@@ -356,7 +354,7 @@ class KML implements GeoAdapter
                 if ($i != 0) {
                     $str .= ' ';
                 }
-                $str .= $comp->x() . ',' . $comp->y();
+                $str .= $comp->getX() . ',' . $comp->getY();
                 $i++;
             }
 

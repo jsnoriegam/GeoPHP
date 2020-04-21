@@ -1,7 +1,7 @@
 <?php
 
 /*
- * @author Báthory Péter
+ * @author Báthory Péter <peter.bathory@cartographia.hu>
  * @since 2016-02-27
  *
  * This code is open-source and licenced under the Modified BSD License.
@@ -144,7 +144,6 @@ class OSM implements GeoAdapter
             }
         }
 
-
         // Processing OSM Relations
         foreach ($this->xmlObj->getElementsByTagName('relation') as $relation) {
             /** @var \DOMElement $relation */
@@ -207,8 +206,7 @@ class OSM implements GeoAdapter
 
         // Process ways
         foreach ($ways as $way) {
-            if (
-                    (!$way['assigned'] || !empty($way['tags'])) &&
+            if ((!$way['assigned'] || !empty($way['tags'])) &&
                     !isset($way['tags']['boundary']) &&
                     (!isset($way['tags']['natural']) || $way['tags']['natural'] !== 'mountain_range')
             ) {
@@ -236,7 +234,6 @@ class OSM implements GeoAdapter
             }
         }
 
-        //var_dump($geometries);
         return count($geometries) === 1 ? $geometries[0] : new GeometryCollection($geometries);
     }
 
@@ -473,7 +470,7 @@ class OSM implements GeoAdapter
                     /** @var Point $geometry */
                     $this->processPoint($geometry);
                     break;
-                case Geometry::LINE_STRING:
+                case Geometry::LINESTRING:
                     /** @var LineString $geometry */
                     $this->processLineString($geometry);
                     break;
@@ -482,7 +479,7 @@ class OSM implements GeoAdapter
                     $this->processPolygon($geometry);
                     break;
                 case Geometry::MULTI_POINT:
-                case Geometry::MULTI_LINE_STRING:
+                case Geometry::MULTI_LINESTRING:
                 case Geometry::MULTI_POLYGON:
                 case Geometry::GEOMETRY_COLLECTION:
                     /** @var Collection $geometry */
@@ -499,7 +496,7 @@ class OSM implements GeoAdapter
      */
     protected function processPoint($point, $isWayPoint = false)
     {
-        $nodePosition = sprintf(self::OSM_COORDINATE_PRECISION . '_' . self::OSM_COORDINATE_PRECISION, $point->y(), $point->x());
+        $nodePosition = sprintf(self::OSM_COORDINATE_PRECISION . '_' . self::OSM_COORDINATE_PRECISION, $point->getY(), $point->getX());
         if (!isset($this->nodes[$nodePosition])) {
             $this->nodes[$nodePosition] = ['id' => --$this->idCounter, "used" => $isWayPoint];
             return $this->idCounter;
@@ -546,16 +543,17 @@ class OSM implements GeoAdapter
     public static function downloadFromOSMByBbox($left, $bottom, $right, $top)
     {
         /** @noinspection PhpUnusedParameterInspection */
-        set_error_handler( function ($errNO, $errStr, $errFile, $errLine, $errContext) {
-            if (isset($errContext['http_response_header'])) {
-                foreach ($errContext['http_response_header'] as $line) {
-                    if (strpos($line, 'Error: ') > -1) {
-                        throw new \Exception($line);
+        set_error_handler(
+            function ($errNO, $errStr, $errFile, $errLine, $errContext) {
+                if (isset($errContext['http_response_header'])) {
+                    foreach ($errContext['http_response_header'] as $line) {
+                        if (strpos($line, 'Error: ') > -1) {
+                              throw new \Exception($line);
+                        }
                     }
                 }
-            }
-            throw new \Exception('unknown error');
-        },
+                throw new \Exception('unknown error');
+            },
             E_WARNING
         );
 
@@ -568,5 +566,4 @@ class OSM implements GeoAdapter
             throw new \Exception("Failed to download from OSM. " . $e->getMessage());
         }
     }
-
 }

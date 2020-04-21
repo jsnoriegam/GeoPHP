@@ -63,7 +63,7 @@ class GeoRSS implements GeoAdapter
 
     /**
      * Creates a new geometry-object from input-string.
-     * 
+     *
      * @param string $text
      * @return Geometry|GeometryCollection
      * @throws \Exception
@@ -98,10 +98,10 @@ class GeoRSS implements GeoAdapter
     protected function geomFromXML()
     {
         $geometries = array_merge(
-            $this->parsePoints(), 
-            $this->parseLines(), 
-            $this->parsePolygons(), 
-            $this->parseBoxes(), 
+            $this->parsePoints(),
+            $this->parseLines(),
+            $this->parsePolygons(),
+            $this->parseBoxes(),
             $this->parseCircles()
         );
 
@@ -185,7 +185,7 @@ class GeoRSS implements GeoAdapter
 
     /**
      * Boxes are rendered into polygons.
-     * 
+     *
      * @return array
      */
     protected function parseBoxes(): array
@@ -233,14 +233,14 @@ class GeoRSS implements GeoAdapter
         switch ($type) {
             case Geometry::POINT:
                 return $this->pointToGeoRSS($geometry);
-            case Geometry::LINE_STRING:
+            case Geometry::LINESTRING:
                 /** @noinspection PhpParamsInspection */
                 return $this->linestringToGeoRSS($geometry);
             case Geometry::POLYGON:
                 /** @noinspection PhpParamsInspection */
                 return $this->PolygonToGeoRSS($geometry);
             case Geometry::MULTI_POINT:
-            case Geometry::MULTI_LINE_STRING:
+            case Geometry::MULTI_LINESTRING:
             case Geometry::MULTI_POLYGON:
             case Geometry::GEOMETRY_COLLECTION:
                 /** @noinspection PhpParamsInspection */
@@ -255,7 +255,7 @@ class GeoRSS implements GeoAdapter
      */
     private function pointToGeoRSS(Point $geometry): string
     {
-        return '<' . $this->nss . 'point>' . $geometry->y() . ' ' . $geometry->x() . '</' . $this->nss . 'point>';
+        return '<' . $this->nss . 'point>' . $geometry->getY() . ' ' . $geometry->getX() . '</' . $this->nss . 'point>';
     }
 
     /**
@@ -266,7 +266,7 @@ class GeoRSS implements GeoAdapter
     {
         $output = '<' . $this->nss . 'line>';
         foreach ($geometry->getComponents() as $k => $point) {
-            $output .= $point->y() . ' ' . $point->x();
+            $output .= $point->getY() . ' ' . $point->getX();
             if ($k < ($geometry->numGeometries() - 1)) {
                 $output .= ' ';
             }
@@ -284,7 +284,7 @@ class GeoRSS implements GeoAdapter
         $output = '<' . $this->nss . 'polygon>';
         $exteriorRing = $geometry->exteriorRing();
         foreach ($exteriorRing->getComponents() as $k => $point) {
-            $output .= $point->y() . ' ' . $point->x();
+            $output .= $point->getY() . ' ' . $point->getX();
             if ($k < ($exteriorRing->numGeometries() - 1)) {
                 $output .= ' ';
             }

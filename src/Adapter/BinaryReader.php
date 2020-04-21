@@ -63,7 +63,7 @@ class BinaryReader extends BinaryAdapter
     
     /**
      * Reads a signed 8-bit integer from the buffer
-     * 
+     *
      * @return int|null
      */
     public function readSInt8()
@@ -74,7 +74,7 @@ class BinaryReader extends BinaryAdapter
 
     /**
      * Reads an unsigned 8-bit integer from the buffer
-     * 
+     *
      * @return int|null
      */
     public function readUInt8()
@@ -85,7 +85,7 @@ class BinaryReader extends BinaryAdapter
 
     /**
      * Reads an unsigned 32-bit integer from the buffer
-     * 
+     *
      * @return int|null
      */
     public function readUInt32()
@@ -97,7 +97,7 @@ class BinaryReader extends BinaryAdapter
     /**
      * Reads one or more double values from the buffer
      * @param int $length How many double values to read. Default is 1
-     * 
+     *
      * @return float[]
      */
     public function readDoubles($length = 1): array
@@ -134,7 +134,7 @@ class BinaryReader extends BinaryAdapter
      */
     public function readSVarInt(): int
     {
-        return self::ZigZagDecode($this->readUVarInt());
+        return self::zigZagDecode($this->readUVarInt());
     }
 
     /**
@@ -143,7 +143,7 @@ class BinaryReader extends BinaryAdapter
      * @param int $value Encrypted positive integer value
      * @return int Decoded signed integer
      */
-    public static function ZigZagDecode($value): int
+    public static function zigZagDecode($value): int
     {
         return ($value & 1) === 0 ? $value >> 1 : -($value >> 1) - 1;
     }

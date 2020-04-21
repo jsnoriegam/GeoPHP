@@ -7,20 +7,28 @@ use geoPHP\geoPHP;
 /**
  * MultiGeometry is an abstract collection of geometries
  *
- * @package geoPHP\Geometry
+ * @package GeoPHPGeometry
  */
 abstract class MultiGeometry extends Collection
 {
 
-    public function __construct($components = [], $allowEmptyComponents = true, $allowedComponentType = Geometry::class)
-    {
+    /**
+     * @param array  $components
+     * @param bool   $allowEmptyComponents
+     * @param string $allowedComponentType
+     */
+    public function __construct(
+        array $components = [],
+        bool $allowEmptyComponents = true,
+        string $allowedComponentType = Geometry::class
+    ) {
         parent::__construct($components, $allowEmptyComponents, $allowedComponentType);
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    public function isSimple()
+    public function isSimple(): bool
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -38,12 +46,37 @@ abstract class MultiGeometry extends Collection
 
         return true;
     }
+    
+    /**
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        if ($this->getGeos()) {
+            return parent::isValid();
+        }
 
-    // By default, the boundary of a collection is the boundary of it's components
-    public function boundary()
+        // A collection is valid if all it's components are valid
+        foreach ($this->components as $component) {
+            if (!$component->isValid()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the boundary, or an empty geometry of appropriate dimension if this Geometry is empty.
+     * By default, the boundary of a collection is the boundary of it's components.
+     * In the case of zero-dimensional geometries, an empty GeometryCollection is returned.
+     *
+     * @return Geometry|GeometryCollection
+     */
+    public function boundary(): Geometry
     {
         if ($this->isEmpty()) {
-            return new LineString();
+            return new GeometryCollection();
         }
 
         if ($this->getGeos()) {
@@ -60,39 +93,45 @@ abstract class MultiGeometry extends Collection
         return geoPHP::buildGeometry($componentsBoundaries);
     }
 
-    public function area()
+    /**
+     * Returns the total area of this collection.
+     *
+     * @return float
+     */
+    public function getArea(): float
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->area();
+            return (float) $this->getGeos()->area();
             // @codeCoverageIgnoreEnd
         }
 
-        $area = 0;
+        $area = 0.0;
         foreach ($this->components as $component) {
-            $area += $component->area();
+            $area += $component->getArea();
         }
-        return $area;
+        return (float) $area;
     }
 
     /**
-     *  Returns the length of this Collection in its associated spatial reference.
+     * Returns the length of this Collection in its associated spatial reference.
      * Eg. if Geometry is in geographical coordinate system it returns the length in degrees
-     * @return float|int
+     *
+     * @return float
      */
-    public function length()
+    public function getLength(): float
     {
-        $length = 0;
+        $length = 0.0;
         foreach ($this->components as $component) {
-            $length += $component->length();
+            $length += $component->getLength();
         }
         return $length;
     }
 
-    public function length3D()
+    public function length3D(): float
     {
-        $length = 0;
+        $length = 0.0;
         foreach ($this->components as $component) {
             $length += $component->length3D();
         }
@@ -101,21 +140,25 @@ abstract class MultiGeometry extends Collection
 
     /**
      * Returns the degree based Geometry' length in meters
-     * @param float|null $radius Default is the semi-major axis of WGS84
+     *
+     * @param  float $radius Default is the semi-major axis of WGS84.
      * @return int the length in meters
      */
-    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS)
+    public function greatCircleLength(float $radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
-        $length = 0;
+        $length = 0.0;
         foreach ($this->components as $component) {
             $length += $component->greatCircleLength($radius);
         }
         return $length;
     }
 
-    public function haversineLength()
+    /**
+     * @return float sum haversine length of all components
+     */
+    public function haversineLength(): float
     {
-        $length = 0;
+        $length = 0.0;
         foreach ($this->components as $component) {
             $length += $component->haversineLength();
         }
@@ -127,23 +170,23 @@ abstract class MultiGeometry extends Collection
         $min = PHP_INT_MAX;
         foreach ($this->components as $component) {
             $componentMin = $component->minimumZ();
-            if ($componentMin < $min) {
+            if (null !== $componentMin && $componentMin < $min) {
                 $min = $componentMin;
             }
         }
-        return $min < PHP_INT_MAX ? $min : null;
+        return $min !== PHP_INT_MAX ? $min : null;
     }
 
     public function maximumZ()
     {
-        $max = ~PHP_INT_MAX;
+        $max = PHP_INT_MIN;
         foreach ($this->components as $component) {
             $componentMax = $component->maximumZ();
             if ($componentMax > $max) {
                 $max = $componentMax;
             }
         }
-        return $max > ~PHP_INT_MAX ? $max : null;
+        return $max !== PHP_INT_MIN ? $max : null;
     }
 
     public function zDifference()
@@ -151,10 +194,10 @@ abstract class MultiGeometry extends Collection
         $startPoint = $this->startPoint();
         $endPoint = $this->endPoint();
         if ($startPoint && $endPoint && $startPoint->hasZ() && $endPoint->hasZ()) {
-            return abs($startPoint->z() - $endPoint->z());
-        } else {
-            return null;
+            return abs($startPoint->getZ() - $endPoint->getZ());
         }
+        
+        return null;
     }
 
     public function elevationGain($verticalTolerance = 0)
@@ -184,60 +227,23 @@ abstract class MultiGeometry extends Collection
                 $min = $componentMin;
             }
         }
-        return $min < PHP_INT_MAX ? $min : null;
+        return $min !== PHP_INT_MAX ? $min : null;
     }
 
     public function maximumM()
     {
-        $max = ~PHP_INT_MAX;
+        $max = PHP_INT_MIN;
         foreach ($this->components as $component) {
             $componentMax = $component->maximumM();
             if ($componentMax > $max) {
                 $max = $componentMax;
             }
         }
-        return $max > ~PHP_INT_MAX ? $max : null;
+        return $max !== PHP_INT_MIN ? $max : null;
     }
 
-
-
-    public function startPoint()
+    public function isClosed(): bool
     {
-        return null;
-    }
-
-    public function endPoint()
-    {
-        return null;
-    }
-
-    public function isRing()
-    {
-        return null;
-    }
-
-    public function isClosed()
-    {
-        return null;
-    }
-
-    public function pointN($n)
-    {
-        return null;
-    }
-
-    public function exteriorRing()
-    {
-        return null;
-    }
-
-    public function numInteriorRings()
-    {
-        return null;
-    }
-
-    public function interiorRingN($n)
-    {
-        return null;
+        return true;
     }
 }

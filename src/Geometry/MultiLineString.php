@@ -7,13 +7,12 @@ use geoPHP\geoPHP;
 /**
  * MultiLineString: A collection of LineStrings
  *
- * @method LineString[] getComponents()
- * @property LineString[] $components
+ * @package GeoPHPGeometry
  */
 class MultiLineString extends MultiCurve
 {
 
-    public function __construct($components = [])
+    public function __construct(array $components = [])
     {
         parent::__construct($components, true, LineString::class);
     }
@@ -23,15 +22,21 @@ class MultiLineString extends MultiCurve
      */
     protected $components = [];
 
-    public function geometryType()
+    /**
+     * @return string "MultiLineString"
+     */
+    public function geometryType(): string
     {
-        return Geometry::MULTI_LINE_STRING;
+        return Geometry::MULTI_LINESTRING;
     }
 
-    public function centroid()
+    /**
+     * @return Point
+     */
+    public function getCentroid(): Point
     {
         if ($this->isEmpty()) {
-            return null;
+            return new Point;
         }
 
         if ($this->getGeos()) {
@@ -50,9 +55,10 @@ class MultiLineString extends MultiCurve
             if ($line->isEmpty()) {
                 continue;
             }
-            $componentCentroid = $line->getCentroidAndLength($componentLength);
-            $x += $componentCentroid->x() * $componentLength;
-            $y += $componentCentroid->y() * $componentLength;
+            $componentLength = $line->getLength();
+            $componentCentroid = $line->getCentroid();
+            $x += $componentCentroid->getX() * $componentLength;
+            $y += $componentCentroid->getY() * $componentLength;
             $totalLength += $componentLength;
         }
         if ($totalLength == 0) {
@@ -62,11 +68,18 @@ class MultiLineString extends MultiCurve
     }
 
     /**
-     * The boundary of a MultiLineString is a MultiPoint consists of the start and end points of its non-closed LineStrings
+     * The boundary of a MultiLineString is a MultiPoint which consists of the start and
+     * end points of its non-closed LineStrings.
+     *
+     * @internal That seems not to be the full truth. When z-values come in, all gets a little confusing.
+     *          PostGIS: "MULTILINESTRING((0 0 0, 1 0 0),(0 0 0, 1 0 1))" => "MULTIPOINT EMPTY"
+     *          PostGIS: "MULTILINESTRING((0 0 0, 1 0 0),(0 0 0, 1 1 1))" => "MULTIPOINT(1 0 0,1 1 1)"
+     *          PostGIS: "MULTILINESTRING((1 1 1, -1 1 1),(1 1 1,-1 1 0.5, 1 1 0.5))" => "MULTIPOINT(-1 1 1,1 1 0.75)"
+     *          PostGIS: "MULTILINESTRING((0 0 0, -1 1 1),(0 0 0,-1 1 0.5, 1 1 0.5))" => "MULTIPOINT(-1 1 1,1 1 0.5)"
      *
      * @return MultiPoint
      */
-    public function boundary()
+    public function boundary(): Geometry
     {
         $points = [];
         foreach ($this->components as $line) {

@@ -47,10 +47,10 @@ class WKB implements GeoAdapter
     /** @var array Maps Geometry types to WKB type codes */
     public static $typeMap = [
         Geometry::POINT => 1,
-        Geometry::LINE_STRING => 2,
+        Geometry::LINESTRING => 2,
         Geometry::POLYGON => 3,
         Geometry::MULTI_POINT => 4,
-        Geometry::MULTI_LINE_STRING => 5,
+        Geometry::MULTI_LINESTRING => 5,
         Geometry::MULTI_POLYGON => 6,
         Geometry::GEOMETRY_COLLECTION => 7,
         //Not supported types:
@@ -293,7 +293,7 @@ class WKB implements GeoAdapter
                 /** @var Point $geometry */
                 $wkb .= $this->writePoint($geometry);
                 break;
-            case Geometry::LINE_STRING:
+            case Geometry::LINESTRING:
                 /** @var LineString $geometry */
                 $wkb .= $this->writeLineString($geometry);
                 break;
@@ -305,7 +305,7 @@ class WKB implements GeoAdapter
                 /** @var MultiPoint $geometry */
                 $wkb .= $this->writeMulti($geometry);
                 break;
-            case Geometry::MULTI_LINE_STRING:
+            case Geometry::MULTI_LINESTRING:
                 /** @var MultiLineString $geometry */
                 $wkb .= $this->writeMulti($geometry);
                 break;
@@ -330,10 +330,10 @@ class WKB implements GeoAdapter
         if ($point->isEmpty()) {
             return $this->writer->writeDouble(null) . $this->writer->writeDouble(null);
         }
-        $wkb = $this->writer->writeDouble($point->x()) . $this->writer->writeDouble($point->y());
+        $wkb = $this->writer->writeDouble($point->getX()) . $this->writer->writeDouble($point->getY());
 
         if ($this->hasZ) {
-            $wkb .= $this->writer->writeDouble($point->z());
+            $wkb .= $this->writer->writeDouble($point->getZ());
         }
         if ($this->hasM) {
             $wkb .= $this->writer->writeDouble($point->m());

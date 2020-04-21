@@ -46,13 +46,12 @@ class GoogleGeocode implements GeoAdapter
      * @throws \Exception If geocoding fails
      */
     public function read(
-            string $address,
-            $apiKey = null,
-            string $returnType = 'point',
-            bool $bounds = false,
-            bool $returnMultiple = false
-        ): Geometry
-    {
+        string $address,
+        $apiKey = null,
+        string $returnType = 'point',
+        bool $bounds = false,
+        bool $returnMultiple = false
+    ): Geometry {
         if (is_array($address)) {
             $address = join(',', $address);
         }
@@ -127,9 +126,9 @@ class GoogleGeocode implements GeoAdapter
      */
     public function write(Geometry $geometry, $apiKey = null, $returnType = 'string', $language = null)
     {
-        $centroid = $geometry->centroid();
-        $lat = $centroid->y();
-        $lon = $centroid->x();
+        $centroid = $geometry->getCentroid();
+        $lat = $centroid->getY();
+        $lon = $centroid->getX();
 
         $url = "http://maps.googleapis.com/maps/api/geocode/json";
         /** @noinspection SpellCheckingInspection */

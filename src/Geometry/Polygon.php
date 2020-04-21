@@ -3,33 +3,31 @@
 namespace geoPHP\Geometry;
 
 use geoPHP\Exception\InvalidGeometryException;
-use geoPHP\Exception\UnsupportedMethodException;
 use geoPHP\geoPHP;
 
 /**
  * Polygon: A polygon is a plane figure that is bounded by a closed path,
- * composed of a finite sequence of straight line segments
+ * composed of a finite sequence of straight line segments.
  *
- * @method LineString[] getComponents()
- * @property LineString[] $components
+ * @package GeoPHPGeometry
  */
 class Polygon extends Surface
 {
 
     /**
-     * @param LineString[] $components
-     * @param bool|false $forceCreate
-     * @throws \Exception
+     * @param  LineString[] $components
+     * @param  bool|false   $forceCreate force creation even if polygon is invalid because it is not closed
+     * @throws \InvalidGeometryException
      */
-    public function __construct($components = [], $forceCreate = false)
+    public function __construct(array $components = [], bool $forceCreate = false)
     {
-        parent::__construct($components, null, LineString::class);
+        parent::__construct($components, true, LineString::class);
 
         foreach ($this->getComponents() as $i => $component) {
             if ($component->numPoints() < 4) {
                 throw new InvalidGeometryException(
                     'Cannot create Polygon: Invalid number of points in LinearRing. Found ' .
-                    $component->numPoints() . ', expected more than 3'
+                    $component->numPoints() . ', but expected more than 3.'
                 );
             }
             if (!$component->isClosed()) {
@@ -39,7 +37,7 @@ class Polygon extends Surface
                     );
                 } else {
                     throw new InvalidGeometryException(
-                        'Cannot create Polygon: contains non-closed ring (first point: '
+                        'Cannot create Polygon: contains a non-closed ring (first point: '
                             . implode(' ', $component->startPoint()->asArray()) . ', last point: '
                             . implode(' ', $component->endPoint()->asArray()) . ')'
                     );
@@ -52,57 +50,64 @@ class Polygon extends Surface
         }
     }
 
-    public function geometryType()
+    /**
+     * @return string "Polygon"
+     */
+    public function geometryType(): string
     {
         return Geometry::POLYGON;
     }
 
-    public function dimension()
+    /**
+     * @return int 2
+     */
+    public function dimension(): int
     {
         return 2;
     }
 
     /**
      * @param bool|false $exteriorOnly Calculate the area of exterior ring only, or the polygon with holes
-     * @param bool|false $signed       Usually we want to get positive area, but vertices order (CW or CCW) can be determined from signed area.
+     * @param bool|false $signed       Usually we want to get positive area, but vertices order (CW or CCW) can be
+     *                                 determined from signed area.
      *
-     * @return float|null|number
+     * @return float
      */
-    public function area($exteriorOnly = false, $signed = false)
+    public function getArea(bool $exteriorOnly = false, bool $signed = false): float
     {
         if ($this->isEmpty()) {
-            return 0;
+            return 0.0;
         }
 
-        if ($this->getGeos() && $exteriorOnly == false) {
+        if ($this->getGeos() && $exteriorOnly === false) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->area();
+            return (float) $this->getGeos()->area();
             // @codeCoverageIgnoreEnd
         }
 
         $exteriorRing = $this->components[0];
         $points = $exteriorRing->getComponents();
 
-        $pointCount = count($points);
-        if ($pointCount === 0) {
-            return null;
+        $numPoints = count($points);
+        if ($numPoints === 0) {
+            return 0.0;
         }
         $a = 0;
         foreach ($points as $k => $p) {
-            $j = ($k + 1) % $pointCount;
-            $a = $a + ($p->x() * $points[$j]->y()) - ($p->y() * $points[$j]->x());
+            $j = ($k + 1) % $numPoints;
+            $a = $a + ($p->getX() * $points[$j]->getY()) - ($p->getY() * $points[$j]->getX());
         }
 
         $area = $signed ? ($a / 2) : abs(($a / 2));
 
-        if ($exteriorOnly == true) {
-            return $area;
+        if ($exteriorOnly === true) {
+            return (float) $area;
         }
         foreach ($this->components as $delta => $component) {
             if ($delta != 0) {
                 $innerPoly = new Polygon([$component]);
-                $area -= $innerPoly->area();
+                $area -= $innerPoly->getArea();
             }
         }
         return (float) $area;
@@ -111,7 +116,7 @@ class Polygon extends Surface
     /**
      * @return Point
      */
-    public function centroid()
+    public function getCentroid(): Point
     {
         if ($this->isEmpty()) {
             return new Point();
@@ -126,10 +131,10 @@ class Polygon extends Surface
 
         $x = 0;
         $y = 0;
-        $totalArea = 0;
+        $totalArea = 0.0;
         foreach ($this->getComponents() as $i => $component) {
             $ca = $this->getRingCentroidAndArea($component);
-            if ($i == 0) {
+            if ($i === 0) {
                 $totalArea += $ca['area'];
                 $x += $ca['x'] * $ca['area'];
                 $y += $ca['y'] * $ca['area'];
@@ -146,43 +151,48 @@ class Polygon extends Surface
     }
 
     /**
-     * @param LineString $ring
+     * @param  LineString $ring
      * @return array
      */
-    protected function getRingCentroidAndArea($ring)
+    protected function getRingCentroidAndArea(LineString $ring): array
     {
         $area = (new Polygon([$ring]))->area(true, true);
 
         $points = $ring->getPoints();
-        $pointCount = count($points);
-        if ($pointCount === 0 || $area == 0.0) {
-            return ['area' => 0, 'x' => null, 'y' => null];
+        $numPoints = count($points);
+        if ($numPoints === 0 || $area == 0.0) {
+            return ['area' => 0.0, 'x' => null, 'y' => null];
         }
         $x = 0;
         $y = 0;
         foreach ($points as $k => $point) {
-            $j = ($k + 1) % $pointCount;
-            $P = ($point->x() * $points[$j]->y()) - ($point->y() * $points[$j]->x());
-            $x += ($point->x() + $points[$j]->x()) * $P;
-            $y += ($point->y() + $points[$j]->y()) * $P;
+            $j = ($k + 1) % $numPoints;
+            $P = ($point->getX() * $points[$j]->getY()) - ($point->getY() * $points[$j]->getX());
+            $x += ($point->getX() + $points[$j]->getX()) * $P;
+            $y += ($point->getY() + $points[$j]->getY()) * $P;
         }
-        return ['area' => abs($area), 'x' => $x / (6 * $area), 'y' => $y / (6 * $area)];
+        
+        return [
+            'area' => abs($area),
+            'x' => $x / (6 * $area),
+            'y' => $y / (6 * $area)
+        ];
     }
 
     /**
      * Find the outermost point from the centroid
      *
-     * @returns Point The outermost point
+     * @return Point the outermost point
      */
-    public function outermostPoint()
+    public function outermostPoint(): Point
     {
-        $centroid = $this->centroid();
+        $centroid = $this->getCentroid();
         if ($centroid->isEmpty()) {
             return $centroid;
         }
 
         $maxDistance = 0;
-        $maxPoint = null;
+        $maxPoint = new Point;
 
         foreach ($this->exteriorRing()->getPoints() as $point) {
             $distance = $centroid->distance($point);
@@ -207,20 +217,29 @@ class Polygon extends Surface
         return $this->components[0];
     }
 
-    public function numInteriorRings()
+    /**
+     * @return int
+     */
+    public function numInteriorRings(): int
     {
-        if ($this->isEmpty()) {
-            return 0;
-        }
-        return $this->numGeometries() - 1;
+        return $this->isEmpty() ? 0 : $this->numGeometries() - 1;
     }
 
-    public function interiorRingN($n)
+    /**
+     * Returns the linestring for the nth interior ring of the polygon. Interior rings are holes in the polygon.
+     *
+     * @param  int $n 1-based geometry number
+     * @return LineString
+     */
+    public function interiorRingN(int $n)
     {
-        return $this->geometryN($n + 1);
+        return $this->numInteriorRings() < $n ? new LineString : $this->geometryN($n + 1);
     }
 
-    public function isSimple()
+    /**
+     * @return bool
+     */
+    public function isSimple(): bool
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -230,7 +249,7 @@ class Polygon extends Surface
         }
 
         $segments = $this->explode(true);
-
+        
         //TODO: instead of this O(n^2) algorithm implement Shamos-Hoey Algorithm which is only O(n*log(n))
         foreach ($segments as $i => $segment) {
             foreach ($segments as $j => $checkSegment) {
@@ -241,7 +260,44 @@ class Polygon extends Surface
                 }
             }
         }
+        
         return true;
+    }
+    
+    /**
+     * If GEOS is not available, it is still a quite simple test of validity for polygons.
+     * E.g. a test for self-intersections is missing.
+     *
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        if ($this->getGeos()) {
+            // @codeCoverageIgnoreStart
+            /** @noinspection PhpUndefinedMethodInspection */
+            return $this->getGeos()->checkValidity()['valid'];
+            // @codeCoverageIgnoreEnd
+        }
+        
+        // all rings (LineStrings) have to be valid itself
+        /**
+ * @var \geoPHP\Geometry\LineString $ring
+*/
+        foreach ($this->components as $ring) {
+            if ($ring->isEmpty()) {
+                continue;
+            }
+            if (!$ring->isValid()) {
+                return false;
+            }
+            $wkt = str_ireplace(['LINESTRING(',')'], '', $ring->asText());
+            $pts = array_unique(array_map('trim', explode(',', $wkt)));
+            if (count($pts) < 3) {
+                return false;
+            }
+        }
+        
+        return $this->isSimple();
     }
 
     /**
@@ -250,68 +306,62 @@ class Polygon extends Surface
      *
      * @see http://en.wikipedia.org/wiki/Point%5Fin%5Fpolygon
      *
-     * @param Point $point
-     * @param boolean $pointOnBoundary - whether a boundary should be considered "in" or not
-     * @param boolean $pointOnVertex - whether a vertex should be considered "in" or not
-     * @return boolean
+     * @param  Point   $point
+     * @param  boolean $pointOnBoundary - whether a boundary should be considered "in" or not
+     * @param  boolean $pointOnVertex   - whether a vertex should be considered "in" or not
+     * @return bool
      */
-    public function pointInPolygon($point, $pointOnBoundary = true, $pointOnVertex = true)
+    public function pointInPolygon(Point $point, bool $pointOnBoundary = true, bool $pointOnVertex = true): bool
     {
         $vertices = $this->getPoints();
 
         // Check if the point sits exactly on a vertex
         if ($this->pointOnVertex($point, $vertices)) {
-            return $pointOnVertex ? true : false;
+            return $pointOnVertex;
         }
 
         // Check if the point is inside the polygon or on the boundary
         $intersections = 0;
         $verticesCount = count($vertices);
         for ($i = 1; $i < $verticesCount; $i++) {
-
             $vertex1 = $vertices[$i - 1];
             $vertex2 = $vertices[$i];
-            if (
-                $vertex1->y() == $vertex2->y()
-                && $vertex1->y() == $point->y()
-                && $point->x() > min($vertex1->x(), $vertex2->x())
-                && $point->x() < max($vertex1->x(), $vertex2->x())
+            if ($vertex1->getY() == $vertex2->getY()
+                && $vertex1->getY() == $point->getY()
+                && $point->getX() > min($vertex1->getX(), $vertex2->getX())
+                && $point->getX() < max($vertex1->getX(), $vertex2->getX())
             ) {
                 // Check if point is on an horizontal polygon boundary
-                return $pointOnBoundary ? true : false;
+                return $pointOnBoundary;
             }
-            if (
-                $point->y() > min($vertex1->y(), $vertex2->y())
-                && $point->y() <= max($vertex1->y(), $vertex2->y())
-                && $point->x() <= max($vertex1->x(), $vertex2->x())
-                && $vertex1->y() != $vertex2->y()
+            if ($point->getY() > min($vertex1->getY(), $vertex2->getY())
+                && $point->getY() <= max($vertex1->getY(), $vertex2->getY())
+                && $point->getX() <= max($vertex1->getX(), $vertex2->getX())
+                && $vertex1->getY() != $vertex2->getY()
             ) {
                 $xinters =
-                        ($point->y() - $vertex1->y()) * ($vertex2->x() - $vertex1->x())
-                        / ($vertex2->y() - $vertex1->y())
-                        + $vertex1->x();
-                if ($xinters == $point->x()) {
+                        ($point->getY() - $vertex1->getY()) * ($vertex2->getX() - $vertex1->getX())
+                        / ($vertex2->getY() - $vertex1->getY())
+                        + $vertex1->getX();
+                if ($xinters == $point->getX()) {
                     // Check if point is on the polygon boundary (other than horizontal)
-                    return $pointOnBoundary ? true : false;
+                    return $pointOnBoundary;
                 }
-                if ($vertex1->x() == $vertex2->x() || $point->x() <= $xinters) {
+                if ($vertex1->getX() == $vertex2->getX() || $point->getX() <= $xinters) {
                     $intersections++;
                 }
             }
         }
+        
         // If the number of edges we passed through is even, then it's in the polygon.
-        if ($intersections % 2 != 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return ($intersections % 2 != 0);
     }
 
     /**
-     * @param Point $point
+     * @param  Point $point
      * @return bool
      */
-    public function pointOnVertex($point)
+    public function pointOnVertex(Point $point): bool
     {
         foreach ($this->getPoints() as $vertex) {
             if ($point->equals($vertex)) {
@@ -324,10 +374,11 @@ class Polygon extends Surface
     /**
      * Checks whether the given geometry is spatially inside the Polygon
      * TODO: rewrite this. Currently supports point, linestring and polygon with only outer ring
-     * @param Geometry $geometry
+     *
+     * @param  Geometry $geometry
      * @return bool
      */
-    public function contains(Geometry $geometry)
+    public function contains(Geometry $geometry): bool
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -347,12 +398,11 @@ class Polygon extends Surface
             return false;
         }
 
-        if ($geometry->geometryType() == Geometry::LINE_STRING) {
-        } elseif ($geometry->geometryType() == Geometry::POLYGON) {
-
+        if ($geometry->geometryType() === Geometry::LINESTRING) {
+            // do nothing
+        } elseif ($geometry->geometryType() === Geometry::POLYGON) {
             $geometry = $geometry->exteriorRing();
         } else {
-
             return false;
         }
 
@@ -367,14 +417,20 @@ class Polygon extends Surface
         return true;
     }
 
-    public function getBBox()
+    /**
+     * @return array
+     */
+    public function getBBox(): array
     {
         return $this->exteriorRing()->getBBox();
     }
 
-    public function boundary()
+    /**
+     * @return LineString|MultiLineString
+     */
+    public function boundary(): Geometry
     {
-        // TODO: Implement boundary() method.
-        throw new UnsupportedMethodException(__METHOD__);
+        $rings = $this->getComponents();
+        return count($rings) > 0 ? new MultiLineString($rings) : new LineString($rings);
     }
 }

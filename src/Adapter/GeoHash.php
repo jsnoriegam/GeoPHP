@@ -143,7 +143,8 @@ class GeoHash implements GeoAdapter
     }
 
     /**
-     * @author algorithm based on code by Alexander Songe <a@songe.me>
+     * algorithm based on code by Alexander Songe
+     * @author Alexander Songe <a@songe.me>
      * @see https://github.com/asonge/php-geohash/issues/1
      *
      * @param Point $point
@@ -164,16 +165,15 @@ class GeoHash implements GeoAdapter
         $hash = '';
 
         if (!is_numeric($precision)) {
-            $lap = strlen($point->y()) - strpos($point->y(), ".");
-            $lop = strlen($point->x()) - strpos($point->x(), ".");
+            $lap = strlen($point->getY()) - strpos($point->getY(), ".");
+            $lop = strlen($point->getX()) - strpos($point->getX(), ".");
             $precision = pow(10, -max($lap - 1, $lop - 1, 0)) / 2;
         }
 
-        if (
-            $point->x() < $minLongitude || $point->y() < $minLatitude ||
-            $point->x() > $maxLongitude || $point->y() > $maxLatitude
+        if ($point->getX() < $minLongitude || $point->getY() < $minLatitude ||
+            $point->getX() > $maxLongitude || $point->getY() > $maxLatitude
         ) {
-            throw new \Exception("Point coordinates ({$point->x()}, {$point->y()}) are out of lat/lon range");
+            throw new \Exception("Point coordinates ({$point->getX()}, {$point->getY()}) are out of lat/lon range");
         }
 
         while ($error >= $precision) {
@@ -182,7 +182,7 @@ class GeoHash implements GeoAdapter
                 if ((1 & $b) == (1 & $i)) {
                     // even char, even bit OR odd char, odd bit...a lon
                     $next = ($minLongitude + $maxLongitude) / 2;
-                    if ($point->x() > $next) {
+                    if ($point->getX() > $next) {
                         $chr |= pow(2, $b);
                         $minLongitude = $next;
                     } else {
@@ -192,7 +192,7 @@ class GeoHash implements GeoAdapter
                 } else {
                     // odd char, even bit OR even char, odd bit...a lat
                     $next = ($minLatitude + $maxLatitude) / 2;
-                    if ($point->y() > $next) {
+                    if ($point->getY() > $next) {
                         $chr |= pow(2, $b);
                         $minLatitude = $next;
                     } else {
@@ -209,7 +209,8 @@ class GeoHash implements GeoAdapter
     }
 
     /**
-     * @author algorithm based on code by Alexander Songe <a@songe.me>
+     * algorithm based on code by Alexander Songe
+     * @author Alexander Songe <a@songe.me>
      * @see https://github.com/asonge/php-geohash/issues/1
      *
      * @param string $hash a GeoHash

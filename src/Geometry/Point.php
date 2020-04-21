@@ -2,6 +2,7 @@
 namespace geoPHP\Geometry;
 
 use geoPHP\Exception\InvalidGeometryException;
+use geoPHP\Exception\UnsupportedMethodException;
 
 /**
  * A Point is a 0-dimensional geometric object and represents a single location in coordinate space.
@@ -11,22 +12,34 @@ use geoPHP\Exception\InvalidGeometryException;
 class Point extends Geometry
 {
 
-    protected $x = null;
+    /**
+     * @var float
+     */
+    protected $x;
 
-    protected $y = null;
+    /**
+     * @var float
+     */
+    protected $y;
 
-    protected $z = null;
+    /**
+     * @var float
+     */
+    protected $z;
 
-    protected $m = null;
+    /**
+     * @var float
+     */
+    protected $m;
 
     /**
      * Constructor
      *
-     * @param int|float|null $x The x coordinate (or longitude)
-     * @param int|float|null $y The y coordinate (or latitude)
-     * @param int|float|null $z The z coordinate (or altitude) - optional
-     * @param int|float|null $m Measure - optional
-     * @throws \Exception
+     * @param  int|float|null $x The x coordinate (or longitude)
+     * @param  int|float|null $y The y coordinate (or latitude)
+     * @param  int|float|null $z The z coordinate (or altitude) - optional
+     * @param  int|float|null $m Measure - optional
+     * @throws \InvalidGeometryException
      */
     public function __construct($x = null, $y = null, $z = null, $m = null)
     {
@@ -62,22 +75,28 @@ class Point extends Geometry
     }
 
     /**
-     * @param array $coordinates
+     * @param  array $coordinates
      * @return Point
-     * @throws \Exception
+     * @throws \InvalidGeometryException
      */
-    public static function fromArray($coordinates)
+    public static function fromArray(array $coordinates)
     {
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return (new \ReflectionClass(get_called_class()))->newInstanceArgs($coordinates);
     }
 
-    public function geometryType()
+    /**
+     * @return string "Point"
+     */
+    public function geometryType(): string
     {
         return Geometry::POINT;
     }
 
-    public function dimension()
+    /**
+     * @return int 0
+     */
+    public function dimension(): int
     {
         return 0;
     }
@@ -85,9 +104,9 @@ class Point extends Geometry
     /**
      * Get X (longitude) coordinate
      *
-     * @return float The X coordinate
+     * @return float|null The X coordinate
      */
-    public function x()
+    public function getX()
     {
         return $this->x;
     }
@@ -95,9 +114,9 @@ class Point extends Geometry
     /**
      * Returns Y (latitude) coordinate
      *
-     * @return float The Y coordinate
+     * @return float|null The Y coordinate
      */
-    public function y()
+    public function getY()
     {
         return $this->y;
     }
@@ -105,9 +124,9 @@ class Point extends Geometry
     /**
      * Returns Z (altitude) coordinate
      *
-     * @return float The Z coordinate or NULL is not a 3D point
+     * @return float|null The Z coordinate or NULL if it is not a 3D point.
      */
-    public function z()
+    public function getZ()
     {
         return $this->z;
     }
@@ -115,16 +134,16 @@ class Point extends Geometry
     /**
      * Returns M (measured) value
      *
-     * @return float The measured value
+     * @return float|null The measured value
      */
-    public function m()
+    public function getM()
     {
         return $this->m;
     }
 
     /**
      * Inverts x and y coordinates
-     * Useful with old applications still using lng lat
+     * Useful if old applications still use lng lat
      *
      * @return self
      * */
@@ -137,19 +156,26 @@ class Point extends Geometry
         return $this;
     }
 
-    // A point's centroid is itself
-    public function centroid()
+    /**
+     * A point's centroid is itself
+     *
+     * @return Point object itself
+     */
+    public function getCentroid(): Point
     {
         return $this;
     }
 
-    public function getBBox()
+    /**
+     * @return array ['maxy' => .., 'miny' => .., 'maxx' => .., 'minx' => ..]
+     */
+    public function getBBox(): array
     {
         return [
-            'maxy' => $this->y(),
-            'miny' => $this->y(),
-            'maxx' => $this->x(),
-            'minx' => $this->x(),
+            'maxy' => $this->getY(),
+            'miny' => $this->getY(),
+            'maxx' => $this->getX(),
+            'minx' => $this->getX(),
         ];
     }
 
@@ -159,26 +185,21 @@ class Point extends Geometry
     public function asArray(): array
     {
         if ($this->isEmpty()) {
-            return [NAN, NAN];
+            return [null, null];
         }
-        if (!$this->hasZ && !$this->isMeasured) {
-            return [$this->x, $this->y];
+        if (!$this->hasZ) {
+            return !$this->isMeasured ? [$this->x, $this->y] : [$this->x, $this->y, null, $this->m];
         }
-        if ($this->hasZ && $this->isMeasured) {
-            return [$this->x, $this->y, $this->z, $this->m];
-        }
-        if ($this->hasZ) {
-            return [$this->x, $this->y, $this->z];
-        }
-        // if ($this->isMeasured)
-        return [$this->x, $this->y, null, $this->m];
+        
+        return !$this->isMeasured ? [$this->x, $this->y, $this->z] : [$this->x, $this->y, $this->z, $this->m];
     }
 
     /**
      * The boundary of a Point is the empty set.
+     *
      * @return GeometryCollection
      */
-    public function boundary()
+    public function boundary(): Geometry
     {
         return new GeometryCollection();
     }
@@ -186,7 +207,7 @@ class Point extends Geometry
     /**
      * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return $this->x === null;
     }
@@ -194,7 +215,7 @@ class Point extends Geometry
     /**
      * @return int Returns always 1
      */
-    public function numPoints()
+    public function numPoints(): int
     {
         return 1;
     }
@@ -202,7 +223,7 @@ class Point extends Geometry
     /**
      * @return Point[]
      */
-    public function getPoints()
+    public function getPoints(): array
     {
         return [$this];
     }
@@ -219,25 +240,42 @@ class Point extends Geometry
      * Determines weather the specified geometry is spatially equal to this Point
      *
      * Because of limited floating point precision in PHP, equality can be only approximated
+     *
      * @see: http://php.net/manual/en/function.bccomp.php
      * @see: http://php.net/manual/en/language.types.float.php
      *
      * @param Point|Geometry $geometry
      *
-     * @return boolean
+     * @return bool
      */
-    public function equals($geometry)
+    public function equals(Geometry $geometry): bool
     {
         return $geometry->geometryType() === Geometry::POINT
-            ? (abs($this->x() - $geometry->x()) <= 1.0E-9 && abs($this->y() - $geometry->y()) <= 1.0E-9)
+            ? ( abs(($this->getX()??0) - ($geometry->getX()??0)) <= 1.0E-9 &&
+                abs(($this->getY()??0) - ($geometry->getY()??0)) <= 1.0E-9 &&
+                abs(($this->getZ()??0) - ($geometry->getZ()??0)) <= 1.0E-9)
             : false;
     }
 
-    public function isSimple()
+    /**
+     * @return bool always true
+     */
+    public function isSimple(): bool
+    {
+        return true;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isValid(): bool
     {
         return true;
     }
 
+    /**
+     * resets/empties all values
+     */
     public function flatten()
     {
         $this->z = null;
@@ -248,211 +286,216 @@ class Point extends Geometry
     }
 
     /**
-     * @param Geometry|Collection $geometry
-     * @return float|null
+     * @param  Geometry|Collection $geometry
+     * @return float
      */
-    public function distance($geometry)
+    public function distance(Geometry $geometry): float
     {
         if ($this->isEmpty() || $geometry->isEmpty()) {
-            return null;
+            return 0.0;
         }
+        
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->distance($geometry->getGeos());
+            return (float) $this->getGeos()->distance($geometry->getGeos());
             // @codeCoverageIgnoreEnd
         }
-        if ($geometry->geometryType() == Geometry::POINT) {
+        
+        if ($geometry->geometryType() === Geometry::POINT) {
             return sqrt(
-               pow(($this->x() - $geometry->x()), 2) +
-               pow(($this->y() - $geometry->y()), 2)
+                pow(($this->getX() - $geometry->getX()), 2) +
+                pow(($this->getY() - $geometry->getY()), 2)
             );
         }
-        if ($geometry->geometryType() == Geometry::MULTI_POINT ||
-            $geometry->geometryType() == Geometry::GEOMETRY_COLLECTION) {
-            $distance = NULL;
+        
+        if ($geometry->geometryType() === Geometry::MULTI_POINT
+            || $geometry->geometryType() === Geometry::GEOMETRY_COLLECTION
+        ) {
+            $distance = null;
             foreach ($geometry->getComponents() as $component) {
                 $checkDistance = $this->distance($component);
-                if ($checkDistance === 0) {
+                if ($checkDistance === 0.0) {
                     return 0.0;
                 }
-                if ($checkDistance === NULL) {
-                    continue;
-                }
-                if ($distance === NULL) {
-                    $distance = $checkDistance;
-                }
+                $distance = $distance ?? $checkDistance;
+                
                 if ($checkDistance < $distance) {
                     $distance = $checkDistance;
                 }
             }
-            return $distance;
-        } else {
-            // For LineString, Polygons, MultiLineString and MultiPolygon. the nearest point might be a vertex,
-            // but it could also be somewhere along a line-segment that makes up the geometry (between vertices).
-            // Here we brute force check all line segments that make up these geometries
-            $distance = NULL;
-            foreach ($geometry->explode(true) as $seg) {
-                // As per http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
-                // and http://paulbourke.net/geometry/pointline/
-                $x1 = $seg[0]->x();
-                $y1 = $seg[0]->y();
-                $x2 = $seg[1]->x();
-                $y2 = $seg[1]->y();
-                $px = $x2 - $x1;
-                $py = $y2 - $y1;
-                $d = ($px * $px) + ($py * $py);
-                if ($d == 0) {
-                    // Line-segment's endpoints are identical. This is merely a point masquerading as a line-segment.
-                    $checkDistance = $this->distance($seg[1]);
-                } else {
-                    $x3 = $this->x();
-                    $y3 = $this->y();
-                    $u = ((($x3 - $x1) * $px) + (($y3 - $y1) * $py)) / $d;
-                    if ($u > 1) {
-                        $u = 1;
-                    }
-                    if ($u < 0) {
-                        $u = 0;
-                    }
-                    $x = $x1 + ($u * $px);
-                    $y = $y1 + ($u * $py);
-                    $dx = $x - $x3;
-                    $dy = $y - $y3;
-                    $checkDistance = sqrt(($dx * $dx) + ($dy * $dy));
-                }
-                if ($distance === NULL) {
-                    $distance = $checkDistance;
-                }
-                if ($checkDistance < $distance) {
-                    $distance = $checkDistance;
-                }
-                if ($distance === 0.0) {
-                    return 0.0;
-                }
-            }
-            return $distance;
+            return (float) $distance;
         }
-    }
+        
+        // For LineString, Polygons, MultiLineString and MultiPolygon. the nearest point might be a vertex,
+        // but it could also be somewhere along a line-segment that makes up the geometry (between vertices).
+        // Here we brute force check all line segments that make up these geometries
+        $distance = null;
+        foreach ($geometry->explode(true) as $seg) {
+            // As per http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+            // and http://paulbourke.net/geometry/pointline/
+            $x1 = $seg[0]->getX();
+            $y1 = $seg[0]->getY();
+            $x2 = $seg[1]->getX();
+            $y2 = $seg[1]->getY();
+            $px = $x2 - $x1;
+            $py = $y2 - $y1;
+            $d = ($px * $px) + ($py * $py);
+            if ($d == 0) {
+                // Line-segment's endpoints are identical. This is merely a point masquerading a line-segment.
+                $checkDistance = $this->distance($seg[1]);
+            } else {
+                $x3 = $this->getX();
+                $y3 = $this->getY();
+                $u = ((($x3 - $x1) * $px) + (($y3 - $y1) * $py)) / $d;
+                if ($u > 1) {
+                    $u = 1;
+                }
+                if ($u < 0) {
+                    $u = 0;
+                }
+                $x = $x1 + ($u * $px);
+                $y = $y1 + ($u * $py);
+                $dx = $x - $x3;
+                $dy = $y - $y3;
+                $checkDistance = sqrt(($dx * $dx) + ($dy * $dy));
+            }
+            $distance = $distance ?? $checkDistance;
 
-    public function minimumZ()
-    {
-        return $this->hasZ ? $this->z() : null;
-    }
-
-    public function maximumZ()
-    {
-        return $this->hasZ ? $this->z() : null;
-    }
-
-    public function minimumM()
-    {
-        return $this->isMeasured ? $this->m() : null;
-    }
-
-    public function maximumM()
-    {
-        return $this->isMeasured ? $this->m() : null;
-    }
-
-    /* The following methods are not valid for this geometry type */
-
-    public function area()
-    {
-        return 0;
-    }
-
-    public function length()
-    {
-        return 0;
-    }
-
-    public function length3D()
-    {
-        return 0;
-    }
-
-    public function greatCircleLength($radius = null)
-    {
-        return 0;
-    }
-
-    public function haversineLength()
-    {
-        return 0;
-    }
-
-    public function zDifference()
-    {
-        return null;
-    }
-
-    public function elevationGain($verticalTolerance = 0)
-    {
-        return null;
-    }
-
-    public function elevationLoss($verticalTolerance = 0)
-    {
-        return null;
-    }
-
-    public function numGeometries()
-    {
-        return null;
-    }
-
-    public function geometryN($n)
-    {
-        return null;
-    }
-
-    public function startPoint()
-    {
-        return null;
-    }
-
-    public function endPoint()
-    {
-        return null;
-    }
-
-    public function isRing()
-    {
-        return null;
-    }
-
-    public function isClosed()
-    {
-        return null;
-    }
-
-    public function pointN($n)
-    {
-        return null;
-    }
-
-    public function exteriorRing()
-    {
-        return null;
-    }
-
-    public function numInteriorRings()
-    {
-        return null;
-    }
-
-    public function interiorRingN($n)
-    {
-        return null;
+            if ($checkDistance < $distance) {
+                $distance = $checkDistance;
+            }
+            if ($distance === 0.0) {
+                return 0.0;
+            }
+        }
+        
+        return (float) $distance;
     }
 
     /**
-     * @param bool|false $toArray
-     * @return null
+     * @return float|int|null
      */
-    public function explode($toArray = false)
+    public function minimumZ()
     {
-        return null;
+        return $this->z;
+    }
+
+    /**
+     * @return float|int|null
+     */
+    public function maximumZ()
+    {
+        return $this->z;
+    }
+
+    /**
+     * @return float|int|null
+     */
+    public function minimumM()
+    {
+        return $this->m;
+    }
+
+    /**
+     * @return float|int|null
+     */
+    public function maximumM()
+    {
+        return $this->m;
+    }
+
+    /**
+     * @return float 0.0
+     */
+    public function getArea(): float
+    {
+        return 0.0;
+    }
+
+    /**
+     * @return float 0.0
+     */
+    public function getLength(): float
+    {
+        return 0.0;
+    }
+
+    /**
+     * @return float 0.0
+     */
+    public function length3D(): float
+    {
+        return 0.0;
+    }
+
+    /**
+     * @param  float|int $radius
+     * @return float 0.0
+     */
+    public function greatCircleLength(float $radius = null): float
+    {
+        return 0.0;
+    }
+
+    /**
+     * @return float 0.0
+     */
+    public function haversineLength(): float
+    {
+        return 0.0;
+    }
+
+    /**
+     * @return int 1
+     */
+    public function numGeometries(): int
+    {
+        return 1;
+    }
+
+    /**
+     * @param  int $n
+     * @return Point|null
+     */
+    public function geometryN(int $n)
+    {
+        return $n === 1 ? $this : null;
+    }
+
+    /**
+     * @return bool true
+     */
+    public function isClosed(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Not valid for this geometry type
+     *
+     * @param  bool|false $toArray
+     * @throws UnsupportedMethodException
+     */
+    public function explode(bool $toArray = false): array
+    {
+        throw new UnsupportedMethodException(
+            __METHOD__,
+            null,
+            "A " . __CLASS__ . " does not support the method '" . __METHOD__  . "'."
+        );
+    }
+    
+    /**
+     * @param int|float $dx
+     * @param int|float $dy
+     * @param int|float $dz
+     * @return void
+     */
+    public function translate($dx = 0, $dy = 0, $dz = 0)
+    {
+        $this->x += $dx;
+        $this->y += $dy;
+        $this->z += $dz;
     }
 }

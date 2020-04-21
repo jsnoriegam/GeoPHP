@@ -1,4 +1,5 @@
 <?php
+
 namespace geoPHP\Geometry;
 
 use geoPHP\Exception\InvalidGeometryException;
@@ -7,37 +8,39 @@ use geoPHP\geoPHP;
 /**
  * Collection: Abstract class for compound geometries
  *
- * A geometry is a collection if it is made up of other
- * component geometries. Therefore everything but a Point
- * is a Collection. For example a LingString is a collection
- * of Points. A Polygon is a collection of LineStrings etc.
+ * A geometry is a collection if it is made up of other component geometries. Therefore everything except a Point
+ * is a Collection. For example a LingString is a collection of Points. A Polygon is a collection of LineStrings etc.
+ *
+ * @package GeoPHPGeometry
  */
 abstract class Collection extends Geometry
 {
 
-    /** @var Geometry[]|Collection[] */
+    /**
+     * @var Geometry[]|Collection[]
+     */
     protected $components = [];
 
     /**
      * Constructor: Checks and sets component geometries
      *
-     * @param Geometry[] $components array of geometries
-     * @param bool|false $allowEmptyComponents Allow creating geometries with empty components.
-     * @param string     $allowedComponentType A class the components must be instance of
-     * @throws \Exception
+     * @param  Geometry[] $components           array of geometries
+     * @param  bool|false $allowEmptyComponents Allow creating geometries with empty components.
+     * @param  string     $allowedComponentType A class-type the components have to be instance of.
+     * @throws \InvalidGeometryException
      */
-    public function __construct($components = [], $allowEmptyComponents = false, $allowedComponentType = Geometry::class)
-    {
-        if (!is_array($components)) {
-            throw new InvalidGeometryException("Component geometries must be passed as array");
-        }
+    public function __construct(
+        array $components = [],
+        bool $allowEmptyComponents = false,
+        string $allowedComponentType = Geometry::class
+    ) {
         $componentCount = count($components);
         for ($i = 0; $i < $componentCount; ++$i) {
             if ($components[$i] instanceof $allowedComponentType) {
                 if (!$allowEmptyComponents && $components[$i]->isEmpty()) {
                     throw new InvalidGeometryException(
-                         'Cannot create a collection of empty ' .
-                         $components[$i]->geometryType() . 's (' . ($i + 1) . '. component)'
+                        'Cannot create a collection of empty ' .
+                            $components[$i]->geometryType() . 's (' . ($i + 1) . '. component)'
                     );
                 }
                 if ($components[$i]->hasZ() && !$this->hasZ) {
@@ -47,24 +50,26 @@ abstract class Collection extends Geometry
                     $this->isMeasured = true;
                 }
             } else {
-                $componentType = gettype($components[$i]) !== 'object'
-                    ? gettype($components[$i])
-                    : get_class($components[$i]);
+                $componentType = gettype($components[$i]) !== 'object' ?
+                    gettype($components[$i]) :
+                    get_class($components[$i]);
+                
                 throw new InvalidGeometryException(
-                    'Cannot create a collection of ' . $componentType .
-                    ' components, expected type is ' . $allowedComponentType
+                    'Cannot create a collection of ' . $componentType . ' components, ' .
+                        'expected type is ' . $allowedComponentType
                 );
             }
         }
+        
         $this->components = $components;
     }
-
+    
     /**
      * check if Geometry has Z (altitude) coordinate
      *
-     * @return bool True if collection has Z value.
+     * @return bool true if collection has Z value.
      */
-    public function is3D()
+    public function is3D(): bool
     {
         return $this->hasZ;
     }
@@ -74,7 +79,7 @@ abstract class Collection extends Geometry
      *
      * @return bool true if collection has measure values
      */
-    public function isMeasured()
+    public function isMeasured(): bool
     {
         return $this->isMeasured;
     }
@@ -94,9 +99,8 @@ abstract class Collection extends Geometry
      * Useful for old data still using lng lat
      *
      * @return self
-     *
      * */
-    public function invertXY()
+    public function invertXY(): self
     {
         foreach ($this->components as $component) {
             $component->invertXY();
@@ -105,10 +109,13 @@ abstract class Collection extends Geometry
         return $this;
     }
 
-    public function getBBox()
+    /**
+     * @return array
+     */
+    public function getBBox(): array
     {
         if ($this->isEmpty()) {
-            return null;
+            return [];
         }
 
         if ($this->getGeos()) {
@@ -116,7 +123,7 @@ abstract class Collection extends Geometry
             /** @noinspection PhpUndefinedMethodInspection */
             $envelope = $this->getGeos()->envelope();
             /** @noinspection PhpUndefinedMethodInspection */
-            if ($envelope->typeName() == 'Point') {
+            if ($envelope->typeName() === 'Point') {
                 return geoPHP::geosToGeometry($envelope)->getBBox();
             }
 
@@ -138,7 +145,7 @@ abstract class Collection extends Geometry
             $componentBoundingBox = $component->getBBox();
 
             // On the first run through, set the bounding box to the component's bounding box
-            if ($i == 0) {
+            if ($i === 0) {
                 $maxX = $componentBoundingBox['maxx'];
                 $maxY = $componentBoundingBox['maxy'];
                 $minX = $componentBoundingBox['minx'];
@@ -177,7 +184,7 @@ abstract class Collection extends Geometry
     /**
      * @return int
      */
-    public function numGeometries()
+    public function numGeometries(): int
     {
         return count($this->components);
     }
@@ -185,10 +192,10 @@ abstract class Collection extends Geometry
     /**
      * Returns the 1-based Nth geometry.
      *
-     * @param int $n 1-based geometry number
+     * @param  int $n 1-based geometry number
      * @return Geometry|null
      */
-    public function geometryN($n)
+    public function geometryN(int $n)
     {
         return isset($this->components[$n - 1]) ? $this->components[$n - 1] : null;
     }
@@ -198,7 +205,7 @@ abstract class Collection extends Geometry
      *
      * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         foreach ($this->components as $component) {
             if (!$component->isEmpty()) {
@@ -211,7 +218,7 @@ abstract class Collection extends Geometry
     /**
      * @return int
      */
-    public function numPoints()
+    public function numPoints(): int
     {
         $num = 0;
         foreach ($this->components as $component) {
@@ -223,7 +230,7 @@ abstract class Collection extends Geometry
     /**
      * @return Point[]
      */
-    public function getPoints()
+    public function getPoints(): array
     {
         $points = [];
 
@@ -233,10 +240,11 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * @param Collection $geometry The geometry from which points will be extracted
-     * @param Point[] $points Result array as reference
+     * @param  Collection $geometry The geometry from which points will be extracted
+     * @param  Point[]    $points   Result array as reference
+     * @return void
      */
-    private static function getPointsRecursive($geometry, &$points)
+    private static function getPointsRecursive(Geometry $geometry, array &$points)
     {
         foreach ($geometry->components as $component) {
             if ($component instanceof Point) {
@@ -248,10 +256,11 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * @param Geometry $geometry
+     * @todo   speed it up with array_diff
+     * @param  Geometry $geometry
      * @return bool
      */
-    public function equals($geometry)
+    public function equals(Geometry $geometry): bool
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -271,7 +280,7 @@ abstract class Collection extends Geometry
         $otherPoints = $geometry->getPoints();
 
         // First do a check to make sure they have the same number of vertices
-        if (count($thisPoints) != count($otherPoints)) {
+        if (count($thisPoints) !== count($otherPoints)) {
             return false;
         }
 
@@ -295,11 +304,11 @@ abstract class Collection extends Geometry
 
     /**
      * Get all line segments
-     * @param bool $toArray return segments as LineString or array of start and end points. Explode(true) is faster
      *
+     * @param  bool $toArray return segments as LineString or array of start and end points. Explode(true) is faster
      * @return LineString[] | Point[][]
      */
-    public function explode($toArray = false)
+    public function explode(bool $toArray = false): array
     {
         $parts = [];
         foreach ($this->components as $component) {
@@ -326,54 +335,36 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * @return 
+     * @return float
      */
-    public function distance($geometry)
+    public function distance(Geometry $geometry): float
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->distance($geometry->getGeos());
+            return (float) $this->getGeos()->distance($geometry->getGeos());
             // @codeCoverageIgnoreEnd
         }
-        $distance = NULL;
+        $distance = null;
         foreach ($this->components as $component) {
             $checkDistance = $component->distance($geometry);
-            if ($checkDistance === 0) {
-                return 0;
+            if ($checkDistance === 0.0) {
+                return 0.0;
             }
-            if ($checkDistance === NULL) {
-                return NULL;
-            }
-            if ($distance === NULL) {
-                $distance = $checkDistance;
-            }
+            $distance = $distance ?? $checkDistance;
+
             if ($checkDistance < $distance) {
                 $distance = $checkDistance;
             }
         }
-        return $distance;
+        
+        return (float) $distance;
     }
-
-    // Not valid for this geometry type
-    // --------------------------------
-    public function x()
+    
+    public function translate($dx = 0, $dy = 0, $dz = 0)
     {
-        return null;
-    }
-
-    public function y()
-    {
-        return null;
-    }
-
-    public function z()
-    {
-        return null;
-    }
-
-    public function m()
-    {
-        return null;
+        foreach ($this->components as $component) {
+            $component->translate($dx, $dy, $dz);
+        }
     }
 }

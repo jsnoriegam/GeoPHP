@@ -53,5 +53,4 @@ abstract class BinaryAdapter
     {
         return $this->endianness === self::LITTLE_ENDIAN;
     }
-
 }

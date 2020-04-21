@@ -57,7 +57,7 @@ class WKT implements GeoAdapter
         $this->measured = false;
 
         $wkt = trim(strtoupper($wkt));
-        $srid = NULL;
+        $srid = null;
         $m = [];
         // If it contains a ';', then it contains additional SRID data
         if (preg_match('/^SRID=(\d+);/', $wkt, $m)) {
@@ -107,8 +107,8 @@ class WKT implements GeoAdapter
                 }
                 $method = 'parse' . $geometryType;
                 return call_user_func([$this, $method], $dataString);
-           }
-           throw new \Exception('Invalid WKT type "' . $m[1] . '"');
+            }
+            throw new \Exception('Invalid WKT type "' . $m[1] . '"');
         }
         throw new \Exception('Cannot parse WKT');
     }
@@ -298,7 +298,7 @@ class WKT implements GeoAdapter
             /** @noinspection PhpUndefinedMethodInspection */
             $writer->setRoundingPrecision(14);
             /** @noinspection PhpUndefinedMethodInspection */
-            $writer->setTrim(TRUE);
+            $writer->setTrim(true);
             /** @noinspection PhpUndefinedMethodInspection */
             return $writer->write($geometry->getGeos());
         }
@@ -334,7 +334,7 @@ class WKT implements GeoAdapter
         $parts = [];
         switch ($geometry->geometryType()) {
             case Geometry::POINT:
-                $p = $geometry->x() . ' ' . $geometry->y();
+                $p = $geometry->getX() . ' ' . $geometry->getY();
                 if ($geometry->hasZ()) {
                     $p .= ' ' . $geometry->getZ();
                     $this->hasZ = $this->hasZ || $geometry->hasZ();
@@ -344,17 +344,17 @@ class WKT implements GeoAdapter
                     $this->measured = $this->measured || $geometry->isMeasured();
                 }
                 return $p;
-            case Geometry::LINE_STRING:
+            case Geometry::LINESTRING:
                 foreach ($geometry->getComponents() as $component) {
                     $parts[] = $this->extractData($component);
                 }
                 return implode(', ', $parts);
             case Geometry::POLYGON:
             case Geometry::MULTI_POINT:
-            case Geometry::MULTI_LINE_STRING:
+            case Geometry::MULTI_LINESTRING:
             case Geometry::MULTI_POLYGON:
                 foreach ($geometry->getComponents() as $component) {
-                if ($component->isEmpty()) {
+                    if ($component->isEmpty()) {
                         $parts[] = 'EMPTY';
                     } else {
                         $parts[] = '(' . $this->extractData($component) . ')';
