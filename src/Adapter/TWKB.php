@@ -195,7 +195,7 @@ class TWKB implements GeoAdapter
             default:
                 throw new \Exception(
                     'Geometry type ' . $geometryType .
-                        ' (' . (array_search($geometryType, self::$typeMap) ?: 'unknown') . ') not supported'
+                        ' (' . (self::$typeMap[$geometryType] ?? 'unknown') . ') not supported'
                 );
         }
     }
@@ -301,6 +301,7 @@ class TWKB implements GeoAdapter
                 $components[] = $this->getGeometry();
             }
         }
+        
         switch ($type) {
             case 'Point':
                 return new MultiPoint($components);
@@ -308,9 +309,9 @@ class TWKB implements GeoAdapter
                 return new MultiLineString($components);
             case 'Polygon':
                 return new MultiPolygon($components);
-            case 'Geometry':
-                return new GeometryCollection($components);
         }
+        
+        return new GeometryCollection($components);
     }
 
     /**

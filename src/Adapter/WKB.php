@@ -38,13 +38,19 @@ class WKB implements GeoAdapter
     protected $SRID = null;
     protected $dimension = 2;
 
-    /** @var  BinaryReader $reader */
+    /**
+     * @var  BinaryReader $reader
+     */
     protected $reader;
 
-    /** @var  BinaryWriter $writer */
+    /**
+     * @var  BinaryWriter $writer
+     */
     protected $writer;
 
-    /** @var array Maps Geometry types to WKB type codes */
+    /**
+     * @var array Maps Geometry types to WKB type codes
+     */
     public static $typeMap = [
         Geometry::POINT => 1,
         Geometry::LINESTRING => 2,
@@ -63,7 +69,7 @@ class WKB implements GeoAdapter
         Geometry::SURFACE => 14,
         Geometry::POLYHEDRAL_SURFACE => 15,
         Geometry::TIN => 16,
-        Geometry::TRIANGLE => 17,
+        Geometry::TRIANGLE => 17
     ];
 
     /**
@@ -160,7 +166,7 @@ class WKB implements GeoAdapter
             default:
                 throw new \Exception(
                     'Geometry type ' . $geometryType .
-                    ' (' . (array_search($geometryType, self::$typeMap) ?: 'unknown') . ') not supported'
+                    ' (' . (self::$typeMap[$geometryType] ?? 'unknown') . ') not supported'
                 );
         }
         if ($geometry && $SRID) {
@@ -187,6 +193,8 @@ class WKB implements GeoAdapter
             case 4:
                 return new Point($coordinates[0], $coordinates[1], $coordinates[2], $coordinates[3]);
         }
+        
+        return new Point;
     }
 
     /**
@@ -209,6 +217,7 @@ class WKB implements GeoAdapter
                 $components[] = $point;
             }
         }
+        
         return new LineString($components);
     }
 
@@ -235,7 +244,7 @@ class WKB implements GeoAdapter
 
     /**
      * @param string $type
-     * @return MultiLineString|MultiPolygon|GeometryCollection|MultiPoint
+     * @return MultiPoint|MultiLineString|MultiPolygon|GeometryCollection
      */
     private function getMulti(string $type): Geometry
     {
@@ -243,11 +252,12 @@ class WKB implements GeoAdapter
         $multiLength = $this->reader->readUInt32();
 
         $components = [];
-        for ($i = 0; $i < $multiLength; $i++) {
+        for ($i = 0; $i < $multiLength; ++$i) {
             $component = $this->getGeometry();
             $component->setSRID(null);
             $components[] = $component;
         }
+        
         switch ($type) {
             case 'Point':
                 return new MultiPoint($components);
@@ -255,9 +265,9 @@ class WKB implements GeoAdapter
                 return new MultiLineString($components);
             case 'Polygon':
                 return new MultiPolygon($components);
-            case 'Geometry':
-                return new GeometryCollection($components);
         }
+        
+        return new GeometryCollection($components);
     }
 
     /**
@@ -288,6 +298,7 @@ class WKB implements GeoAdapter
 
         $wkb = $this->writer->writeSInt8($this->writer->isBigEndian() ? self::WKB_NDR : self::WKB_XDR);
         $wkb .= $this->writeType($geometry);
+        
         switch ($geometry->geometryType()) {
             case Geometry::POINT:
                 /** @var Point $geometry */
@@ -318,6 +329,7 @@ class WKB implements GeoAdapter
                 $wkb .= $this->writeMulti($geometry);
                 break;
         }
+        
         return $wkb;
     }
 
@@ -338,6 +350,7 @@ class WKB implements GeoAdapter
         if ($this->hasM) {
             $wkb .= $this->writer->writeDouble($point->m());
         }
+        
         return $wkb;
     }
 
