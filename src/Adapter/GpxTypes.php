@@ -99,7 +99,7 @@ class GpxTypes
             $this->{'allowed' . ucfirst($type) . 'Elements'} = [];
             
             $constName = $type . '_TYPE_ELEMENTS';
-            foreach (self::$constName as $availableType) {
+            foreach (self::$$constName as $availableType) {
                 if (in_array($availableType, $elements)) {
                     $this->{'allowed' . ucfirst($type) . 'Elements'}[] = $availableType;
                 }
