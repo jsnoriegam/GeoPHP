@@ -42,7 +42,7 @@ class GoogleGeocode implements GeoAdapter
      *        If you pass a polygon of Illinois, it will return Cairo IL.
      * @param boolean $returnMultiple - Return all results in a multipoint or multipolygon
      *
-     * @return Geometry|GeometryCollection
+     * @return Geometry
      * @throws \Exception If geocoding fails
      */
     public function read(
@@ -95,19 +95,18 @@ class GoogleGeocode implements GeoAdapter
                 }
             }
         } elseif ($this->result->status === 'ZERO_RESULTS') {
-            return null;
-        } else {
-            if ($this->result->status) {
-                throw new \Exception(
-                    'Error in Google Reverse Geocoder: '
-                    . $this->result->status
-                    . (isset($this->result->error_message) ? '. ' . $this->result->error_message : '')
-                );
-            } else {
-                throw new \Exception('Unknown error in Google Reverse Geocoder');
-            }
+            return new Point;
         }
-        return false;
+        
+        if ($this->result->status) {
+            throw new \Exception(
+                'Error in Google Reverse Geocoder: '
+                . $this->result->status
+                . (isset($this->result->error_message) ? '. ' . $this->result->error_message : '')
+            );
+        }
+        
+        throw new \Exception('Unknown error in Google Reverse Geocoder');
     }
 
     /**
@@ -118,13 +117,12 @@ class GoogleGeocode implements GeoAdapter
      *
      * @param Geometry $geometry
      * @param string $apiKey Your application's Google Maps Geocoding API key
-     * @param string $returnType Should be either 'string' or 'array' or 'both'
      * @param string $language The language in which to return results. If not set, geocoder tries to use the native language of the domain.
      *
      * @return string|Object[] A formatted address or array of address components
      * @throws \Exception If geocoding fails
      */
-    public function write(Geometry $geometry, $apiKey = null, $returnType = 'string', $language = null)
+    public function write(Geometry $geometry, $apiKey = null, $language = null): string
     {
         $centroid = $geometry->getCentroid();
         $lat = $centroid->getY();
@@ -139,20 +137,9 @@ class GoogleGeocode implements GeoAdapter
         $this->result = json_decode(file_get_contents($url));
 
         if ($this->result->status === 'OK') {
-            if ($returnType === 'string') {
-                return $this->result->results[0]->formatted_address;
-            } elseif ($returnType === 'array') {
-                return $this->result->results[0]->address_components;
-            } elseif ($returnType === 'full') {
-                return $this->result->results[0];
-            }
+            return $this->result->results[0]->formatted_address;
         } elseif ($this->result->status === 'ZERO_RESULTS') {
-            if ($returnType === 'string') {
-                return '';
-            }
-            if ($returnType === 'array') {
-                return $this->result->results;
-            }
+            return '';
         }
         
         if ($this->result->status) {
