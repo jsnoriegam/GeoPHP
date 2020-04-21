@@ -1,22 +1,21 @@
 <?php
+
 namespace geoPHP\Exception;
 
 /**
- * Should be thrown if a method is not implemented yet
+ * Should be thrown if a method is not implemented.
  */
 class UnsupportedMethodException extends \Exception
 {
 
     /**
-     * Public constructor.
-     *
      * @param string $method Name of the unsupported method
      * @param int $code
      * @param string|null $message Additional message
      */
     public function __construct($method, $code = 0, $message = null)
     {
-        $message = 'The method ' . $method . '() is not supported yet.' . ($message ? ' ' . $message : '');
+        $message = 'The method ' . $method . '() is not supported. ' . ($message ?? '');
         parent::__construct($message, $code);
     }
 
