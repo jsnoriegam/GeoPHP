@@ -60,7 +60,7 @@ class geoPHP
         'google_geocode' => 'GoogleGeocode',
         'geohash' => 'GeoHash',
         'twkb' => 'TWKB',
-        'osm' => 'OSM',
+        'osm' => 'OSM'
     ];
 
     /**
@@ -73,15 +73,15 @@ class geoPHP
         'multipoint' => 'MultiPoint',
         'multilinestring' => 'MultiLineString',
         'multipolygon' => 'MultiPolygon',
-        'geometrycollection' => 'GeometryCollection',
+        'geometrycollection' => 'GeometryCollection'
     ];
 
     /**
      * @return string
      */
-    static function version(): string
+    public static function version(): string
     {
-        return '2.0-dev';
+        return '1.4';
     }
     
     /**
@@ -122,7 +122,7 @@ class geoPHP
         if (!$type) {
             // If the user is trying to load a Geometry from a Geometry... Just pass it back
             if (is_object($data)) {
-                if ($data instanceOf Geometry) {
+                if ($data instanceof Geometry) {
                     return $data;
                 }
             }
@@ -146,9 +146,8 @@ class geoPHP
         // Data is not an array, just pass it normally
         if (!is_array($data)) {
             $result = call_user_func_array([$adapter, "read"], array_merge([$data], $args));
-        }
-        // Data is an array, combine all passed in items into a single geometry
-        else {
+        } else {
+            // Data is an array, combine all passed in items into a single geometry
             $geometries = [];
             foreach ($data as $item) {
                 $geometries[] = call_user_func_array([$adapter, "read"], array_merge($item, $args));
@@ -224,7 +223,6 @@ class geoPHP
 
         // If it is a single geometry
         if ($geometries instanceof Geometry) {
-            var_dump($geometries->geometryType());
             // If the geometry cannot even theoretically be reduced more, then pass it back
             $singleGeometries = ['Point', 'LineString', 'Polygon'];
             if (in_array($geometries->geometryType(), $singleGeometries)) {
@@ -241,9 +239,8 @@ class geoPHP
                     return $geometries;
                 }
             }
-        }
-        // If it's an array of one, then just parse the one
-        else if (is_array($geometries) && count($geometries) === 1) {
+        } elseif (is_array($geometries) && count($geometries) === 1) {
+            // If it's an array of one, then just parse the one
             return geoPHP::geometryReduce(array_shift($geometries));
         }
 
@@ -329,7 +326,7 @@ class geoPHP
             // FIXME normally it never happens. Should be refactored
         }
         if (count($geometryTypes) === 1 && stripos($geometryTypes[0], 'MULTI') === false) {
-            if (count($geometries) == 1) {
+            if (count($geometries) === 1) {
                 return $geometries[0];
             } else {
                 $newType = (strpos($geometryTypes[0], 'Multi') !== false ? '' : 'Multi') . $geometryTypes[0];
