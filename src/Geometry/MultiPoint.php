@@ -49,7 +49,7 @@ class MultiPoint extends MultiGeometry
         foreach ($array as $point) {
             $points[] = Point::fromArray($point);
         }
-        return new static($points);
+        return new MultiPoint($points);
     }
 
     /**

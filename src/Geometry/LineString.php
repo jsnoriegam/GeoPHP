@@ -30,7 +30,7 @@ class LineString extends Curve
         foreach ($array as $point) {
             $points[] = Point::fromArray($point);
         }
-        return new static($points);
+        return new LineString($points);
     }
 
     /**
