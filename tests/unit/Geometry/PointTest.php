@@ -2,9 +2,13 @@
 
 namespace geoPHP\Tests\Geometry;
 
-use \geoPHP\Exception\InvalidGeometryException;
-use \geoPHP\Geometry\Point;
-use \PHPUnit\Framework\TestCase;
+use geoPHP\Exception\InvalidGeometryException;
+use geoPHP\Geometry\Geometry;
+use geoPHP\Geometry\GeometryCollection;
+use geoPHP\Geometry\LineString;
+use geoPHP\Geometry\MultiPoint;
+use geoPHP\Geometry\Point;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests of Point geometry
@@ -18,19 +22,19 @@ class PointTest extends TestCase
     public function providerValidCoordinatesXY()
     {
         return [
-            [0, 0],
-            [10, 20],
-            [-10, -20],
-            [47.1234056789, 19.9876054321], // WGS84
-            [238084.12, 649977.59]          // HD72/EOV
+            'null coordinates' => [0, 0],
+            'positive integer' => [10, 20],
+            'negative integer' => [-10, -20],
+            'WGS84'            => [47.1234056789, 19.9876054321],
+            'HD72/EOV'         => [238084.12, 649977.59],
         ];
     }
 
     /**
      * @dataProvider providerValidCoordinatesXY
      *
-     * @param $x
-     * @param $y
+     * @param int|float $x
+     * @param int|float $y
      */
     public function testValidCoordinatesXY($x, $y)
     {
@@ -47,23 +51,23 @@ class PointTest extends TestCase
         $this->assertTrue(is_float($point->y()));
     }
 
-    public function providerValidCoordinatesXYZ_XYM()
+    public function providerValidCoordinatesXYZ_or_XYM()
     {
         return [
-                [0, 0, 0],
-                [10, 20, 30],
-                [-10, -20, -30],
-                [47.1234056789, 19.9876054321, 100.1],  //WGS84
-                [238084.12, 649977.59, 56.38]           // HD72/EOV
+            'null coordinates' => [0, 0, 0],
+            'positive integer' => [10, 20, 30],
+            'negative integer' => [-10, -20, -30],
+            'WGS84'            => [47.1234056789, 19.9876054321, 100.1],
+            'HD72/EOV'         => [238084.12, 649977.59, 56.38],
         ];
     }
 
     /**
-     * @dataProvider providerValidCoordinatesXYZ_XYM
+     * @dataProvider providerValidCoordinatesXYZ_or_XYM
      *
-     * @param $x
-     * @param $y
-     * @param $z
+     * @param int|float $x
+     * @param int|float $y
+     * @param int|float $z
      */
     public function testValidCoordinatesXYZ($x, $y, $z)
     {
@@ -83,11 +87,11 @@ class PointTest extends TestCase
     }
 
     /**
-     * @dataProvider providerValidCoordinatesXYZ_XYM
+     * @dataProvider providerValidCoordinatesXYZ_or_XYM
      *
-     * @param $x
-     * @param $y
-     * @param $m
+     * @param int|float $x
+     * @param int|float $y
+     * @param int|float $m
      */
     function testValidCoordinatesXYM($x, $y, $m)
     {
@@ -109,20 +113,21 @@ class PointTest extends TestCase
     public function providerValidCoordinatesXYZM()
     {
         return [
-                [0, 0, 0, 0],
-                [10, 20, 30, 40],
-                [-10, -20, -30, -40],
-                [47.1234056789, 19.9876054321, 100.1, 0.00001]
+            'null coordinates' => [0, 0, 0, 0],
+            'positive integer' => [10, 20, 30, 40],
+            'negative integer' => [-10, -20, -30, -40],
+            'WGS84'            => [47.1234056789, 19.9876054321, 100.1, 0.00001],
+            'HD72/EOV'         => [238084.12, 649977.59, 56.38, -0.00001],
         ];
     }
 
     /**
      * @dataProvider providerValidCoordinatesXYZM
      *
-     * @param $x
-     * @param $y
-     * @param $z
-     * @param $m
+     * @param int|float $x
+     * @param int|float $y
+     * @param int|float $z
+     * @param int|float $m
      */
     public function testValidCoordinatesXYZM($x, $y, $z, $m)
     {
@@ -158,22 +163,22 @@ class PointTest extends TestCase
     public function providerEmpty()
     {
         return [
-                [],
-                [null, 20],
-                [10, null],
-                [null, null, 30],
-                [null, null, null, 40],
-                [null, null, 30, 40]
+            'no coordinates'     => [],
+            'x is null'          => [null, 20],
+            'y is null'          => [10, null],
+            'x and y is null'    => [null, null, 30],
+            'x, y, z is null'    => [null, null, null, 40],
+            'x, y, z, m is null' => [null, null, null, null],
         ];
     }
 
     /**
      * @dataProvider providerEmpty
      *
-     * @param $x
-     * @param $y
-     * @param $z
-     * @param $m
+     * @param int|float|null $x
+     * @param int|float|null $y
+     * @param int|float|null $z
+     * @param int|float|null $m
      */
     public function testEmpty($x = null, $y = null, $z = null, $m = null)
     {
@@ -190,20 +195,20 @@ class PointTest extends TestCase
     public function providerInvalidCoordinates()
     {
         return [
-                ['x', 'y'],
-                [true, false],
-                [1, 2, 'z'],
-                [1, 2, 3, 'm'],
+            'string coordinates'  => ['x', 'y'],
+            'boolean coordinates' => [true, false],
+            'z is string'         => [1, 2, 'z'],
+            'm is string'         => [1, 2, 3, 'm'],
         ];
     }
 
     /**
      * @dataProvider providerInvalidCoordinates
      *
-     * @param $x
-     * @param $y
-     * @param null $z
-     * @param null $m
+     * @param mixed $x
+     * @param mixed $y
+     * @param mixed $z
+     * @param mixed $m
      */
     public function testConstructorWithInvalidCoordinates($x, $y, $z = null, $m = null)
     {
@@ -218,21 +223,48 @@ class PointTest extends TestCase
 
         $this->assertEquals(\geoPHP\Geometry\Geometry::POINT, $point->geometryType());
 
-        $this->assertInstanceOf('\geoPHP\Geometry\Point', $point);
-        $this->assertInstanceOf('\geoPHP\Geometry\Geometry', $point);
+        $this->assertInstanceOf(Point::class, $point);
+        $this->assertInstanceOf(\geoPHP\Geometry\Geometry::class, $point);
     }
 
-    public function testIs3D()
+    public function providerIs3D()
     {
-        $this->assertTrue( (new Point(1, 2, 3))->is3D() );
-        $this->assertTrue( (new Point(1, 2, 3, 4))->is3D() );
-        $this->assertTrue( (new Point(null, null, 3, 4))->is3D() );
+        return [
+            '2 coordinates is not 3D'   => [false, 1, 2],
+            '3 coordinates'             => [true, 1, 2, 3],
+            '4 coordinates'             => [true, 1, 2, 3, 4],
+            'x, y is null but z is not' => [true, null, null, 3, 4],
+            'z is null'                 => [false, 1, 2, null, 4],
+            'empty point'               => [false],
+        ];
     }
 
-    public function testIsMeasured()
+    /**
+     * @dataProvider providerIs3D
+     */
+    public function testIs3D($result, $x = null, $y = null, $z = null, $m = null)
     {
-        $this->assertTrue( (new Point(1, 2, null, 4))->isMeasured() );
-        $this->assertTrue( (new Point(null, null , null, 4))->isMeasured() );
+        $this->assertSame($result, (new Point($x, $y, $z, $m))->is3D());
+    }
+
+    public function providerIsMeasured()
+    {
+        return [
+            '2 coordinates is false'    => [false, 1, 2],
+            '3 coordinates is false'    => [false, 1, 2, 3],
+            '4 coordinates'             => [true, 1, 2, 3, 4],
+            'x, y is null but m is not' => [true, null, null, 3, 4],
+            'm is null'                 => [false, 1, 2, 3, null],
+            'empty point'               => [false],
+        ];
+    }
+
+    /**
+     * @dataProvider providerIsMeasured
+     */
+    public function testIsMeasured($result, $x = null, $y = null, $z = null, $m = null)
+    {
+        $this->assertSame($result, (new Point($x, $y, $z, $m))->isMeasured());
     }
 
     public function testGetComponents()
@@ -249,23 +281,27 @@ class PointTest extends TestCase
     /**
      * @dataProvider providerValidCoordinatesXYZM
      *
-     * @param $x
-     * @param $y
-     * @param $z
-     * @param $m
+     * @param int|float $x
+     * @param int|float $y
+     * @param int|float $z
+     * @param int|float $m
      */
     public function testInvertXY($x, $y, $z, $m)
     {
         $point = new Point($x, $y, $z, $m);
+        $originalPoint = clone $point;
         $point->invertXY();
 
         $this->assertEquals($x, $point->y());
         $this->assertEquals($y, $point->x());
         $this->assertEquals($z, $point->z());
         $this->assertEquals($m, $point->m());
+
+        $point->invertXY();
+        $this->assertEquals($point, $originalPoint);
     }
 
-    public function testCentroid()
+    public function testCentroidIsThePointItself()
     {
         $point = new Point(1, 2, 3, 4);
         $this->assertSame($point, $point->centroid());
@@ -304,7 +340,7 @@ class PointTest extends TestCase
 
     public function testBoundary()
     {
-        $this->assertEquals((new Point())->boundary(), new \geoPHP\Geometry\GeometryCollection());
+        $this->assertEquals((new Point(1, 2))->boundary(), new GeometryCollection());
     }
 
     public function testEquals()
@@ -320,7 +356,7 @@ class PointTest extends TestCase
         $this->assertFalse($point->equals(new Point(1.000000001, 2.000000001, 3, 4)));
         $this->assertFalse($point->equals(new Point(0.999999999, 1.999999999, 3, 4)));
 
-        $this->assertFalse($point->equals(new \geoPHP\Geometry\GeometryCollection()));
+        $this->assertFalse($point->equals(new GeometryCollection()));
     }
 
     public function testFlatten()
@@ -339,28 +375,44 @@ class PointTest extends TestCase
     public function providerDistance()
     {
         return [
+            'empty Point' =>
                 [new Point(), null],
-                [new Point(0, 0), 14.142135623730951],
-                [new Point(10, 20), 10.0],
-                [\geoPHP\Geometry\LineString::fromArray([[0,0], [10,10]]), 0.0],    // line endpoint equals to point
-                [\geoPHP\Geometry\LineString::fromArray([[0,10], [0,10]]), 10.0],   // line segment vertices are identical
-                [\geoPHP\Geometry\LineString::fromArray([[0,0], [0,20]]), 10.0],    // closest point is not a vertex
-                [\geoPHP\Geometry\MultiPoint::fromArray([[0,0], [0,10]]), 10.0],     // finds the closest multi geometry component
-                //[new \geoPHP\Geometry\GeometryCollection([new Point(0,10), new Point()]), 10.0] // finds the closest multi geometry component
-                // FIXME: this geometry collection crashes GEOS
-                // TODO: test other types
+            'Point x+10' =>
+                [new Point(10, 0), 10.0],
+            'Point y+10' =>
+                [new Point(0, 10), 10.0],
+            'Point x+10,y+10' =>
+                [new Point(10, 10), 14.142135623730951],
+            'LineString, point is a vertex' =>
+                [LineString::fromArray([[-10, 10], [0, 0], [10, 10]]), 0.0],
+            'LineString, containing a vertex twice' =>
+                [LineString::fromArray([[0, 10], [0, 10]]), 10.0],
+            'LineString, point on line' =>
+                [LineString::fromArray([[-10, -10], [10, 10]]), 0.0],
+
+            'MultiPoint, closest distance is 0' =>
+                [MultiPoint::fromArray([[0, 0], [10, 20]]), 0.0],
+            'MultiPoint, closest distance is 10' =>
+
+                [MultiPoint::fromArray([[10, 20], [0, 10]]), 10.0],
+            'MultiPoint, one of two is empty' => [MultiPoint::fromArray([[], [0, 10]]), 10.0],
+
+            'GeometryCollection, closest component is 10' =>
+                [new GeometryCollection([new Point(0,10), new Point()]), 10.0]
+            // FIXME: this geometry collection crashes GEOS
+            // TODO: test other types
         ];
     }
 
     /**
      * @dataProvider providerDistance
      *
-     * @param $otherGeometry
-     * @param $expectedDistance
+     * @param Geometry $otherGeometry
+     * @param float $expectedDistance
      */
     public function testDistance($otherGeometry, $expectedDistance)
     {
-        $point = new Point(10, 10);
+        $point = new Point(0, 0);
 
         $this->assertSame($point->distance($otherGeometry), $expectedDistance);
     }
@@ -368,7 +420,7 @@ class PointTest extends TestCase
     /**
      * @dataProvider providerDistance
      *
-     * @param $otherGeometry
+     * @param Geometry $otherGeometry
      */
     public function testDistanceEmpty($otherGeometry)
     {
@@ -423,26 +475,32 @@ class PointTest extends TestCase
     /**
      * @dataProvider providerMethodsNotValidForPointReturnsNull
      *
-     * @param $methodName
+     * @param string $methodName
      */
     public function testPlaceholderMethodsReturnsNull($methodName)
     {
-        $this->assertNull( (new Point())->$methodName(null) );
+        $this->assertNull( (new Point(1, 2, 3, 4))->$methodName(null) );
     }
 
     public function providerMethodsNotValidForPointReturns0()
     {
-        return [['area'], ['length'], ['length3D'], ['greatCircleLength'], ['haversineLength']];
+        return [
+            ['area'],
+            ['length'],
+            ['length3D'],
+            ['greatCircleLength'],
+            ['haversineLength']
+        ];
     }
 
     /**
      * @dataProvider providerMethodsNotValidForPointReturns0
      *
-     * @param $methodName
+     * @param string $methodName
      */
     public function testPlaceholderMethods($methodName)
     {
-        $this->assertEquals( (new Point())->$methodName(null), 0 );
+        $this->assertSame( (new Point(1, 2, 3, 4))->$methodName(null), 0.0 );
     }
 
 }

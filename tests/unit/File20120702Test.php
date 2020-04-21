@@ -8,13 +8,13 @@ use PHPUnit\Framework\TestCase;
 
 // FIXME file 20120702.gpx contains one MultiLineString but _method_tester() also wants to test Points and LineStrings (ie does nothing)
 
-class Tests_20120702 extends TestCase
+class File20120702Test extends TestCase
 {
 
   function testMethods()
   {
     $format = 'gpx';
-    $value = file_get_contents('./input/20120702.gpx');
+    $value = file_get_contents('tests/input/20120702.gpx');
     $geometry = geoPHP::load($value, $format);
 
     $methods = array(
@@ -56,8 +56,8 @@ class Tests_20120702 extends TestCase
 
   /**
    * @param Geometry $geometry
-   * @param $method_name
-   * @param $argument
+   * @param string $method_name
+   * @param mixed $argument
    */
   function _methods_tester($geometry, $method_name, $argument) {
 
