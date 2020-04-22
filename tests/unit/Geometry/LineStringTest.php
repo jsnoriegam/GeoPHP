@@ -17,30 +17,8 @@ use PHPUnit\Framework\TestCase;
 class LineStringTest extends TestCase
 {
     
-    public function __call($closure, $args)
-    {
-        return call_user_func_array($this->{$closure}->bindTo($this),$args);
-    }
-
-    public function __toString()
-    {
-        return call_user_func($this->{"__toString"}->bindTo($this));
-    }
-    
     public function __construct($name = null, array $data = [], $dataName = '')
     {
-        if (!method_exists($this, "expectExceptionMessageMatches")) {
-            $this->expectExceptionMessageMatches = function (string $regularExpression) {
-                return $this->expectExceptionMessageRegExp($regularExpression);
-            };
-        }
-        
-        if (!method_exists($this, "assertEqualsWithDelta")) {
-            $this->assertEqualsWithDelta = static function ($expected, $actual, float $delta, string $message = '') {
-                return parent::assertEquals($expected, $actual, $message, $delta);
-            };
-        }
-        
         parent::__construct($name, $data, $dataName);
     }
 
@@ -84,7 +62,10 @@ class LineStringTest extends TestCase
     public function testConstructorEmptyComponentThrowsException()
     {
         $this->expectException(InvalidGeometryException::class);
-        $this->expectExceptionMessageMatches('/Cannot create a collection of empty Points.+/');
+        
+        if (method_exists($this, "expectExceptionMessageMatches")) {
+            $this->expectExceptionMessageMatches('/Cannot create a collection of empty Points.+/');
+        }
 
         // Empty points
         new LineString([new Point(), new Point(), new Point()]);
@@ -93,15 +74,21 @@ class LineStringTest extends TestCase
     public function testConstructorNonArrayComponentThrowsException()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessageMatches('/must be of (the )*type array, string given/');
-
+        
+        if (method_exists($this, "expectExceptionMessageMatches")) {
+            $this->expectExceptionMessageMatches('/must be of (the )*type array, string given/');
+        }
+        
         new LineString('foo');
     }
 
     public function testConstructorSinglePointThrowsException()
     {
         $this->expectException(InvalidGeometryException::class);
-        $this->expectExceptionMessageMatches('/Cannot construct a [a-zA-Z_\\\\]+LineString with a single point/');
+        
+        if (method_exists($this, "expectExceptionMessageMatches")) {
+            $this->expectExceptionMessageMatches('/Cannot construct a [a-zA-Z_\\\\]+LineString with a single point/');
+        }
 
         new LineString([new Point(1, 2)]);
     }
@@ -109,7 +96,10 @@ class LineStringTest extends TestCase
     public function testConstructorWrongComponentTypeThrowsException()
     {
         $this->expectException(InvalidGeometryException::class);
-        $this->expectExceptionMessageMatches('/Cannot create a collection of [a-zA-Z_\\\\]+ components, expected type is.+/');
+        
+        if (method_exists($this, "expectExceptionMessageMatches")) {
+            $this->expectExceptionMessageMatches('/Cannot create a collection of [a-zA-Z_\\\\]+ components, expected type is.+/');
+        }
 
         new LineString([new LineString(), new LineString()]);
     }
