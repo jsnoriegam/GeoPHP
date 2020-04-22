@@ -57,7 +57,7 @@ class LineStringTest extends TestCase
     public function testConstructorEmptyComponentThrowsException()
     {
         $this->expectException(InvalidGeometryException::class);
-        $this->expectExceptionMessageRegExp('/Cannot create a collection of empty Points.+/');
+        $this->expectExceptionMessageMatches('/Cannot create a collection of empty Points.+/');
 
         // Empty points
         new LineString([new Point(), new Point(), new Point()]);
@@ -66,7 +66,7 @@ class LineStringTest extends TestCase
     public function testConstructorNonArrayComponentThrowsException()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessageRegExp('/must be of (the )*type array, string given/');
+        $this->expectExceptionMessageMatches('/must be of (the )*type array, string given/');
 
         new LineString('foo');
     }
@@ -74,7 +74,7 @@ class LineStringTest extends TestCase
     public function testConstructorSinglePointThrowsException()
     {
         $this->expectException(InvalidGeometryException::class);
-        $this->expectExceptionMessageRegExp('/Cannot construct a [a-zA-Z_\\\\]+LineString with a single point/');
+        $this->expectExceptionMessageMatches('/Cannot construct a [a-zA-Z_\\\\]+LineString with a single point/');
 
         new LineString([new Point(1, 2)]);
     }
@@ -82,7 +82,7 @@ class LineStringTest extends TestCase
     public function testConstructorWrongComponentTypeThrowsException()
     {
         $this->expectException(InvalidGeometryException::class);
-        $this->expectExceptionMessageRegExp('/Cannot create a collection of [a-zA-Z_\\\\]+ components, expected type is.+/');
+        $this->expectExceptionMessageMatches('/Cannot create a collection of [a-zA-Z_\\\\]+ components, expected type is.+/');
 
         new LineString([new LineString(), new LineString()]);
     }
@@ -305,7 +305,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        parent::assertEquals($line->greatCircleLength(), $results['greatCircle'], '', 1e-8);
+        parent::assertEqualsWithDelta($line->greatCircleLength(), $results['greatCircle'], 1e-8);
     }
 
     /**
@@ -318,7 +318,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        parent::assertEquals($line->haversineLength(), $results['haversine'], '', 1e-7);
+        parent::assertEqualsWithDelta($line->haversineLength(), $results['haversine'], 1e-7);
     }
 
     /**
@@ -331,7 +331,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        parent::assertEquals($line->vincentyLength(), $results['vincenty'], '', 1e-8);
+        parent::assertEqualsWithDelta($line->vincentyLength(), $results['vincenty'], 1e-8);
     }
 
     public function testVincentyLengthAntipodalPoints()
