@@ -233,7 +233,7 @@ abstract class Geometry
     public function isRing(): bool
     {
         throw new UnsupportedMethodException(
-                get_called_class() . '::isRing',
+            get_called_class() . '::isRing',
             null,
             "It should only be called on a linear feature."
         );
@@ -646,7 +646,7 @@ abstract class Geometry
     {
         return null;
         throw new UnsupportedMethodException(
-             get_called_class() . '::getY',
+            get_called_class() . '::getY',
             null,
             "Geometry has to be a point."
         );
@@ -660,7 +660,7 @@ abstract class Geometry
     {
         return null;
         throw new UnsupportedMethodException(
-             get_called_class() . '::getZ',
+            get_called_class() . '::getZ',
             null,
             "Geometry has to be a point."
         );
@@ -674,7 +674,7 @@ abstract class Geometry
     {
         return null;
         throw new UnsupportedMethodException(
-             get_called_class() . '::getM',
+            get_called_class() . '::getM',
             null,
             "Geometry has to be a point."
         );
