@@ -40,15 +40,15 @@ class PointTest extends TestCase
     {
         $point = new Point($x, $y);
 
-        $this->assertEquals($x, $point->x());
-        $this->assertEquals($y, $point->y());
-        $this->assertNull($point->z());
-        $this->assertNull($point->m());
+        parent::assertEquals($x, $point->x());
+        parent::assertEquals($y, $point->y());
+        parent::assertNull($point->z());
+        parent::assertNull($point->m());
 
-//        $this->assertIsFloat($point->x());
-//        $this->assertIsFloat($point->y());
-        $this->assertTrue(is_float($point->x()));
-        $this->assertTrue(is_float($point->y()));
+//        parent::assertIsFloat($point->x());
+//        parent::assertIsFloat($point->y());
+        parent::assertTrue(is_float($point->x()));
+        parent::assertTrue(is_float($point->y()));
     }
 
     public function providerValidCoordinatesXYZ_or_XYM()
@@ -73,17 +73,17 @@ class PointTest extends TestCase
     {
         $point = new Point($x, $y, $z);
 
-        $this->assertEquals($x, $point->x());
-        $this->assertEquals($y, $point->y());
-        $this->assertEquals($z, $point->z());
-        $this->assertNull($point->m());
+        parent::assertEquals($x, $point->x());
+        parent::assertEquals($y, $point->y());
+        parent::assertEquals($z, $point->z());
+        parent::assertNull($point->m());
 
-//        $this->assertIsFloat($point->x());
-//        $this->assertIsFloat($point->y());
-//        $this->assertIsFloat($point->z());
-        $this->assertTrue(is_float($point->x()));
-        $this->assertTrue(is_float($point->y()));
-        $this->assertTrue(is_float($point->z()));
+//        parent::assertIsFloat($point->x());
+//        parent::assertIsFloat($point->y());
+//        parent::assertIsFloat($point->z());
+        parent::assertTrue(is_float($point->x()));
+        parent::assertTrue(is_float($point->y()));
+        parent::assertTrue(is_float($point->z()));
     }
 
     /**
@@ -97,17 +97,17 @@ class PointTest extends TestCase
     {
         $point = new Point($x, $y, null, $m);
 
-        $this->assertEquals($x, $point->x());
-        $this->assertEquals($y, $point->y());
-        $this->assertEquals($m, $point->m());
-        $this->assertNull($point->z());
+        parent::assertEquals($x, $point->x());
+        parent::assertEquals($y, $point->y());
+        parent::assertEquals($m, $point->m());
+        parent::assertNull($point->z());
 
-//        $this->assertIsFloat($point->x());
-//        $this->assertIsFloat($point->y());
-//        $this->assertIsFloat($point->m());
-        $this->assertTrue(is_float($point->x()));
-        $this->assertTrue(is_float($point->y()));
-        $this->assertTrue(is_float($point->m()));
+//        parent::assertIsFloat($point->x());
+//        parent::assertIsFloat($point->y());
+//        parent::assertIsFloat($point->m());
+        parent::assertTrue(is_float($point->x()));
+        parent::assertTrue(is_float($point->y()));
+        parent::assertTrue(is_float($point->m()));
     }
 
     public function providerValidCoordinatesXYZM()
@@ -133,31 +133,31 @@ class PointTest extends TestCase
     {
         $point = new Point($x, $y, $z, $m);
 
-        $this->assertEquals($x, $point->x());
-        $this->assertEquals($y, $point->y());
-        $this->assertEquals($z, $point->z());
-        $this->assertEquals($m, $point->m());
+        parent::assertEquals($x, $point->x());
+        parent::assertEquals($y, $point->y());
+        parent::assertEquals($z, $point->z());
+        parent::assertEquals($m, $point->m());
 
-//        $this->assertIsFloat($point->x());
-//        $this->assertIsFloat($point->y());
-//        $this->assertIsFloat($point->z());
-//        $this->assertIsFloat($point->m());
-        $this->assertTrue(is_float($point->x()));
-        $this->assertTrue(is_float($point->y()));
-        $this->assertTrue(is_float($point->z()));
-        $this->assertTrue(is_float($point->m()));
+//        parent::assertIsFloat($point->x());
+//        parent::assertIsFloat($point->y());
+//        parent::assertIsFloat($point->z());
+//        parent::assertIsFloat($point->m());
+        parent::assertTrue(is_float($point->x()));
+        parent::assertTrue(is_float($point->y()));
+        parent::assertTrue(is_float($point->z()));
+        parent::assertTrue(is_float($point->m()));
     }
 
     public function testConstructorWithoutParameters()
     {
         $point = new Point();
 
-        $this->assertTrue($point->isEmpty());
+        parent::assertTrue($point->isEmpty());
 
-        $this->assertNull($point->x());
-        $this->assertNull($point->y());
-        $this->assertNull($point->z());
-        $this->assertNull($point->m());
+        parent::assertNull($point->x());
+        parent::assertNull($point->y());
+        parent::assertNull($point->z());
+        parent::assertNull($point->m());
     }
 
     public function providerEmpty()
@@ -184,12 +184,12 @@ class PointTest extends TestCase
     {
         $point = new Point($x, $y, $z, $m);
 
-        $this->assertTrue($point->isEmpty());
+        parent::assertTrue($point->isEmpty());
 
-        $this->assertNull($point->x());
-        $this->assertNull($point->y());
-        $this->assertNull($point->z());
-        $this->assertNull($point->m());
+        parent::assertNull($point->x());
+        parent::assertNull($point->y());
+        parent::assertNull($point->z());
+        parent::assertNull($point->m());
     }
 
     public function providerInvalidCoordinates()
@@ -221,10 +221,10 @@ class PointTest extends TestCase
     {
         $point = new Point();
 
-        $this->assertEquals(\geoPHP\Geometry\Geometry::POINT, $point->geometryType());
+        parent::assertEquals(\geoPHP\Geometry\Geometry::POINT, $point->geometryType());
 
-        $this->assertInstanceOf(Point::class, $point);
-        $this->assertInstanceOf(\geoPHP\Geometry\Geometry::class, $point);
+        parent::assertInstanceOf(Point::class, $point);
+        parent::assertInstanceOf(\geoPHP\Geometry\Geometry::class, $point);
     }
 
     public function providerIs3D()
@@ -244,7 +244,7 @@ class PointTest extends TestCase
      */
     public function testIs3D($result, $x = null, $y = null, $z = null, $m = null)
     {
-        $this->assertSame($result, (new Point($x, $y, $z, $m))->is3D());
+        parent::assertSame($result, (new Point($x, $y, $z, $m))->is3D());
     }
 
     public function providerIsMeasured()
@@ -264,7 +264,7 @@ class PointTest extends TestCase
      */
     public function testIsMeasured($result, $x = null, $y = null, $z = null, $m = null)
     {
-        $this->assertSame($result, (new Point($x, $y, $z, $m))->isMeasured());
+        parent::assertSame($result, (new Point($x, $y, $z, $m))->isMeasured());
     }
 
     public function testGetComponents()
@@ -272,10 +272,10 @@ class PointTest extends TestCase
         $point = new Point(1, 2);
         $components = $point->getComponents();
 
-        //$this->assertIsArray($components);
-        $this->assertTrue(is_array($components) );
-        $this->assertCount(1, $components);
-        $this->assertSame($point, $components[0]);
+        //parent::assertIsArray($components);
+        parent::assertTrue(is_array($components) );
+        parent::assertCount(1, $components);
+        parent::assertSame($point, $components[0]);
     }
 
     /**
@@ -292,25 +292,25 @@ class PointTest extends TestCase
         $originalPoint = clone $point;
         $point->invertXY();
 
-        $this->assertEquals($x, $point->y());
-        $this->assertEquals($y, $point->x());
-        $this->assertEquals($z, $point->z());
-        $this->assertEquals($m, $point->m());
+        parent::assertEquals($x, $point->y());
+        parent::assertEquals($y, $point->x());
+        parent::assertEquals($z, $point->z());
+        parent::assertEquals($m, $point->m());
 
         $point->invertXY();
-        $this->assertEquals($point, $originalPoint);
+        parent::assertEquals($point, $originalPoint);
     }
 
     public function testCentroidIsThePointItself()
     {
         $point = new Point(1, 2, 3, 4);
-        $this->assertSame($point, $point->centroid());
+        parent::assertSame($point, $point->centroid());
     }
 
     public function testBBox()
     {
         $point = new Point(1, 2);
-        $this->assertSame($point->getBBox(), [
+        parent::assertSame($point->getBBox(), [
                 'maxy' => 2.0,
                 'miny' => 2.0,
                 'maxx' => 1.0,
@@ -321,42 +321,42 @@ class PointTest extends TestCase
     public function testAsArray()
     {
         $pointAsArray = (new Point())->asArray();
-        $this->assertCount(2, $pointAsArray);
-        $this->assertNan($pointAsArray[0]);
-        $this->assertNan($pointAsArray[1]);
+        parent::assertCount(2, $pointAsArray);
+        parent::assertNan($pointAsArray[0]);
+        parent::assertNan($pointAsArray[1]);
 
         $pointAsArray = (new Point(1, 2))->asArray();
-        $this->assertSame($pointAsArray, [1.0, 2.0]);
+        parent::assertSame($pointAsArray, [1.0, 2.0]);
 
         $pointAsArray = (new Point(1, 2, 3))->asArray();
-        $this->assertSame($pointAsArray, [1.0, 2.0, 3.0]);
+        parent::assertSame($pointAsArray, [1.0, 2.0, 3.0]);
 
         $pointAsArray = (new Point(1, 2, null, 3))->asArray();
-        $this->assertSame($pointAsArray, [1.0, 2.0, null, 3.0]);
+        parent::assertSame($pointAsArray, [1.0, 2.0, null, 3.0]);
 
         $pointAsArray = (new Point(1, 2, 3, 4))->asArray();
-        $this->assertSame($pointAsArray, [1.0, 2.0, 3.0, 4.0]);
+        parent::assertSame($pointAsArray, [1.0, 2.0, 3.0, 4.0]);
     }
 
     public function testBoundary()
     {
-        $this->assertEquals((new Point(1, 2))->boundary(), new GeometryCollection());
+        parent::assertEquals((new Point(1, 2))->boundary(), new GeometryCollection());
     }
 
     public function testEquals()
     {
-        $this->assertTrue((new Point())->equals(new Point()));
+        parent::assertTrue((new Point())->equals(new Point()));
 
         $point = new Point(1, 2, 3, 4);
-        $this->assertTrue($point->equals(new Point(1, 2, 3, 4)));
+        parent::assertTrue($point->equals(new Point(1, 2, 3, 4)));
 
-        $this->assertTrue($point->equals(new Point(1.0000000001, 2.0000000001, 3, 4)));
-        $this->assertTrue($point->equals(new Point(0.9999999999, 1.9999999999, 3, 4)));
+        parent::assertTrue($point->equals(new Point(1.0000000001, 2.0000000001, 3, 4)));
+        parent::assertTrue($point->equals(new Point(0.9999999999, 1.9999999999, 3, 4)));
 
-        $this->assertFalse($point->equals(new Point(1.000000001, 2.000000001, 3, 4)));
-        $this->assertFalse($point->equals(new Point(0.999999999, 1.999999999, 3, 4)));
+        parent::assertFalse($point->equals(new Point(1.000000001, 2.000000001, 3, 4)));
+        parent::assertFalse($point->equals(new Point(0.999999999, 1.999999999, 3, 4)));
 
-        $this->assertFalse($point->equals(new GeometryCollection()));
+        parent::assertFalse($point->equals(new GeometryCollection()));
     }
 
     public function testFlatten()
@@ -364,12 +364,12 @@ class PointTest extends TestCase
         $point = new Point(1, 2, 3, 4);
         $point->flatten();
 
-        $this->assertEquals($point->x(), 1);
-        $this->assertEquals($point->y(), 2);
-        $this->assertNull($point->z());
-        $this->assertNull($point->m());
-        $this->assertFalse($point->is3D());
-        $this->assertFalse($point->isMeasured());
+        parent::assertEquals($point->x(), 1);
+        parent::assertEquals($point->y(), 2);
+        parent::assertNull($point->z());
+        parent::assertNull($point->m());
+        parent::assertFalse($point->is3D());
+        parent::assertFalse($point->isMeasured());
     }
 
     public function providerDistance()
@@ -414,7 +414,7 @@ class PointTest extends TestCase
     {
         $point = new Point(0, 0);
 
-        $this->assertSame($point->distance($otherGeometry), $expectedDistance);
+        parent::assertSame($point->distance($otherGeometry), $expectedDistance);
     }
 
     /**
@@ -426,36 +426,36 @@ class PointTest extends TestCase
     {
         $point = new Point();
 
-        $this->assertNull($point->distance($otherGeometry));
+        parent::assertNull($point->distance($otherGeometry));
     }
 
     public function testTrivialMethods()
     {
         $point = new Point(1, 2, 3, 4);
 
-        $this->assertSame( $point->dimension(), 0 );
+        parent::assertSame( $point->dimension(), 0 );
 
-        $this->assertSame( $point->numPoints(), 1 );
+        parent::assertSame( $point->numPoints(), 1 );
 
-        $this->assertSame( $point->numGeometries(), 1 );
+        parent::assertSame( $point->numGeometries(), 1 );
         
-        $this->assertSame( $point->getPoints(), [$point] );
+        parent::assertSame( $point->getPoints(), [$point] );
 
-        $this->assertTrue( $point->isSimple());
+        parent::assertTrue( $point->isSimple());
         
-        $this->assertTrue( $point->isClosed() );
+        parent::assertTrue( $point->isClosed() );
         
-        $this->assertSame( $point->explode(), [] );
+        parent::assertSame( $point->explode(), [] );
     }
 
     public function testMinMaxMethods()
     {
         $point = new Point(1, 2, 3, 4);
 
-        $this->assertEquals($point->minimumZ(), 3);
-        $this->assertEquals($point->maximumZ(), 3);
-        $this->assertEquals($point->minimumM(), 4);
-        $this->assertEquals($point->maximumM(), 4);
+        parent::assertEquals($point->minimumZ(), 3);
+        parent::assertEquals($point->maximumZ(), 3);
+        parent::assertEquals($point->minimumM(), 4);
+        parent::assertEquals($point->maximumM(), 4);
     }
 
     public function providerMethodsNotValidForPointReturnsNull()
@@ -485,7 +485,7 @@ class PointTest extends TestCase
      */
     public function testPlaceholderMethodsReturnsNull($methodName)
     {
-        $this->assertNull( (new Point(1, 2, 3, 4))->$methodName(null) );
+        parent::assertNull( (new Point(1, 2, 3, 4))->$methodName(null) );
     }
 
     public function providerMethodsNotValidForPointReturns0()
@@ -506,7 +506,7 @@ class PointTest extends TestCase
      */
     public function testPlaceholderMethods($methodName)
     {
-        $this->assertSame( (new Point(1, 2, 3, 4))->$methodName(null), 0.0 );
+        parent::assertSame( (new Point(1, 2, 3, 4))->$methodName(null), 0.0 );
     }
 
 }

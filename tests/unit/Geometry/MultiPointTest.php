@@ -34,7 +34,7 @@ class MultiPointTest extends TestCase
      */
     public function testValidComponents($points)
     {
-        $this->assertNotNull(new MultiPoint($points));
+        parent::assertNotNull(new MultiPoint($points));
     }
 
     public function providerInvalidComponents()
@@ -60,24 +60,24 @@ class MultiPointTest extends TestCase
     {
         $multiPoint = new MultiPoint();
 
-        $this->assertEquals(\geoPHP\Geometry\Geometry::MULTI_POINT, $multiPoint->geometryType());
+        parent::assertEquals(\geoPHP\Geometry\Geometry::MULTI_POINT, $multiPoint->geometryType());
 
-        $this->assertInstanceOf('\geoPHP\Geometry\MultiPoint', $multiPoint);
-        $this->assertInstanceOf('\geoPHP\Geometry\MultiGeometry', $multiPoint);
-        $this->assertInstanceOf('\geoPHP\Geometry\Geometry', $multiPoint);
+        parent::assertInstanceOf('\geoPHP\Geometry\MultiPoint', $multiPoint);
+        parent::assertInstanceOf('\geoPHP\Geometry\MultiGeometry', $multiPoint);
+        parent::assertInstanceOf('\geoPHP\Geometry\Geometry', $multiPoint);
     }
 
     public function testIs3D()
     {
-        $this->assertTrue( (new Point(1, 2, 3))->is3D() );
-        $this->assertTrue( (new Point(1, 2, 3, 4))->is3D() );
-        $this->assertTrue( (new Point(null, null, 3, 4))->is3D() );
+        parent::assertTrue( (new Point(1, 2, 3))->is3D() );
+        parent::assertTrue( (new Point(1, 2, 3, 4))->is3D() );
+        parent::assertTrue( (new Point(null, null, 3, 4))->is3D() );
     }
 
     public function testIsMeasured()
     {
-        $this->assertTrue( (new Point(1, 2, null, 4))->isMeasured() );
-        $this->assertTrue( (new Point(null, null , null, 4))->isMeasured() );
+        parent::assertTrue( (new Point(1, 2, null, 4))->isMeasured() );
+        parent::assertTrue( (new Point(null, null , null, 4))->isMeasured() );
     }
 
     public function providerCentroid()
@@ -98,7 +98,7 @@ class MultiPointTest extends TestCase
     {
         $multiPoint = MultiPoint::fromArray($components);
 
-        $this->assertEquals($multiPoint->centroid(), Point::fromArray($centroid));
+        parent::assertEquals($multiPoint->centroid(), Point::fromArray($centroid));
     }
 
     public function providerIsSimple()
@@ -121,7 +121,7 @@ class MultiPointTest extends TestCase
     {
         $multiPoint = MultiPoint::fromArray($points);
 
-        $this->assertSame($multiPoint->isSimple(), $result);
+        parent::assertSame($multiPoint->isSimple(), $result);
     }
 
     /**
@@ -133,20 +133,20 @@ class MultiPointTest extends TestCase
     {
         $multiPoint = new MultiPoint($points);
 
-        $this->assertEquals($multiPoint->numPoints(), $multiPoint->numGeometries());
+        parent::assertEquals($multiPoint->numPoints(), $multiPoint->numGeometries());
     }
 
     public function testTrivialAndNotValidMethods()
     {
         $point = new MultiPoint();
 
-        $this->assertSame( $point->dimension(), 0 );
+        parent::assertSame( $point->dimension(), 0 );
 
-        $this->assertEquals( $point->boundary(), new \geoPHP\Geometry\GeometryCollection() );
+        parent::assertEquals( $point->boundary(), new \geoPHP\Geometry\GeometryCollection() );
 
-        $this->assertIsArray( $point->explode());
+        parent::assertIsArray( $point->explode());
 
-        $this->assertTrue( $point->isSimple());
+        parent::assertTrue( $point->isSimple());
     }
 
 }

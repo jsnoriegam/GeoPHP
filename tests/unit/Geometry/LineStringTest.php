@@ -51,7 +51,7 @@ class LineStringTest extends TestCase
      */
     public function testConstructor($points)
     {
-        $this->assertNotNull(new LineString($this->createPoints($points)));
+        parent::assertNotNull(new LineString($this->createPoints($points)));
     }
 
     public function testConstructorEmptyComponentThrowsException()
@@ -66,7 +66,7 @@ class LineStringTest extends TestCase
     public function testConstructorNonArrayComponentThrowsException()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessageRegExp('/must be of the type array, string given/');
+        $this->expectExceptionMessageRegExp('/must be of (the )*type array, string given/');
 
         new LineString('foo');
     }
@@ -89,7 +89,7 @@ class LineStringTest extends TestCase
 
     public function testFromArray()
     {
-        $this->assertEquals(
+        parent::assertEquals(
             LineString::fromArray([[1,2,3,4], [5,6,7,8]]),
             new LineString([new Point(1,2,3,4), new Point(5,6,7,8)])
         );
@@ -99,26 +99,26 @@ class LineStringTest extends TestCase
     {
         $line = new LineString();
 
-        $this->assertEquals(LineString::LINESTRING, $line->geometryType());
+        parent::assertEquals(LineString::LINESTRING, $line->geometryType());
 
-        $this->assertInstanceOf(LineString::class, $line);
-        $this->assertInstanceOf(\geoPHP\Geometry\Curve::class, $line);
-        $this->assertInstanceOf(\geoPHP\Geometry\Collection::class, $line);
-        $this->assertInstanceOf(\geoPHP\Geometry\Geometry::class, $line);
+        parent::assertInstanceOf(LineString::class, $line);
+        parent::assertInstanceOf(\geoPHP\Geometry\Curve::class, $line);
+        parent::assertInstanceOf(\geoPHP\Geometry\Collection::class, $line);
+        parent::assertInstanceOf(\geoPHP\Geometry\Geometry::class, $line);
     }
 
     public function testIsEmpty()
     {
         $line1 = new LineString();
-        $this->assertTrue($line1->isEmpty());
+        parent::assertTrue($line1->isEmpty());
 
         $line2 = new LineString($this->createPoints([[1,2], [3,4]]));
-        $this->assertFalse($line2->isEmpty());
+        parent::assertFalse($line2->isEmpty());
     }
 
     public function testDimension()
     {
-        $this->assertSame((new LineString())->dimension(), 1);
+        parent::assertSame((new LineString())->dimension(), 1);
     }
 
     /**
@@ -129,7 +129,7 @@ class LineStringTest extends TestCase
     public function testNumPoints($points)
     {
         $line = new LineString($this->createPoints($points));
-        $this->assertCount($line->numPoints(), $points);
+        parent::assertCount($line->numPoints(), $points);
     }
 
     /**
@@ -142,14 +142,14 @@ class LineStringTest extends TestCase
         $components = $this->createPoints($points);
         $line = new LineString($components);
 
-        $this->assertNull($line->pointN(0));
+        parent::assertNull($line->pointN(0));
 
         for ($i=1; $i < count($components); $i++) {
             // positive n
-            $this->assertEquals($components[$i-1], $line->pointN($i));
+            parent::assertEquals($components[$i-1], $line->pointN($i));
 
             // negative n
-            $this->assertEquals($components[count($components)-$i], $line->pointN(-$i));
+            parent::assertEquals($components[count($components)-$i], $line->pointN(-$i));
         }
     }
 
@@ -185,7 +185,7 @@ class LineStringTest extends TestCase
         $centroid = $line->centroid();
         $centroid->setGeos(null);
 
-        $this->assertEquals($centroidPoint, $centroid);
+        parent::assertEquals($centroidPoint, $centroid);
     }
 
     public function providerIsSimple()
@@ -211,7 +211,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        $this->assertSame($line->isSimple(), $result);
+        parent::assertSame($line->isSimple(), $result);
     }
 
     public function providerLength() {
@@ -231,7 +231,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        $this->assertSame($line->length(), $result);
+        parent::assertSame($line->length(), $result);
     }
 
     public function providerLength3D() {
@@ -251,7 +251,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        $this->assertSame($line->length3D(), $result);
+        parent::assertSame($line->length3D(), $result);
     }
 
     public function providerLengths() {
@@ -305,7 +305,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        $this->assertEquals($line->greatCircleLength(), $results['greatCircle'], '', 1e-8);
+        parent::assertEquals($line->greatCircleLength(), $results['greatCircle'], '', 1e-8);
     }
 
     /**
@@ -318,7 +318,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        $this->assertEquals($line->haversineLength(), $results['haversine'], '', 1e-7);
+        parent::assertEquals($line->haversineLength(), $results['haversine'], '', 1e-7);
     }
 
     /**
@@ -331,14 +331,14 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        $this->assertEquals($line->vincentyLength(), $results['vincenty'], '', 1e-8);
+        parent::assertEquals($line->vincentyLength(), $results['vincenty'], '', 1e-8);
     }
 
     public function testVincentyLengthAntipodalPoints()
     {
         $line = LineString::fromArray([[-89.7, 0], [89.7, 0]]);
 
-        $this->assertIsFloat($line->vincentyLength());
+        parent::assertIsFloat($line->vincentyLength());
     }
 
     public function testExplode()
@@ -348,13 +348,13 @@ class LineStringTest extends TestCase
         $point3 = new Point(5, 6);
         $line = new LineString([$point1, $point2, $point3]);
 
-        $this->assertEquals($line->explode(), [new LineString([$point1, $point2]), new LineString([$point2, $point3])]);
+        parent::assertEquals($line->explode(), [new LineString([$point1, $point2]), new LineString([$point2, $point3])]);
 
-        $this->assertSame($line->explode(true), [[$point1, $point2], [$point2, $point3]]);
+        parent::assertSame($line->explode(true), [[$point1, $point2], [$point2, $point3]]);
 
-        $this->assertSame((new LineString())->explode(), []);
+        parent::assertSame((new LineString())->explode(), []);
 
-        $this->assertSame((new LineString())->explode(true), []);
+        parent::assertSame((new LineString())->explode(true), []);
     }
 
     public function providerDistance()
@@ -386,21 +386,21 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray([[0, 0], [0, 10]]);
 
-        $this->assertSame($line->distance($otherGeometry), $expectedDistance);
+        parent::assertSame($line->distance($otherGeometry), $expectedDistance);
     }
 
     public function testMinimumAndMaximumZAndMAndDifference()
     {
         $line = LineString::fromArray([[0, 0, 100.0, 0.0], [1, 1, 50.0, -0.5], [2, 2, 150.0, -1.0], [3, 3, 75.0, 0.5]]);
 
-        $this->assertSame($line->minimumZ(), 50.0);
-        $this->assertSame($line->maximumZ(), 150.0);
+        parent::assertSame($line->minimumZ(), 50.0);
+        parent::assertSame($line->maximumZ(), 150.0);
 
-        $this->assertSame($line->minimumM(), -1.0);
-        $this->assertSame($line->maximumM(), 0.5);
+        parent::assertSame($line->minimumM(), -1.0);
+        parent::assertSame($line->maximumM(), 0.5);
 
-        $this->assertSame($line->zDifference(), 25.0);
-        $this->assertSame(LineString::fromArray([[0, 1], [2, 3]])->zDifference(), null);
+        parent::assertSame($line->zDifference(), 25.0);
+        parent::assertSame(LineString::fromArray([[0, 1], [2, 3]])->zDifference(), null);
     }
 
     /**
@@ -430,8 +430,8 @@ class LineStringTest extends TestCase
                 [0, 0, 102], [0, 0, 108], [0, 0, 102], [0, 0, 108], [0, 0, 102], [0, 0, 120] ]
         );
 
-        $this->assertSame($line->elevationGain($tolerance), $gain);
+        parent::assertSame($line->elevationGain($tolerance), $gain);
 
-        $this->assertSame($line->elevationLoss($tolerance), $loss);
+        parent::assertSame($line->elevationLoss($tolerance), $loss);
     }
 }

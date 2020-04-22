@@ -40,7 +40,7 @@ class CollectionTest extends TestCase
         /** @var Collection $stub */
         $stub = $this->getMockForAbstractClass(Collection::class, [$components, true]);
 
-        $this->assertEquals($stub->is3D(), $result);
+        parent::assertEquals($stub->is3D(), $result);
     }
 
     public function providerIsMeasured()
@@ -65,7 +65,7 @@ class CollectionTest extends TestCase
         /** @var Collection $stub */
         $stub = $this->getMockForAbstractClass(Collection::class, [$components, true]);
 
-        $this->assertEquals($stub->isMeasured(), $result);
+        parent::assertEquals($stub->isMeasured(), $result);
     }
 
     public function providerIsEmpty()
@@ -88,7 +88,7 @@ class CollectionTest extends TestCase
         /** @var Collection $stub */
         $stub = $this->getMockForAbstractClass(Collection::class, [$components, true]);
 
-        $this->assertEquals($stub->isEmpty(), $result);
+        parent::assertEquals($stub->isEmpty(), $result);
     }
 
     public function testNonApplicableMethods()
@@ -96,10 +96,10 @@ class CollectionTest extends TestCase
         /** @var Collection $stub */
         $stub = $this->getMockForAbstractClass(Collection::class, [[], true]);
 
-        $this->assertNull($stub->x());
-        $this->assertNull($stub->y());
-        $this->assertNull($stub->z());
-        $this->assertNull($stub->m());
+        parent::assertNull($stub->x());
+        parent::assertNull($stub->y());
+        parent::assertNull($stub->z());
+        parent::assertNull($stub->m());
     }
 
     public function testAsArray()
@@ -116,7 +116,7 @@ class CollectionTest extends TestCase
         /** @var Collection $stub */
         $stub = $this->getMockForAbstractClass(Collection::class, [$components, true]);
 
-        $this->assertEquals($stub->asArray(), $expected);
+        parent::assertEquals($stub->asArray(), $expected);
     }
 
     public function testFlatten()
@@ -131,9 +131,9 @@ class CollectionTest extends TestCase
         $stub = $this->getMockForAbstractClass(Collection::class, [$components]);
         $stub->flatten();
 
-        $this->assertFalse($stub->hasZ());
-        $this->assertFalse($stub->isMeasured());
-        $this->assertFalse($stub->getPoints()[0]->hasZ());
+        parent::assertFalse($stub->hasZ());
+        parent::assertFalse($stub->isMeasured());
+        parent::assertFalse($stub->getPoints()[0]->hasZ());
     }
 
     public function testExplode()
@@ -147,12 +147,12 @@ class CollectionTest extends TestCase
         $stub = $this->getMockForAbstractClass(Collection::class, [$components]);
 
         $segments = $stub->explode();
-        $this->assertCount(count($points) - 1, $segments);
+        parent::assertCount(count($points) - 1, $segments);
         foreach ($segments as $i => $segment) {
-            $this->assertCount(2, $segment->getComponents());
+            parent::assertCount(2, $segment->getComponents());
 
-            $this->assertSame($segment->startPoint(), $points[$i]);
-            $this->assertSame($segment->endPoint(), $points[$i + 1]);
+            parent::assertSame($segment->startPoint(), $points[$i]);
+            parent::assertSame($segment->endPoint(), $points[$i + 1]);
         }
     }
 }
