@@ -336,9 +336,10 @@ class LineStringTest extends TestCase
 
     public function testVincentyLengthAntipodalPoints()
     {
-        $line = LineString::fromArray([[-89.7, 0], [89.7, 0]]);
-
-        parent::assertIsFloat($line->vincentyLength());
+        if (method_exists($this, "assertIsFloat")) {
+            $line = LineString::fromArray([[-89.7, 0], [89.7, 0]]);
+            parent::assertIsFloat($line->vincentyLength());
+        }
     }
 
     public function testExplode()

@@ -144,7 +144,9 @@ class MultiPointTest extends TestCase
 
         parent::assertEquals( $point->boundary(), new \geoPHP\Geometry\GeometryCollection() );
 
-        parent::assertIsArray( $point->explode());
+        if (method_exists($this, "assertIsArray")) {
+            parent::assertIsArray( $point->explode());
+        }
 
         parent::assertTrue( $point->isSimple());
     }
