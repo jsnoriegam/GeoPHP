@@ -7,8 +7,6 @@ use geoPHP\Geometry\Geometry;
 use geoPHP\Geometry\LineString;
 use geoPHP\Geometry\Point;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Constraint\IsType;
-use PHPUnit\Framework\Constraint\IsEqual;
 
 /**
  * Unit tests of LineString geometry
@@ -307,14 +305,9 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        #parent::assertEqualsWithDelta($line->greatCircleLength(), $results['greatCircle'], 1e-8);
-        
-        $constraint = new IsEqual(
-            $line->greatCircleLength(),
-            1e-8
-        );
-
-        parent::assertThat($results['greatCircle'], $constraint);
+        if (method_exists($this, "assertEqualsWithDelta")) {
+            parent::assertEqualsWithDelta($line->greatCircleLength(), $results['greatCircle'], 1e-8);
+        }
     }
 
     /**
@@ -327,14 +320,9 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        #parent::assertEqualsWithDelta($line->haversineLength(), $results['haversine'], 1e-7);
-        
-        $constraint = new IsEqual(
-            $line->haversineLength(),
-            1e-7
-        );
-
-        parent::assertThat($results['haversine'], $constraint);
+        if (method_exists($this, "assertEqualsWithDelta")) {
+            parent::assertEqualsWithDelta($line->haversineLength(), $results['haversine'], 1e-7);
+        }
     }
 
     /**
@@ -347,26 +335,17 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray($points);
 
-        #parent::assertEqualsWithDelta($line->vincentyLength(), $results['vincenty'], 1e-8);
-        
-        $constraint = new IsEqual(
-            $line->vincentyLength(),
-            1e-7
-        );
-
-        parent::assertThat($results['vincenty'], $constraint);
+        if (method_exists($this, "assertEqualsWithDelta")) {
+            parent::assertEqualsWithDelta($line->vincentyLength(), $results['vincenty'], 1e-8);
+        }
     }
 
     public function testVincentyLengthAntipodalPoints()
     {
-        $line = LineString::fromArray([[-89.7, 0], [89.7, 0]]);
-        
-        #parent::assertIsFloat($line->vincentyLength());
-        
-        parent::assertThat(
-            $line->vincentyLength(),
-            new IsType(IsType::TYPE_FLOAT)
-        );
+        if (method_exists($this, "assertIsFloat")) {
+            $line = LineString::fromArray([[-89.7, 0], [89.7, 0]]);
+            parent::assertIsFloat($line->vincentyLength());
+        }
     }
 
     public function testExplode()
