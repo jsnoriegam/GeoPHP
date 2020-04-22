@@ -57,6 +57,10 @@ class GeosTest extends TestCase
           array('name' => 'coveredBy', 'argument' => $geometry),
           array('name' => 'distance', 'argument' => $geometry),
           array('name' => 'hausdorffDistance', 'argument' => $geometry),
+          array('name' => 'delaunayTriangulation', 'argument' => 1.0),
+          array('name' => 'voronoiDiagram', 'argument' => 1.0),
+          array('name' => 'offsetCurve', 'argument' => 1.0),
+          array('name' => 'clipByRect', 'argument' => 1,1,10,10)
         );
 
         foreach($geosMethods as $method) {
@@ -110,7 +114,7 @@ class GeosTest extends TestCase
               $this->assertArrayHasKey('valid', $geometry->$method_name($argument), $error_message);
               break;
             case 'isSimple':
-              if ($geometry->geometryType() == 'GeometryCollection') {
+              if ($geometry->geometryType() === 'GeometryCollection') {
                 $this->assertNull($geometry->$method_name($argument), $error_message);
               } else {
                 $this->assertNotNull($geometry->$method_name($argument), $error_message);
