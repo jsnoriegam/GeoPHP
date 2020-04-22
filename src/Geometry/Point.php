@@ -185,7 +185,7 @@ class Point extends Geometry
     public function asArray(): array
     {
         if ($this->isEmpty()) {
-            return [null, null];
+            return [NAN, NAN];
         }
         if (!$this->hasZ) {
             return !$this->isMeasured ? [$this->x, $this->y] : [$this->x, $this->y, null, $this->m];
@@ -287,12 +287,12 @@ class Point extends Geometry
 
     /**
      * @param  Geometry|Collection $geometry
-     * @return float
+     * @return float|null
      */
-    public function distance(Geometry $geometry): float
+    public function distance(Geometry $geometry)
     {
         if ($this->isEmpty() || $geometry->isEmpty()) {
-            return 0.0;
+            return null;
         }
         
         if ($this->getGeos()) {
@@ -318,13 +318,16 @@ class Point extends Geometry
                 if ($checkDistance === 0.0) {
                     return 0.0;
                 }
+                if ($checkDistance === null) {
+                    continue;
+                }
                 $distance = $distance ?? $checkDistance;
                 
                 if ($checkDistance < $distance) {
                     $distance = $checkDistance;
                 }
             }
-            return (float) $distance;
+            return $distance;
         }
         
         // For LineString, Polygons, MultiLineString and MultiPolygon. the nearest point might be a vertex,
@@ -475,15 +478,10 @@ class Point extends Geometry
      * Not valid for this geometry type
      *
      * @param  bool|false $toArray
-     * @throws UnsupportedMethodException
      */
     public function explode(bool $toArray = false): array
     {
-        throw new UnsupportedMethodException(
-            __METHOD__,
-            null,
-            "A " . __CLASS__ . " does not support the method '" . __METHOD__  . "'."
-        );
+        return [];
     }
     
     /**

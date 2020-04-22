@@ -284,9 +284,9 @@ abstract class Geometry
      * If one geometry is 2D and the other is 3D then a 2D distance is computed (as if the 2D object was infinitely
      * extended along the Z axis).
      *
-     * @return float the distance between the geometries. 0.0 if input geometry is empty.
+     * @return float|null the distance between the geometries. null if input geometry is empty.
      */
-    abstract public function distance(Geometry $geom): float;
+    abstract public function distance(Geometry $geom);
 
     abstract public function equals(Geometry $geom): bool;
 
@@ -630,6 +630,7 @@ abstract class Geometry
      */
     public function getX()
     {
+        return null;
         throw new UnsupportedMethodException(
             get_called_class() . '::getX',
             null,
@@ -643,6 +644,7 @@ abstract class Geometry
      */
     public function getY()
     {
+        return null;
         throw new UnsupportedMethodException(
              get_called_class() . '::getY',
             null,
@@ -656,6 +658,7 @@ abstract class Geometry
      */
     public function getZ()
     {
+        return null;
         throw new UnsupportedMethodException(
              get_called_class() . '::getZ',
             null,
@@ -669,6 +672,7 @@ abstract class Geometry
      */
     public function getM()
     {
+        return null;
         throw new UnsupportedMethodException(
              get_called_class() . '::getM',
             null,

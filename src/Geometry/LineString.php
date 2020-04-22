@@ -273,7 +273,7 @@ class LineString extends Curve
                     ($sigma + $C * $sinSigma * ($cos2SigmaM + $C * $cosSigma * (- 1 + 2 * $cos2SigmaM * $cos2SigmaM)));
             } while (abs($lambda - $lambdaP) > 1e-12 && --$iterationLimit > 0);
             if ($iterationLimit == 0) {
-                return null; // not converging
+                return 0.0; // not converging
             }
             $uSq = $cosSqAlpha * ($a * $a - $b * $b) / ($b * $b);
             $A = 1 + $uSq / 16384 * (4096 + $uSq * (- 768 + $uSq * (320 - 175 * $uSq)));
@@ -497,9 +497,9 @@ class LineString extends Curve
 
     /**
      * @param  Geometry|Collection $geometry
-     * @return float
+     * @return float|null
      */
-    public function distance(Geometry $geometry): float
+    public function distance(Geometry $geometry)
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
@@ -510,7 +510,7 @@ class LineString extends Curve
 
         if ($geometry->geometryType() === Geometry::POINT) {
             // This is defined in the Point class nicely
-            return (float) $geometry->distance($this);
+            return $geometry->distance($this);
         }
         
         if ($geometry->geometryType() === Geometry::LINESTRING) {

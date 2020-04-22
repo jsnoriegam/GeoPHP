@@ -335,14 +335,14 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * @return float
+     * @return float|null
      */
-    public function distance(Geometry $geometry): float
+    public function distance(Geometry $geometry)
     {
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return (float) $this->getGeos()->distance($geometry->getGeos());
+            return $this->getGeos()->distance($geometry->getGeos());
             // @codeCoverageIgnoreEnd
         }
         $distance = null;
@@ -351,14 +351,14 @@ abstract class Collection extends Geometry
             if ($checkDistance === 0.0) {
                 return 0.0;
             }
-            $distance = $distance ?? $checkDistance;
+            $distance = ($distance ?? $checkDistance);
 
             if ($checkDistance < $distance) {
                 $distance = $checkDistance;
             }
         }
         
-        return (float) $distance;
+        return $distance;
     }
     
     public function translate($dx = 0, $dy = 0, $dz = 0)

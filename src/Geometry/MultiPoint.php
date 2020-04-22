@@ -117,14 +117,9 @@ class MultiPoint extends MultiGeometry
      * Not valid for this geometry type
      *
      * @param  bool|false $toArray
-     * @throws UnsupportedMethodException
      */
     public function explode(bool $toArray = false): array
     {
-        throw new UnsupportedMethodException(
-            __METHOD__,
-            null,
-            "A " . __CLASS__ . " does not support the method '" . __METHOD__  . "'."
-        );
+        return [];
     }
 }
