@@ -16,6 +16,16 @@ use PHPUnit\Framework\TestCase;
  */
 class LineStringTest extends TestCase
 {
+    
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+        if (!method_exists($this, "expectExceptionMessageMatches")) {
+            $this->expectExceptionMessageMatches = function (string $regularExpression) {
+                return $this->expectExceptionMessageRegExp($regularExpression);
+            };
+        }
+        parent::__construct($name, $data, $dataName);
+    }
 
     private function createPoints($coordinateArray)
     {
