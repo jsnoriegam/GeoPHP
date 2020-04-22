@@ -1,37 +1,74 @@
 # docs available at http://docs.travis-ci.com/user/languages/php/
-# example available at https://github.com/travis-ci/travis-ci-php-example
 language: php
+
+os: linux
+dist: xenial
+version: ~> 1
 
 before_script:
   - composer self-update
 
 cache:
   directories:
+  - vendor
   - $HOME/.composer/cache/files
 
 install:
-  - composer install --prefer-dist --no-interaction
+  - if [[ -z $PHPSTAN ]]; then export COMPOSER_REMOVE="phpstan/phpstan"; fi
+  - if [[ $DISABLE_UNIT ]]; then export COMPOSER_REMOVE="$COMPOSER_REMOVE phpunit/phpunit"; fi
+  - if [[ $TRAVIS_PHP_VERSION = "nightly" ]]; then export COMPOSER_FLAGS="--ignore-platform-reqs"; fi
+  - |
+    if [[ $COMPOSER_REMOVE ]]; then
+      echo "Removing $COMPOSER_REMOVE dependencies"
+      composer remove --dev --no-update --no-interaction $COMPOSER_FLAGS $COMPOSER_REMOVE
+    fi
+  - composer install --prefer-dist --no-interaction $COMPOSER_FLAGS
+
   # TODO Install geos library -- as a matrix test
   # TODO optionally set up a postgis database for testing
 
 script:
   - mkdir -p build/logs
-  - GEOS_DISABLED=1 vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-  - cd tests
-  - php test.php
-  - php performanceTest.php
-  - cd ..
+  - if [[ -z $DISABLE_UNIT ]]; then composer unit-clover; fi
+  - composer test-input
+  - composer performance
 
-# run tests on the following versions
-php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
-  - 7.4
+jobs:
+  include:
+    - stage: Smoke
+      php: 7.4
+      env: PHPCS=1
+      script: composer cs
+    - stage: Smoke
+      php: 7.4
+      env: PHPCS_WARNING=1
+      script: composer cs-warning
+    - stage: Smoke
+      php: 7.4
+      env: PHPSTAN=1
+      script: vendor/bin/phpstan analyse src
 
-matrix:
-  fast_finish: false
+    - stage: Test
+      php: 7.0
+    - stage: Test
+      php: 7.1
+    - stage: Test
+      php: 7.2
+    - stage: Test
+      php: 7.3
+    - stage: Test
+      php: 7.4
+
+    - php: nightly
+
+# FIXME: allow_failures doesn't appear to work with stages defined. How to solve that?
+  allow_failures:
+    - php: nightly
+
+  fast_finish: true
 
 after_success:
-  - travis_retry php vendor/bin/php-coveralls -v
+  - |
+  - if [[ -f "build/logs/clover.xml" && $TRAVIS_PHP_VERSION != "nightly" ]]; then
+      travis_retry php vendor/bin/php-coveralls -v;
+    fi
