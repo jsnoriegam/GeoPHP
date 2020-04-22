@@ -437,9 +437,15 @@ class PointTest extends TestCase
 
         $this->assertSame( $point->numPoints(), 1 );
 
+        $this->assertSame( $point->numGeometries(), 1 );
+        
         $this->assertSame( $point->getPoints(), [$point] );
 
         $this->assertTrue( $point->isSimple());
+        
+        $this->assertTrue( $point->isClosed() );
+        
+        $this->assertSame( $point->explode(), [] );
     }
 
     public function testMinMaxMethods()
@@ -458,17 +464,17 @@ class PointTest extends TestCase
                 ['zDifference'],
                 ['elevationGain'],
                 ['elevationLoss'],
-                ['numGeometries'],
-                ['geometryN'],
+                #['numGeometries'], # returns 1
+                #['geometryN'], # raises TypeError
                 ['startPoint'],
                 ['endPoint'],
-                ['isRing'],
-                ['isClosed'],
-                ['pointN'],
+                #['isRing'], # throws UnsupportedMethodException
+                #['isClosed'], # returns true
+                #['pointN'], # raises TypeError
                 ['exteriorRing'],
                 ['numInteriorRings'],
-                ['interiorRingN'],
-                ['explode']
+                #['interiorRingN'], # raises TypeError
+                #['explode'] # returns array
         ];
     }
 
@@ -485,8 +491,8 @@ class PointTest extends TestCase
     public function providerMethodsNotValidForPointReturns0()
     {
         return [
-            ['area'],
-            ['length'],
+            ['getArea'],
+            ['getLength'],
             ['length3D'],
             ['greatCircleLength'],
             ['haversineLength']

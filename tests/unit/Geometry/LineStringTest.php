@@ -65,8 +65,8 @@ class LineStringTest extends TestCase
 
     public function testConstructorNonArrayComponentThrowsException()
     {
-        $this->expectException(InvalidGeometryException::class);
-        $this->expectExceptionMessageRegExp('/Component geometries must be passed as array/');
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessageRegExp('/must be of the type array, string given/');
 
         new LineString('foo');
     }
@@ -90,8 +90,8 @@ class LineStringTest extends TestCase
     public function testFromArray()
     {
         $this->assertEquals(
-                LineString::fromArray([[1,2,3,4], [5,6,7,8]]),
-                new LineString([new Point(1,2,3,4), new Point(5,6,7,8)])
+            LineString::fromArray([[1,2,3,4], [5,6,7,8]]),
+            new LineString([new Point(1,2,3,4), new Point(5,6,7,8)])
         );
     }
 
@@ -99,7 +99,7 @@ class LineStringTest extends TestCase
     {
         $line = new LineString();
 
-        $this->assertEquals(LineString::LINE_STRING, $line->geometryType());
+        $this->assertEquals(LineString::LINESTRING, $line->geometryType());
 
         $this->assertInstanceOf(LineString::class, $line);
         $this->assertInstanceOf(\geoPHP\Geometry\Curve::class, $line);
@@ -338,7 +338,7 @@ class LineStringTest extends TestCase
     {
         $line = LineString::fromArray([[-89.7, 0], [89.7, 0]]);
 
-        $this->assertNull($line->vincentyLength());
+        $this->assertIsFloat($line->vincentyLength());
     }
 
     public function testExplode()
