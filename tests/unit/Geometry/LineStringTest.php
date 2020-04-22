@@ -17,6 +17,16 @@ use PHPUnit\Framework\TestCase;
 class LineStringTest extends TestCase
 {
     
+    public function __call($closure, $args)
+    {
+        return call_user_func_array($this->{$closure}->bindTo($this),$args);
+    }
+
+    public function __toString()
+    {
+        return call_user_func($this->{"__toString"}->bindTo($this));
+    }
+    
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         if (!method_exists($this, "expectExceptionMessageMatches")) {
@@ -24,6 +34,13 @@ class LineStringTest extends TestCase
                 return $this->expectExceptionMessageRegExp($regularExpression);
             };
         }
+        
+        if (!method_exists($this, "assertEqualsWithDelta")) {
+            $this->assertEqualsWithDelta = static function ($expected, $actual, float $delta, string $message = '') {
+                return parent::assertEquals($expected, $actual, $message, $delta);
+            };
+        }
+        
         parent::__construct($name, $data, $dataName);
     }
 
