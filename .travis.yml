@@ -10,8 +10,7 @@ before_script:
   - sudo apt-get install -y libgeos-dev
   - sudo git clone https://git.osgeo.org/gogs/geos/php-geos.git
   - cd php-geos
-  - ./configure
-  - sudo make install
+  - phpize && ./configure && make install && cd ..
   - echo "extension=geos.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   
 cache:
