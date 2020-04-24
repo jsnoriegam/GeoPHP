@@ -746,16 +746,18 @@ abstract class Geometry
     /**
      * Returns the GEOS representation of Geometry if GEOS is installed
      *
-     * @return             \GEOSGeometry|null
+     * @return             \GEOSGeometry|false
      * @codeCoverageIgnore
      */
     public function getGeos()
     {
         // If it's already been set, just return it
-        if ($this->geos) {
+        if ($this->geos && geoPHP::geosInstalled()) {
             return $this->geos;
         }
 
+        $this->geos = false;
+        
         // It hasn't been set yet, generate it
         if (geoPHP::geosInstalled()) {
             /** @noinspection PhpUndefinedClassInspection */
