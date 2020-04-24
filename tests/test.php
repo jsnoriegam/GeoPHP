@@ -136,6 +136,7 @@ function testGeometry(Geometry $geometry)
         $geometry->voronoiDiagram(1.0);
         $geometry->offsetCurve(1.0);
         $geometry->clipByRect(1,1,10,10);
+        
     } catch (\Exception $e) {
         if (getenv("VERBOSE") == 1 || getopt('v')) {
             print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
@@ -150,50 +151,51 @@ function testAdapters(Geometry $geometry)
 {
     $beVerbose = getenv("VERBOSE") == 1 || getopt('v');
     
-    // Test adapter output and input. Do a round-trip and re-test
-    foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
-        if ($adapter_key == 'google_geocode') {
-            //Don't test google geocoder regularily. Uncomment to test
-            continue;
-        }
-
-        echo $beVerbose ? "  " . $adapter_class . "\n" : '';
-        
-        $output = $geometry->out($adapter_key);
-        if ($output) {
-            $adapter_name = '\\geoPHP\\Adapter\\' . $adapter_class;
-            /** @var \geoPHP\Adapter\GeoAdapter $adapter_loader */
-            $adapter_loader = new $adapter_name();
-            $testGeom1 = $adapter_loader->read($output);
-            $testGeom2 = $adapter_loader->read($testGeom1->out($adapter_key));
-
-            if ($testGeom1->out('wkt') != $testGeom2->out('wkt')) {
-                print "\e[33m" . "\tMismatched adapter output in " . $adapter_class . "\e[39m\n";
+    try {
+        // Test adapter output and input. Do a round-trip and re-test
+        foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
+            if ($adapter_key == 'google_geocode') {
+                //Don't test google geocoder regularily. Uncomment to test
+                continue;
             }
-        } else {
-            print "\e[33m" . "\tEmpty output on " . $adapter_key . "\e[39m\n";
-        }
-    }
 
-    // Test to make sure adapters work the same wether GEOS is turned ON or OFF.
-    // Methods cannot be tested if GEOS is not intstalled.
-    if (!geoPHP::geosInstalled()) {
-        return;
-    }
-    if ($beVerbose) {
-        echo "Testing with GEOS\n";
-    }
-    foreach (geoPHP::getAdapterMap() as $adapterKey => $adapterName) {
-        if ($adapterKey == 'google_geocode') {
-            //Don't test google geocoder regularily. Uncomment to test
-            continue;
+            echo $beVerbose ? "  " . $adapter_class . "\n" : '';
+
+            $output = $geometry->out($adapter_key);
+            if ($output) {
+                $adapter_name = '\\geoPHP\\Adapter\\' . $adapter_class;
+                /** @var \geoPHP\Adapter\GeoAdapter $adapter_loader */
+                $adapter_loader = new $adapter_name();
+                $testGeom1 = $adapter_loader->read($output);
+                $testGeom2 = $adapter_loader->read($testGeom1->out($adapter_key));
+
+                if ($testGeom1->out('wkt') != $testGeom2->out('wkt')) {
+                    print "\e[33m" . "\tMismatched adapter output in " . $adapter_class . "\e[39m\n";
+                }
+            } else {
+                print "\e[33m" . "\tEmpty output on " . $adapter_key . "\e[39m\n";
+            }
         }
 
+        // Test to make sure adapters work the same wether GEOS is turned ON or OFF.
+        // Methods cannot be tested if GEOS is not intstalled.
+        if (!geoPHP::geosInstalled()) {
+            return;
+        }
         if ($beVerbose) {
-            echo ' ' . $adapterName . "\n";
+            echo "Testing with GEOS\n";
         }
+        foreach (geoPHP::getAdapterMap() as $adapterKey => $adapterName) {
+            if ($adapterKey == 'google_geocode') {
+                //Don't test google geocoder regularily. Uncomment to test
+                continue;
+            }
+
+            if ($beVerbose) {
+                echo ' ' . $adapterName . "\n";
+            }
         
-        try {
+        
             // Turn GEOS on
             geoPHP::geosInstalled(true);
             
@@ -227,11 +229,10 @@ function testAdapters(Geometry $geometry)
                 fclose($f);
                 print "Mismatched adapter output between GEOS and NORM in " . $adapterName . ". See files.\n";
             }
-            
-        } catch (\geoPHP\Exception\UnsupportedMethodException $e) {
-            if ($beVerbose) {
-                print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
-            }
+        }
+    } catch (\Exception $e) {
+        if ($beVerbose) {
+            print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
         }
     }
 }
@@ -339,8 +340,7 @@ function testGeosMethods(Geometry $geometry)
                 }
             }
             
-            
-        } catch (\geoPHP\Exception\UnsupportedMethodException $e) {
+        } catch (\Exception $e) {
             if (getenv("VERBOSE") == 1 || getopt('v')) {
                 print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
             }
