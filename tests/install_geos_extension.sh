@@ -8,7 +8,9 @@ sudo apt-get install -y libgeos-dev
 # Build and install GEOS PHP extension
 cd $HOME
 sudo git clone https://git.osgeo.org/gogs/geos/php-geos.git
+sudo chown -R travis:travis php-geos
 cd php-geos
+sudo chmod ugo+x autogen.sh
 ./autogen.sh
 ./configure
 sudo make install
