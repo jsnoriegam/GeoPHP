@@ -2,7 +2,6 @@
 namespace geoPHP\Geometry;
 
 use geoPHP\Exception\InvalidGeometryException;
-use geoPHP\Exception\UnsupportedMethodException;
 
 /**
  * A Point is a 0-dimensional geometric object and represents a single location in coordinate space.
@@ -298,7 +297,7 @@ class Point extends Geometry
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return (float) $this->getGeos()->distance($geometry->getGeos());
+            return $this->getGeos()->distance($geometry->getGeos());
             // @codeCoverageIgnoreEnd
         }
         
@@ -363,17 +362,21 @@ class Point extends Geometry
                 $dy = $y - $y3;
                 $checkDistance = sqrt(($dx * $dx) + ($dy * $dy));
             }
-            $distance = $distance ?? $checkDistance;
-
+            
+            if ($checkDistance === 0.0) {
+                return 0.0;
+            }
+            if ($checkDistance === null) {
+                continue;
+            }
+            $distance = ($distance ?? $checkDistance);
+            
             if ($checkDistance < $distance) {
                 $distance = $checkDistance;
             }
-            if ($distance === 0.0) {
-                return 0.0;
-            }
         }
         
-        return (float) $distance;
+        return $distance;
     }
 
     /**
@@ -454,7 +457,7 @@ class Point extends Geometry
      */
     public function numGeometries(): int
     {
-        return 1;
+        return $this->isEmpty() ? 0 : 1;
     }
 
     /**

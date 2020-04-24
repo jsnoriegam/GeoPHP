@@ -302,6 +302,7 @@ class WKT implements GeoAdapter
             /** @noinspection PhpUndefinedMethodInspection */
             return $writer->write($geometry->getGeos());
         }
+        
         $this->measured = $geometry->isMeasured();
         $this->hasZ = $geometry->hasZ();
 

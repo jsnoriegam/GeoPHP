@@ -9,6 +9,7 @@ use geoPHP\Geometry\LineString;
 use geoPHP\Geometry\MultiLineString;
 use geoPHP\Geometry\Polygon;
 use geoPHP\Geometry\MultiPolygon;
+use geoPHP\Exception\InvalidGeometryException;
 
 /*
  * (c) Patrick Hayes
@@ -336,11 +337,15 @@ class WKB implements GeoAdapter
     /**
      * @param Point $point
      * @return string
+     * @throws InvalidGeometryException
      */
     protected function writePoint(Point $point): string
     {
         if ($point->isEmpty()) {
-            return $this->writer->writeDouble(null) . $this->writer->writeDouble(null);
+            #return $this->writer->writeDouble(null) . $this->writer->writeDouble(null);
+            
+            // GEOS throws an IllegalArgumentException with "Empty Points cannot be represented in WKB."
+            throw new InvalidGeometryException ("Empty Points cannot be represented in WKB");
         }
         $wkb = $this->writer->writeDouble($point->getX()) . $this->writer->writeDouble($point->getY());
 

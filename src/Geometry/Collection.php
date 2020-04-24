@@ -347,9 +347,13 @@ abstract class Collection extends Geometry
         }
         $distance = null;
         foreach ($this->components as $component) {
+            
             $checkDistance = $component->distance($geometry);
             if ($checkDistance === 0.0) {
                 return 0.0;
+            }
+            if ($checkDistance === null) {
+                continue;
             }
             $distance = ($distance ?? $checkDistance);
 

@@ -389,14 +389,12 @@ class PointTest extends TestCase
                 [LineString::fromArray([[0, 10], [0, 10]]), 10.0],
             'LineString, point on line' =>
                 [LineString::fromArray([[-10, -10], [10, 10]]), 0.0],
-
             'MultiPoint, closest distance is 0' =>
                 [MultiPoint::fromArray([[0, 0], [10, 20]]), 0.0],
             'MultiPoint, closest distance is 10' =>
-
                 [MultiPoint::fromArray([[10, 20], [0, 10]]), 10.0],
-            'MultiPoint, one of two is empty' => [MultiPoint::fromArray([[], [0, 10]]), 10.0],
-
+            'MultiPoint, one of two is empty' =>
+                [MultiPoint::fromArray([[], [0, 10]]), 10.0],
             'GeometryCollection, closest component is 10' =>
                 [new GeometryCollection([new Point(0,10), new Point()]), 10.0]
             // FIXME: this geometry collection crashes GEOS
@@ -412,9 +410,13 @@ class PointTest extends TestCase
      */
     public function testDistance($otherGeometry, $expectedDistance)
     {
+        // GEOS dosn't support EMPTY Points
+        $geosAvailable = \geoPHP\geoPHP::geosInstalled();
+        \geoPHP\geoPHP::geosInstalled(false);
         $point = new Point(0, 0);
-
+        
         parent::assertSame($point->distance($otherGeometry), $expectedDistance);
+        \geoPHP\geoPHP::geosInstalled($geosAvailable);
     }
 
     /**

@@ -2,7 +2,6 @@
 namespace geoPHP\Geometry;
 
 use geoPHP\geoPHP;
-use geoPHP\Exception\UnsupportedMethodException;
 
 /**
  * A MultiPoint is a 0-dimensional Collection.

@@ -746,31 +746,32 @@ abstract class Geometry
     /**
      * Returns the GEOS representation of Geometry if GEOS is installed
      *
-     * @return             \GEOSGeometry|false
+     * @return             \GEOSGeometry|null
      * @codeCoverageIgnore
      */
     public function getGeos()
     {
         // If it's already been set, just return it
-        if ($this->geos && geoPHP::geosInstalled()) {
+        if ($this->geos) {
             return $this->geos;
         }
+
         // It hasn't been set yet, generate it
         if (geoPHP::geosInstalled()) {
             /** @noinspection PhpUndefinedClassInspection */
+            // Attention: EMPTY Points are not supported in WKB!
             $reader = new \GEOSWKBReader();
             /** @noinspection PhpUndefinedMethodInspection */
             $this->geos = $reader->read($this->out('wkb'));
-        } else {
-            $this->geos = false;
         }
+        
         return $this->geos;
     }
 
     /**
-     * @param GEOSGeometry $geos
+     * @param GEOSGeometry|null $geos
      */
-    public function setGeos($geos)
+    public function setGeos($geos = null)
     {
         $this->geos = $geos;
     }
