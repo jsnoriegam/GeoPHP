@@ -3,7 +3,7 @@
 set -ev
 
 # Install geos library dependencies
-sudo apt-get install -y libgeos-dev/stable
+sudo apt-get install -y libgeos-dev
 
 # Build and install GEOS PHP extension
 cd $HOME
