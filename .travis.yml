@@ -8,12 +8,8 @@ version: ~> 1
 before_script:
   - composer self-update
   - sudo apt-get install -y libgeos-dev
-  - sudo git clone https://git.osgeo.org/gogs/geos/php-geos.git
-  - cd php-geos
-  - ./autogen.sh
-  - ./configure
-  - make install
-  - echo "extension=geos.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - chmod ugo+x tests/install_geos_extension.sh
+  - ./tests/install_geos_extension.sh
   
 cache:
   directories:
