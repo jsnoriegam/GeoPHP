@@ -9,7 +9,6 @@ sudo apt-get install -y libgeos-dev
 cd $HOME
 sudo git clone https://git.osgeo.org/gogs/geos/php-geos.git
 cd php-geos
-chmod ugo+x autogen.sh
 ./autogen.sh
 ./configure
 sudo make install
