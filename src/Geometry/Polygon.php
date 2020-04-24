@@ -156,7 +156,7 @@ class Polygon extends Surface
      */
     protected function getRingCentroidAndArea(LineString $ring): array
     {
-        $area = (new Polygon([$ring]))->area(true, true);
+        $area = (new Polygon([$ring]))->getArea(true, true);
 
         $points = $ring->getPoints();
         $numPoints = count($points);
