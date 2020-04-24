@@ -345,9 +345,9 @@ abstract class Collection extends Geometry
             return $this->getGeos()->distance($geometry->getGeos());
             // @codeCoverageIgnoreEnd
         }
+        
         $distance = null;
         foreach ($this->components as $component) {
-            
             $checkDistance = $component->distance($geometry);
             if ($checkDistance === 0.0) {
                 return 0.0;

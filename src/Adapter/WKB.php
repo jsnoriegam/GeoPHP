@@ -345,7 +345,7 @@ class WKB implements GeoAdapter
             #return $this->writer->writeDouble(null) . $this->writer->writeDouble(null);
             
             // GEOS throws an IllegalArgumentException with "Empty Points cannot be represented in WKB."
-            throw new InvalidGeometryException ("Empty Points cannot be represented in WKB");
+            throw new InvalidGeometryException("Empty Points cannot be represented in WKB");
         }
         $wkb = $this->writer->writeDouble($point->getX()) . $this->writer->writeDouble($point->getY());
 
