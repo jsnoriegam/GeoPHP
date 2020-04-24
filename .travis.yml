@@ -38,8 +38,31 @@ script:
 
 jobs:
   include:
+    - stage: Smoke
+      php: 7.4
+      env: PHPCS=1
+      script: composer cs
+    - stage: Smoke
+      php: 7.4
+      env: PHPCS_WARNING=1
+      script: composer cs-warning
+    - stage: Smoke
+      php: 7.4
+      env: PHPSTAN=1
+      script: vendor/bin/phpstan analyse src
+
     - stage: Test
       php: 7.0
+    - stage: Test
+      php: 7.1
+    - stage: Test
+      php: 7.2
+    - stage: Test
+      php: 7.3
+    - stage: Test
+      php: 7.4
+
+    - php: nightly
 
 # FIXME: allow_failures doesn't appear to work with stages defined. How to solve that?
   allow_failures:
