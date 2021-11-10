@@ -78,7 +78,7 @@ class WKT implements GeoAdapter
         
         $geometry = $this->parseTypeAndGetData($wkt);
         if ($geometry) {
-            if ($geometry && $srid) {
+            if ($srid) {
                 $geometry->setSRID($srid);
             }
             return $geometry;

@@ -2,7 +2,6 @@
 namespace geoPHP\Adapter;
 
 use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
 use geoPHP\Geometry\Point;
 use geoPHP\Geometry\MultiPoint;
 use geoPHP\Geometry\LineString;
@@ -37,7 +36,7 @@ class GoogleGeocode implements GeoAdapter
      * @param string $address Address to geocode
      * @param string $apiKey Your application's Google Maps Geocoding API key
      * @param string $returnType Type of Geometry to return. Can either be 'points' or 'bounds' (polygon)
-     * @param array|bool|Geometry $bounds Limit the search area to within this region.
+     * @param array|Geometry|null $bounds Limit the search area to within this region.
      *        For example by default geocoding "Cairo" will return the location of Cairo Egypt.
      *        If you pass a polygon of Illinois, it will return Cairo IL.
      * @param boolean $returnMultiple - Return all results in a multipoint or multipolygon
@@ -49,17 +48,17 @@ class GoogleGeocode implements GeoAdapter
         string $address,
         $apiKey = null,
         string $returnType = 'point',
-        bool $bounds = false,
+        $bounds = null,
         bool $returnMultiple = false
     ): Geometry {
-        if (is_array($address)) {
-            $address = join(',', $address);
-        }
+        //if (is_array($address)) {
+        //    $address = join(',', $address);
+        //}
 
-        if (gettype($bounds) === 'object') {
+        if (is_object($bounds)) {
             $bounds = $bounds->getBBox();
         }
-        if (gettype($bounds) === 'array') {
+        if (is_array($bounds)) {
             $boundsString = '&bounds=' . $bounds['miny'] . ',' . $bounds['minx'] . '|' . $bounds['maxy'] . ',' . $bounds['maxx'];
         } else {
             $boundsString = '';
@@ -119,7 +118,7 @@ class GoogleGeocode implements GeoAdapter
      * @param string $apiKey Your application's Google Maps Geocoding API key
      * @param string $language The language in which to return results. If not set, geocoder tries to use the native language of the domain.
      *
-     * @return string|Object[] A formatted address or array of address components
+     * @return string A formatted address
      * @throws \Exception If geocoding fails
      */
     public function write(Geometry $geometry, $apiKey = null, $language = null): string

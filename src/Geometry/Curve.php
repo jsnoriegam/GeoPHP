@@ -51,7 +51,7 @@ abstract class Curve extends Collection
     }
 
     /**
-     * @return Point
+     * @return Point|null
      */
     public function startPoint()
     {
@@ -62,7 +62,7 @@ abstract class Curve extends Collection
     }
 
     /**
-     * @return Point
+     * @return Point|null
      */
     public function endPoint()
     {

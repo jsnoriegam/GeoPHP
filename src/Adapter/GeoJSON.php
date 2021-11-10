@@ -28,7 +28,7 @@ class GeoJSON implements GeoAdapter
      * @return Geometry
      * @throws \Exception
      */
-    public function read(string $input): Geometry
+    public function read($input): Geometry
     {
         if (is_string($input)) {
             $input = json_decode($input);
@@ -44,7 +44,7 @@ class GeoJSON implements GeoAdapter
     }
     
     /**
-     * @param object $input stdClass
+     * @param \stdClass $input stdClass
      * @return Geometry
      */
     private function parseJSONObjects(\stdClass $input): Geometry

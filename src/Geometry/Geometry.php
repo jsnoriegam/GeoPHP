@@ -1,4 +1,5 @@
 <?php
+
 namespace geoPHP\Geometry;
 
 use geoPHP\geoPHP;
@@ -67,13 +68,13 @@ abstract class Geometry
     protected $data;
 
     /**
-     * @var \GEOSGeometry|null
+     * @var \GEOSGeometry|null|false
      */
     private $geos;
 
-    /****************************************
+    /*     * **************************************
      * Basic methods on geometric objects  *
-     * **************************************/
+     * ************************************* */
 
     /**
      * The inherent dimension of the geometric object, which must be less than or equal to the coordinate dimension.
@@ -130,9 +131,9 @@ abstract class Geometry
      */
     abstract public function getComponents(): array;
 
-    /*************************************************
+    /** ***********************************************
      * Methods applicable on certain geometry types *
-     ************************************************/
+     * ********************************************** */
 
     /**
      * @see        Geometry::getArea()
@@ -316,8 +317,9 @@ abstract class Geometry
 
     // 3D to 2D
     abstract public function flatten();
-    
+
     // Elevations statistics
+
     /**
      * @return int|float|null
      */
@@ -349,7 +351,7 @@ abstract class Geometry
     {
         return null;
     }
-    
+
     /**
      * @return int|float|null
      */
@@ -401,10 +403,11 @@ abstract class Geometry
      */
     public function setSRID($srid)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            $this->getGeos()->setSRID($srid);
+            $geosObj->setSRID($srid);
             // @codeCoverageIgnoreEnd
         }
         $this->srid = $srid;
@@ -436,7 +439,7 @@ abstract class Geometry
         if ($property) {
             return $this->hasDataProperty($property) ? $this->data[$property] : null;
         }
-        
+
         return $this->data;
     }
 
@@ -454,7 +457,7 @@ abstract class Geometry
     /**
      * returns the envelope of a geometry or the geometry itself if it is a point
      *
-     * @return \geoPHP\Geometry\Polygon|\geoPHP\Geometry\type|$this
+     * @return \geoPHP\Geometry\Geometry
      */
     public function envelope()
     {
@@ -466,10 +469,11 @@ abstract class Geometry
             return $this;
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->envelope());
+            return geoPHP::geosToGeometry($geosObj->envelope());
             // @codeCoverageIgnoreEnd
         }
 
@@ -481,7 +485,7 @@ abstract class Geometry
             new Point($boundingBox['minx'], $boundingBox['miny']),
             new Point($boundingBox['maxx'], $boundingBox['miny']),
         ];
-        
+
         return new Polygon([new LineString($points)]);
     }
 
@@ -495,7 +499,7 @@ abstract class Geometry
     {
         $args = func_get_args();
         $format = strtolower(array_shift($args));
-        
+
         // Big Endian WKB
         if (strstr($format, 'xdr')) {
             $args[] = true;
@@ -506,7 +510,7 @@ abstract class Geometry
         $processor = new $processorType;
         array_unshift($args, $this);
         $result = call_user_func_array([$processor, 'write'], $args);
-        
+
         return $result;
     }
 
@@ -538,7 +542,7 @@ abstract class Geometry
         $p2y = $segment2Start->getY();
         $p3x = $segment2End->getX();
         $p3y = $segment2End->getY();
-        
+
         $s1x = $p1x - $p0x;
         $s1y = $p1y - $p0y;
         $s2x = $p3x - $p2x;
@@ -556,59 +560,59 @@ abstract class Geometry
 
         // Return true if collision is detected
         return ($s > 0 && $s < 1 && $t > 0 && $t < 1);
-        
+
         /*
-        // x und y is for line 1
-        // u und v is for line 2
-        $x1 = $segment1Start->getX();
-        $y1 = $segment1Start->getY();
-        $x2 = $segment1End->getX();
-        $y2 = $segment1End->getY();
-        $u1 = $segment2Start->getX();
-        $v1 = $segment2Start->getY();
-        $u2 = $segment2End->getX();
-        $v2 = $segment2End->getY();
+          // x und y is for line 1
+          // u und v is for line 2
+          $x1 = $segment1Start->getX();
+          $y1 = $segment1Start->getY();
+          $x2 = $segment1End->getX();
+          $y2 = $segment1End->getY();
+          $u1 = $segment2Start->getX();
+          $v1 = $segment2Start->getY();
+          $u2 = $segment2End->getX();
+          $v2 = $segment2End->getY();
 
-        $dx = $x2 - $x1;
-        $dy = $y2 - $y1;
+          $dx = $x2 - $x1;
+          $dy = $y2 - $y1;
 
-        // avoid division with 0
-        if ($dx != 0 && ($u2 - $u1) != 0) {
-            $b1 = $dy / $dx;
-            $b2 = ($v2 - $v1) / ($u2 - $u1);
-        } else {
-            $b1 = $b2 = 1;
-        }
+          // avoid division with 0
+          if ($dx != 0 && ($u2 - $u1) != 0) {
+          $b1 = $dy / $dx;
+          $b2 = ($v2 - $v1) / ($u2 - $u1);
+          } else {
+          $b1 = $b2 = 1;
+          }
 
-        // lines with identical inclines cannot cross, but can lie on top of each other.
-        // So calculation is done with their distances.
-        if ($b1 == $b2) {
-            if (($dx * ($v1 - $y1) - ($u1 - $x1) * $dy) == 0) {
-                return true;
-            }
-            // $u1, $v1 are on one line
-            elseif (($dx * ($v2 - $y1) - ($u2 - $x1) * $dy) == 0) {
-                return true;
-            }
+          // lines with identical inclines cannot cross, but can lie on top of each other.
+          // So calculation is done with their distances.
+          if ($b1 == $b2) {
+          if (($dx * ($v1 - $y1) - ($u1 - $x1) * $dy) == 0) {
+          return true;
+          }
+          // $u1, $v1 are on one line
+          elseif (($dx * ($v2 - $y1) - ($u2 - $x1) * $dy) == 0) {
+          return true;
+          }
 
-            return false;
-        }
+          return false;
+          }
 
-        $a1 = $y1 - $b1 * $x1;
-        $a2 = $v1 - $b2 * $u1;
+          $a1 = $y1 - $b1 * $x1;
+          $a2 = $v1 - $b2 * $u1;
 
-        $xi = -($a1 - $a2) / ($b1 - $b2); #(C)
-        $yi = $a1 + $b1 * $xi;
+          $xi = -($a1 - $a2) / ($b1 - $b2); #(C)
+          $yi = $a1 + $b1 * $xi;
 
-        # lines cross at $xi,$yi
-        if (($x1 - $xi) * ($xi - $x2) >= 0 &&
-            ($u1 - $xi) * ($xi - $u2) >= 0 &&
-            ($y1 - $yi) * ($yi - $y2) >= 0 &&
-            ($v1 - $yi) * ($yi - $v2) >= 0) {
-            return true;
-        }
+          # lines cross at $xi,$yi
+          if (($x1 - $xi) * ($xi - $x2) >= 0 &&
+          ($u1 - $xi) * ($xi - $u2) >= 0 &&
+          ($y1 - $yi) * ($yi - $y2) >= 0 &&
+          ($v1 - $yi) * ($yi - $v2) >= 0) {
+          return true;
+          }
 
-        return false;*/
+          return false; */
     }
 
     // Public: Aliases
@@ -631,11 +635,11 @@ abstract class Geometry
     public function getX()
     {
         return null;
-        throw new UnsupportedMethodException(
-            get_called_class() . '::getX',
-            null,
-            "Geometry has to be a point."
-        );
+        /*throw new UnsupportedMethodException(
+                        get_called_class() . '::getX',
+                        null,
+                        "Geometry has to be a point."
+        );*/
     }
 
     /**
@@ -645,11 +649,11 @@ abstract class Geometry
     public function getY()
     {
         return null;
-        throw new UnsupportedMethodException(
-            get_called_class() . '::getY',
-            null,
-            "Geometry has to be a point."
-        );
+        /*throw new UnsupportedMethodException(
+                        get_called_class() . '::getY',
+                        null,
+                        "Geometry has to be a point."
+        );*/
     }
 
     /**
@@ -659,11 +663,11 @@ abstract class Geometry
     public function getZ()
     {
         return null;
-        throw new UnsupportedMethodException(
-            get_called_class() . '::getZ',
-            null,
-            "Geometry has to be a point."
-        );
+        /*throw new UnsupportedMethodException(
+                        get_called_class() . '::getZ',
+                        null,
+                        "Geometry has to be a point."
+        );*/
     }
 
     /**
@@ -673,11 +677,11 @@ abstract class Geometry
     public function getM()
     {
         return null;
-        throw new UnsupportedMethodException(
-            get_called_class() . '::getM',
-            null,
-            "Geometry has to be a point."
-        );
+        /*throw new UnsupportedMethodException(
+                        get_called_class() . '::getM',
+                        null,
+                        "Geometry has to be a point."
+        );*/
     }
 
     public function getBoundingBox(): array
@@ -689,7 +693,7 @@ abstract class Geometry
     {
         return $this->getComponents();
     }
-    
+
     /**
      * @return \geoPHP\Geometry\Point
      */
@@ -700,7 +704,7 @@ abstract class Geometry
      * Areal Geometries have a non-zero area. They override this function to compute the area. Others return 0.0
      */
     abstract public function getArea(): float;
-    
+
     /**
      * Returns the length of this Geometry.
      * Linear geometries return their length. Areal geometries return their perimeter. Others return 0.0
@@ -739,10 +743,10 @@ abstract class Geometry
         return $this->out('wkb');
     }
 
-    /****************************************
+    /*     * **************************************
      * Public: GEOS Only Functions  *
-     * **************************************/
-    
+     * ************************************* */
+
     /**
      * Returns the GEOS representation of Geometry if GEOS is installed
      *
@@ -752,12 +756,10 @@ abstract class Geometry
     public function getGeos()
     {
         // If it's already been set, just return it
-        if ($this->geos && geoPHP::geosInstalled()) {
+        if (isset($this->geos) && geoPHP::geosInstalled()) {
             return $this->geos;
         }
 
-        $this->geos = false;
-        
         // It hasn't been set yet, generate it
         if (geoPHP::geosInstalled()) {
             /** @noinspection PhpUndefinedClassInspection */
@@ -765,13 +767,15 @@ abstract class Geometry
             $reader = new \GEOSWKBReader();
             /** @noinspection PhpUndefinedMethodInspection */
             $this->geos = $reader->read($this->out('wkb'));
+        } else {
+            $this->geos = false;
         }
-        
+
         return $this->geos;
     }
 
     /**
-     * @param GEOSGeometry|null $geos
+     * @param \GEOSGeometry|null $geos
      */
     public function setGeos($geos = null)
     {
@@ -788,9 +792,10 @@ abstract class Geometry
         if ($this->isEmpty()) {
             return new Point();
         }
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->pointOnSurface());
+            return geoPHP::geosToGeometry($geosObj->pointOnSurface());
         }
         // help for implementation: http://gis.stackexchange.com/questions/76498/how-is-st-pointonsurface-calculated
         throw UnsupportedMethodException::geos(__METHOD__);
@@ -804,9 +809,10 @@ abstract class Geometry
      */
     public function equalsExact(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->equalsExact($geometry->getGeos());
+            return $geosObj->equalsExact($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -820,13 +826,14 @@ abstract class Geometry
      */
     public function relate(Geometry $geometry, $pattern = null)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             if ($pattern) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return $this->getGeos()->relate($geometry->getGeos(), $pattern);
+                return $geosObj->relate($geometry->getGeos(), $pattern);
             } else {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return $this->getGeos()->relate($geometry->getGeos());
+                return $geosObj->relate($geometry->getGeos());
             }
         }
         throw UnsupportedMethodException::geos(__METHOD__);
@@ -839,13 +846,14 @@ abstract class Geometry
      */
     public function checkValidity(): array
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->checkValidity();
+            return $geosObj->checkValidity();
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
-    
+
     /**
      * @return             bool
      * @throws             UnsupportedMethodException
@@ -853,9 +861,10 @@ abstract class Geometry
      */
     public function isValid(): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->checkValidity()['valid'];
+            return $geosObj->checkValidity()['valid'];
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -868,9 +877,10 @@ abstract class Geometry
      */
     public function buffer($distance)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->buffer($distance));
+            return geoPHP::geosToGeometry($geosObj->buffer($distance));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -883,13 +893,14 @@ abstract class Geometry
      */
     public function intersection(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->intersection($geometry->getGeos()));
+            return geoPHP::geosToGeometry($geosObj->intersection($geometry->getGeos()));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
-    
+
     /**
      * @param              int|float $x1
      * @param              int|float $y1
@@ -901,13 +912,14 @@ abstract class Geometry
      */
     public function clipByRect($x1, $y1, $x2, $y2)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->clipByRect($x1, $y1, $x2, $y2));
+            return geoPHP::geosToGeometry($geosObj->clipByRect($x1, $y1, $x2, $y2));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
-    
+
     /**
      * @return             Geometry|null
      * @throws             UnsupportedMethodException
@@ -915,9 +927,10 @@ abstract class Geometry
      */
     public function convexHull()
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->convexHull());
+            return geoPHP::geosToGeometry($geosObj->convexHull());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -932,13 +945,14 @@ abstract class Geometry
      */
     public function delaunayTriangulation($tolerance = 0.0, bool $onlyEdges = false)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->delaunayTriangulation($tolerance, $onlyEdges));
+            return geoPHP::geosToGeometry($geosObj->delaunayTriangulation($tolerance, $onlyEdges));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
-    
+
     /**
      * @param              float|int  $tolerance snapping tolerance to use for improved robustness
      * @param              bool|false $onlyEdges if true will return a MULTILINESTRING, otherwise (the default) it will return a
@@ -949,13 +963,14 @@ abstract class Geometry
      */
     public function voronoiDiagram($tolerance = 0.0, bool $onlyEdges = false)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->voronoiDiagram($tolerance, $onlyEdges));
+            return geoPHP::geosToGeometry($geosObj->voronoiDiagram($tolerance, $onlyEdges));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
-    
+
     /**
      * @param              Geometry $geometry
      * @return             Geometry|null
@@ -964,13 +979,14 @@ abstract class Geometry
      */
     public function difference(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->difference($geometry->getGeos()));
+            return geoPHP::geosToGeometry($geosObj->difference($geometry->getGeos()));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
-    
+
     /**
      * Snaps the vertices and segments of a geometry to another Geometry's vertices. A snap distance tolerance is used
      * to control where snapping is performed. The result geometry is the input geometry with the vertices snapped.
@@ -991,9 +1007,10 @@ abstract class Geometry
      */
     public function snapTo(Geometry $geometry, $snapTolerance = 0.0)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->snapTo($geometry->getGeos(), $snapTolerance));
+            return geoPHP::geosToGeometry($geosObj->snapTo($geometry->getGeos(), $snapTolerance));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1006,9 +1023,10 @@ abstract class Geometry
      */
     public function symDifference(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->symDifference($geometry->getGeos()));
+            return geoPHP::geosToGeometry($geosObj->symDifference($geometry->getGeos()));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1016,16 +1034,16 @@ abstract class Geometry
     /**
      * Can pass in a geometry or an array of geometries
      *
-     * @param              Geometry $geometry
-     * @return             bool|mixed|null|GeometryCollection
+     * @param              Geometry|Geometry[] $geometry
+     * @return             Geometry|GeometryCollection|null
      * @throws             UnsupportedMethodException
      * @codeCoverageIgnore
      */
-    public function union(Geometry $geometry)
+    public function union($geometry)
     {
-        if ($this->getGeos()) {
+        $geom = $this->getGeos();
+        if (is_object($geom)) {
             if (is_array($geometry)) {
-                $geom = $this->getGeos();
                 foreach ($geometry as $item) {
                     /** @noinspection PhpUndefinedMethodInspection */
                     $geom = $geom->union($item->geos());
@@ -1033,7 +1051,7 @@ abstract class Geometry
                 return geoPHP::geosToGeometry($geom);
             } else {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return geoPHP::geosToGeometry($this->getGeos()->union($geometry->getGeos()));
+                return geoPHP::geosToGeometry($geom->union($geometry->getGeos()));
             }
         }
         throw UnsupportedMethodException::geos(__METHOD__);
@@ -1048,9 +1066,10 @@ abstract class Geometry
      */
     public function simplify($tolerance, $preserveTopology = false)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->simplify($tolerance, $preserveTopology));
+            return geoPHP::geosToGeometry($geosObj->simplify($tolerance, $preserveTopology));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1062,7 +1081,7 @@ abstract class Geometry
      * @return void
      */
     abstract public function translate($dx = 0, $dy = 0, $dz = 0);
-    
+
     /**
      * The function attempts to create a valid representation of a given invalid geometry without losing any of the
      * input vertices. Already-valid geometries are returned without further intervention.
@@ -1076,14 +1095,15 @@ abstract class Geometry
      * @throws             UnsupportedMethodException
      * @codeCoverageIgnore
      */
-    public function makeValid()
-    {
-        if ($this->getGeos()) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->makeValid());
-        }
-        throw UnsupportedMethodException::geos(__METHOD__);
-    }
+//    public function makeValid()
+//    {
+//        $geosObj = $this->getGeos();
+//        if (is_object($geosObj)) {
+//            /** @noinspection PhpUndefinedMethodInspection */
+//            return geoPHP::geosToGeometry($geosObj->makeValid());
+//        }
+//        throw UnsupportedMethodException::geos(__METHOD__);
+//    }
 
     /**
      * Creates an areal geometry formed by the constituent linework of given geometry. The return type can be a
@@ -1094,14 +1114,15 @@ abstract class Geometry
      * @throws             UnsupportedMethodException
      * @codeCoverageIgnore
      */
-    public function buildArea()
-    {
-        if ($this->getGeos()) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->buildArea());
-        }
-        throw UnsupportedMethodException::geos(__METHOD__);
-    }
+//    public function buildArea()
+//    {
+//        $geosObj = $this->getGeos();
+//        if (is_object($geosObj)) {
+//            /** @noinspection PhpUndefinedMethodInspection */
+//            return geoPHP::geosToGeometry($geosObj->buildArea());
+//        }
+//        throw UnsupportedMethodException::geos(__METHOD__);
+//    }
 
     /**
      * @param              Geometry $geometry
@@ -1111,9 +1132,10 @@ abstract class Geometry
      */
     public function disjoint(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->disjoint($geometry->getGeos());
+            return $geosObj->disjoint($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1126,9 +1148,10 @@ abstract class Geometry
      */
     public function touches(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->touches($geometry->getGeos());
+            return $geosObj->touches($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1141,9 +1164,10 @@ abstract class Geometry
      */
     public function intersects(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->intersects($geometry->getGeos());
+            return $geosObj->intersects($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1156,9 +1180,10 @@ abstract class Geometry
      */
     public function crosses(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->crosses($geometry->getGeos());
+            return $geosObj->crosses($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1171,9 +1196,10 @@ abstract class Geometry
      */
     public function within(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->within($geometry->getGeos());
+            return $geosObj->within($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -1186,9 +1212,10 @@ abstract class Geometry
      */
     public function contains(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->contains($geometry->getGeos());
+            return $geosObj->contains($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(get_called_class() . '::contains');
     }
@@ -1201,9 +1228,10 @@ abstract class Geometry
      */
     public function overlaps(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->overlaps($geometry->getGeos());
+            return $geosObj->overlaps($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(get_called_class() . '::overlaps');
     }
@@ -1216,9 +1244,10 @@ abstract class Geometry
      */
     public function covers(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->covers($geometry->getGeos());
+            return $geosObj->covers($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(get_called_class() . '::covers');
     }
@@ -1231,9 +1260,10 @@ abstract class Geometry
      */
     public function coveredBy(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->coveredBy($geometry->getGeos());
+            return $geosObj->coveredBy($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(get_called_class() . '::coveredBy');
     }
@@ -1246,9 +1276,10 @@ abstract class Geometry
      */
     public function hausdorffDistance(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->hausdorffDistance($geometry->getGeos());
+            return $geosObj->hausdorffDistance($geometry->getGeos());
         }
         throw UnsupportedMethodException::geos(get_called_class() . '::hausdorffDistance');
     }
@@ -1271,25 +1302,26 @@ abstract class Geometry
      */
     public function offsetCurve($distance = 0.0, array $styleArray = [])
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->offsetCurve($distance, $styleArray));
+            return geoPHP::geosToGeometry($geosObj->offsetCurve($distance, $styleArray));
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
-    
+
     /**
      * @param              Geometry $point
-     * @param              null     $normalized
      * @return             \GEOSGeometry
      * @throws             UnsupportedMethodException
      * @codeCoverageIgnore
      */
-    public function project(Geometry $point, $normalized = null)
+    public function project(Geometry $point)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->project($point->getGeos(), $normalized);
+            return $geosObj->project($point->getGeos());
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }

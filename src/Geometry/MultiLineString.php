@@ -39,10 +39,12 @@ class MultiLineString extends MultiCurve
             return new Point;
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            /** @phpstan-ignore-next-line */
+            return geoPHP::geosToGeometry($geosObj->centroid());
             // @codeCoverageIgnoreEnd
         }
 

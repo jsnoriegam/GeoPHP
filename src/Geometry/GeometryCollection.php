@@ -2,6 +2,7 @@
 namespace geoPHP\Geometry;
 
 use geoPHP\geoPHP;
+use geoPHP\Exception\InvalidGeometryException;
 
 /**
  * GeometryCollection: A heterogeneous collection of geometries.
@@ -16,7 +17,7 @@ class GeometryCollection extends MultiGeometry
      * @param Geometry[] $components Array of geometries. Components of GeometryCollection can be
      *                               any of valid Geometry types, including empty geometry
      *
-     * @throws \InvalidGeometryException
+     * @throws InvalidGeometryException
      */
     public function __construct(array $components = [])
     {
@@ -49,7 +50,7 @@ class GeometryCollection extends MultiGeometry
      * Prior version 2.0 PostGIS throws an exception if used with GEOMETRYCOLLECTION. From 2.0.0 up it returns NULL.
      * GEOS throws an IllegalArgumentException with "Operation not supported by GeometryCollection".
      *
-     * @return \geoPHP\Geometry\Geometry
+     * @return Geometry
      */
     public function boundary(): Geometry
     {
@@ -73,6 +74,7 @@ class GeometryCollection extends MultiGeometry
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
+            /** @phpstan-ignore-next-line */
             return geoPHP::geosToGeometry($this->getGeos()->centroid());
             // @codeCoverageIgnoreEnd
         }
@@ -135,7 +137,7 @@ class GeometryCollection extends MultiGeometry
         
         foreach ($this->components as $component) {
             if ($component->geometryType() === Geometry::GEOMETRY_COLLECTION) {
-                // @var GeometryCollection $component
+                /** @var GeometryCollection $component */
                 $geometries = array_merge($geometries, $component->explodeGeometries());
             } else {
                 $geometries[] = $component;

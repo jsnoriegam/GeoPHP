@@ -77,8 +77,8 @@ class GPX implements GeoAdapter
         // Load into DOMDocument
         $xmlObject = new \DOMDocument('1.0', 'UTF-8');
         $xmlObject->preserveWhiteSpace = false;
-        @$xmlObject->loadXML($gpx);
-        if ($xmlObject === false) {
+        
+        if ($xmlObject->loadXML($gpx) === false) {
             throw new \Exception("Invalid GPX: " . $gpx);
         }
 

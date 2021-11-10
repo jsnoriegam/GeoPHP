@@ -76,8 +76,8 @@ class GeoRSS implements GeoAdapter
 
         // Load into DOMDocument
         $xmlObject = new \DOMDocument();
-        @$xmlObject->loadXML($text);
-        if ($xmlObject === false) {
+        
+        if ($xmlObject->loadXML($text) === false) {
             throw new \Exception("Invalid GeoRSS: " . $text);
         }
 
@@ -250,7 +250,7 @@ class GeoRSS implements GeoAdapter
     }
 
     /**
-     * @param Geometry $geometry
+     * @param Point $geometry
      * @return string
      */
     private function pointToGeoRSS(Point $geometry): string

@@ -9,6 +9,7 @@ use geoPHP\geoPHP;
  * Polygon: A polygon is a plane figure that is bounded by a closed path,
  * composed of a finite sequence of straight line segments.
  *
+ * @property LineString[] $components
  * @package GeoPHPGeometry
  */
 class Polygon extends Surface
@@ -16,8 +17,9 @@ class Polygon extends Surface
 
     /**
      * @param  LineString[] $components
-     * @param  bool|false   $forceCreate force creation even if polygon is invalid because it is not closed
-     * @throws \InvalidGeometryException
+     * @param  bool         $forceCreate force creation even if polygon is invalid because it is not closed.
+     *                      Default false.
+     * @throws InvalidGeometryException
      */
     public function __construct(array $components = [], bool $forceCreate = false)
     {
@@ -125,6 +127,7 @@ class Polygon extends Surface
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
+            /** @phpstan-ignore-next-line */
             return geoPHP::geosToGeometry($this->getGeos()->centroid());
             // @codeCoverageIgnoreEnd
         }
@@ -229,11 +232,11 @@ class Polygon extends Surface
      * Returns the linestring for the nth interior ring of the polygon. Interior rings are holes in the polygon.
      *
      * @param  int $n 1-based geometry number
-     * @return LineString
+     * @return Geometry|null
      */
     public function interiorRingN(int $n)
     {
-        return $this->numInteriorRings() < $n ? new LineString : $this->geometryN($n + 1);
+        return $n > $this->numInteriorRings() ? new LineString : $this->geometryN($n + 1);
     }
 
     /**
@@ -313,17 +316,16 @@ class Polygon extends Surface
      */
     public function pointInPolygon(Point $point, bool $pointOnBoundary = true, bool $pointOnVertex = true): bool
     {
-        $vertices = $this->getPoints();
-
         // Check if the point sits exactly on a vertex
-        if ($this->pointOnVertex($point, $vertices)) {
+        if ($this->pointOnVertex($point)) {
             return $pointOnVertex;
         }
 
         // Check if the point is inside the polygon or on the boundary
+        $vertices = $this->getPoints();
         $intersections = 0;
         $verticesCount = count($vertices);
-        for ($i = 1; $i < $verticesCount; $i++) {
+        for ($i = 1; $i < $verticesCount; ++$i) {
             $vertex1 = $vertices[$i - 1];
             $vertex2 = $vertices[$i];
             if ($vertex1->getY() == $vertex2->getY()

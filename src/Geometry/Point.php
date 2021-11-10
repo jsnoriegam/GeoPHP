@@ -14,31 +14,31 @@ class Point extends Geometry
     /**
      * @var float
      */
-    protected $x;
+    public $x;
 
     /**
      * @var float
      */
-    protected $y;
+    public $y;
 
     /**
      * @var float
      */
-    protected $z;
+    public $z;
 
     /**
      * @var float
      */
-    protected $m;
+    public $m;
 
     /**
      * Constructor
      *
-     * @param  int|float|null $x The x coordinate (or longitude)
-     * @param  int|float|null $y The y coordinate (or latitude)
-     * @param  int|float|null $z The z coordinate (or altitude) - optional
-     * @param  int|float|null $m Measure - optional
-     * @throws \InvalidGeometryException
+     * @param  mixed $x The x coordinate (or longitude)
+     * @param  mixed $y The y coordinate (or latitude)
+     * @param  mixed $z The z coordinate (or altitude) - optional
+     * @param  mixed $m Measure - optional
+     * @throws InvalidGeometryException
      */
     public function __construct($x = null, $y = null, $z = null, $m = null)
     {
@@ -76,7 +76,7 @@ class Point extends Geometry
     /**
      * @param  array $coordinates
      * @return Point
-     * @throws \InvalidGeometryException
+     * @throws InvalidGeometryException
      */
     public static function fromArray(array $coordinates)
     {
@@ -277,8 +277,8 @@ class Point extends Geometry
      */
     public function flatten()
     {
-        $this->z = null;
-        $this->m = null;
+        unset($this->z);
+        unset($this->m);
         $this->hasZ = false;
         $this->isMeasured = false;
         $this->setGeos(null);
@@ -439,7 +439,7 @@ class Point extends Geometry
      * @param  float|int $radius
      * @return float 0.0
      */
-    public function greatCircleLength(float $radius = null): float
+    public function greatCircleLength($radius = null): float
     {
         return 0.0;
     }

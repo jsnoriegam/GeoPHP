@@ -106,9 +106,9 @@ class geoPHP
      *
      * @param mixed $data The data in any supported format, including geoPHP Geometry.
      * @var null|string $type Data type. Tries to detect it if omitted.
-     * @var mixed|null $otherArgs Arguments will be passed to the geo adapter.
+     * @var null|mixed $otherArgs Arguments will be passed to the geo adapter.
      *
-     * @return Collection|Geometry
+     * @return Collection|Geometry|null
      * @throws \Exception
      */
     public static function load($data)
@@ -291,8 +291,8 @@ class geoPHP
      *
      * @see geos::geom::GeometryFactory::buildGeometry
      *
-     * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[] $geometries
-     * @return Geometry A Geometry of the "smallest", "most type-specific" class that can contain the elements.
+     * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[]|null[] $geometries
+     * @return Geometry|null A Geometry of the "smallest", "most type-specific" class that can contain the elements.
      * @throws \Exception
      */
     public static function buildGeometry($geometries)
@@ -326,9 +326,9 @@ class geoPHP
             // FIXME normally it never happens. Should be refactored
         }
         if (count($geometryTypes) === 1 && stripos($geometryTypes[0], 'MULTI') === false) {
-            if (count($geometries) === 1) {
-                return $geometries[0];
-            } else {
+            #if (count($geometries) === 1) {
+            #    return $geometries[0];
+            #} else {
                 $newType = (strpos($geometryTypes[0], 'Multi') !== false ? '' : 'Multi') . $geometryTypes[0];
                 foreach ($geometries as $geometry) {
                     if ($geometry->isEmpty()) {
@@ -337,7 +337,7 @@ class geoPHP
                 }
                 $class = '\\geoPHP\\Geometry\\' . $newType;
                 return new $class($geometries);
-            }
+            #}
         }
         return new GeometryCollection($geometries);
     }

@@ -170,7 +170,7 @@ class WKB implements GeoAdapter
                     ' (' . (self::$typeMap[$geometryType] ?? 'unknown') . ') not supported'
                 );
         }
-        if ($geometry && $SRID) {
+        if ($SRID) {
             $geometry->setSRID($SRID);
         }
         
@@ -213,10 +213,7 @@ class WKB implements GeoAdapter
 
         $components = [];
         for ($i = 0; $i < $lineLength; ++$i) {
-            $point = $this->getPoint();
-            if ($point) {
-                $components[] = $point;
-            }
+            $components[] = $this->getPoint();
         }
         
         return new LineString($components);

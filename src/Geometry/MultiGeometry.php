@@ -79,10 +79,12 @@ abstract class MultiGeometry extends Collection
             return new GeometryCollection();
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->boundary();
+            /** @phpstan-ignore-next-line */
+            return $geosObj->boundary();
             // @codeCoverageIgnoreEnd
         }
 
@@ -142,7 +144,7 @@ abstract class MultiGeometry extends Collection
      * Returns the degree based Geometry' length in meters
      *
      * @param  float $radius Default is the semi-major axis of WGS84.
-     * @return int the length in meters
+     * @return float the length in meters
      */
     public function greatCircleLength(float $radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {

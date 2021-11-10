@@ -107,7 +107,7 @@ class TWKB implements GeoAdapter
     }
 
     /**
-     * @return type
+     * @return Geometry
      * @throws \Exception
      */
     protected function getGeometry(): Geometry

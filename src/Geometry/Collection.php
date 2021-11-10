@@ -25,9 +25,9 @@ abstract class Collection extends Geometry
      * Constructor: Checks and sets component geometries
      *
      * @param  Geometry[] $components           array of geometries
-     * @param  bool|false $allowEmptyComponents Allow creating geometries with empty components.
+     * @param  bool       $allowEmptyComponents Allow creating geometries with empty components. Default false.
      * @param  string     $allowedComponentType A class-type the components have to be instance of.
-     * @throws \InvalidGeometryException
+     * @throws InvalidGeometryException
      */
     public function __construct(
         array $components = [],
@@ -144,6 +144,10 @@ abstract class Collection extends Geometry
         foreach ($this->components as $i => $component) {
             $componentBoundingBox = $component->getBBox();
 
+            #if ($componentBoundingBox === null) {
+            #    continue;
+            #}
+            
             // On the first run through, set the bounding box to the component's bounding box
             if ($i === 0) {
                 $maxX = $componentBoundingBox['maxx'];

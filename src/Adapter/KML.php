@@ -60,8 +60,7 @@ class KML implements GeoAdapter
 
         // Load into DOMDocument
         $xmlObject = new \DOMDocument();
-        @$xmlObject->loadXML($text);
-        if ($xmlObject === false) {
+        if ($xmlObject->loadXML($text) === false) {
             throw new \Exception("Invalid KML: " . $text);
         }
 
@@ -131,11 +130,9 @@ class KML implements GeoAdapter
     protected function childElements(\DOMNode $xml, string $nodeName = ''): array
     {
         $children = [];
-        if ($xml && $xml->childNodes) {
-            foreach ($xml->childNodes as $child) {
-                if ($child->nodeName == $nodeName) {
-                    $children[] = $child;
-                }
+        foreach ($xml->childNodes as $child) {
+            if ($child->nodeName == $nodeName) {
+                $children[] = $child;
             }
         }
         

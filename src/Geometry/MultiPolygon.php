@@ -37,6 +37,7 @@ class MultiPolygon extends MultiSurface
         if ($this->getGeos()) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
+            /** @phpstan-ignore-next-line */
             return geoPHP::geosToGeometry($this->getGeos()->centroid());
             // @codeCoverageIgnoreEnd
         }

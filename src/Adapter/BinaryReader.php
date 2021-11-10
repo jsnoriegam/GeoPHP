@@ -53,7 +53,7 @@ class BinaryReader extends BinaryAdapter
         if (is_resource($this->buffer)) {
             fclose($this->buffer);
         }
-        $this->buffer = null;
+        unset($this->buffer);
     }
 
     public function __destruct()

@@ -54,9 +54,12 @@ class LineString extends Curve
     {
         $n = $n < $this->numPoints() ? $n : $this->numPoints();
         
-        return $n >= 0
+        /** @var Point|null $point */
+        $point = $n >= 0
                 ? $this->geometryN($n)
                 : $this->geometryN(count($this->components) - abs($n + 1));
+        
+        return $point;
     }
 
     /**
@@ -68,10 +71,12 @@ class LineString extends Curve
             return new Point();
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            /** @phpstan-ignore-next-line */
+            return geoPHP::geosToGeometry($geosObj->centroid());
             // @codeCoverageIgnoreEnd
         }
 
@@ -133,9 +138,7 @@ class LineString extends Curve
     public function length3D(): float
     {
         $length = 0.0;
-        /**
- * @var Point $previousPoint
-*/
+        
         $previousPoint = null;
         foreach ($this->getPoints() as $point) {
             if ($previousPoint) {
@@ -145,6 +148,7 @@ class LineString extends Curve
                     pow(($previousPoint->getZ() - $point->getZ()), 2)
                 );
             }
+            /** @var Point $previousPoint */
             $previousPoint = $point;
         }
         return $length;
