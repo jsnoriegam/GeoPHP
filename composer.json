@@ -36,11 +36,11 @@
         "php": ">=7.0.0"
     },
     "require-dev": {
-        "php": ">=7.0.0",
+        "php": ">=7.1.0",
         "phpunit/phpunit": "5.* || 8.*",
         "php-coveralls/php-coveralls": "2.*",
         "squizlabs/php_codesniffer": "3.*",
-        "phpstan/phpstan": "^0.12.18"
+        "phpstan/phpstan": "^0.12"
     },
     "suggest": {
         "ext-geos": "GEOS allows more advanced operations"
