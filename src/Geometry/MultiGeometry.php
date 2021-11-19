@@ -13,9 +13,9 @@ abstract class MultiGeometry extends Collection
 {
 
     /**
-     * @param array  $components
-     * @param bool   $allowEmptyComponents
-     * @param string $allowedComponentType
+     * @param Geometry[] $components
+     * @param bool       $allowEmptyComponents
+     * @param string     $allowedComponentType
      */
     public function __construct(
         array $components = [],
@@ -202,6 +202,11 @@ abstract class MultiGeometry extends Collection
         return null;
     }
 
+    /**
+     * 
+     * @param int|float $verticalTolerance
+     * @return int|float|null
+     */
     public function elevationGain($verticalTolerance = 0)
     {
         $gain = null;

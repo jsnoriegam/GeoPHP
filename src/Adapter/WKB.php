@@ -33,24 +33,43 @@ class WKB implements GeoAdapter
     const WKB_XDR = 1;
     const WKB_NDR = 0;
 
+    /**
+     * @var bool $hasZ
+     */
     protected $hasZ = false;
+    
+    /**
+     * @var bool $hasM
+     */
     protected $hasM = false;
+    
+    /**
+     * @var bool $hasSRID
+     */
     protected $hasSRID = false;
-    protected $SRID = null;
+    
+    /**
+     * @var int $SRID
+     */
+    protected $SRID;
+    
+    /**
+     * @var int $dimension
+     */
     protected $dimension = 2;
 
     /**
-     * @var  BinaryReader $reader
+     * @var BinaryReader $reader
      */
     protected $reader;
 
     /**
-     * @var  BinaryWriter $writer
+     * @var BinaryWriter $writer
      */
     protected $writer;
 
     /**
-     * @var array Maps Geometry types to WKB type codes
+     * @var array<int> Maps Geometry types to WKB type codes
      */
     public static $typeMap = [
         Geometry::POINT => 1,
@@ -258,10 +277,13 @@ class WKB implements GeoAdapter
         
         switch ($type) {
             case 'Point':
+                /** @var Point[] $components */
                 return new MultiPoint($components);
             case 'LineString':
+                /** @var LineString[] $components */
                 return new MultiLineString($components);
             case 'Polygon':
+                /** @var Polygon[] $components */
                 return new MultiPolygon($components);
         }
         
@@ -272,8 +294,8 @@ class WKB implements GeoAdapter
      * Serialize geometries into WKB string.
      *
      * @param Geometry $geometry The geometry
-     * @param boolean $writeAsHex Write the result in binary or hexadecimal system. Default false.
-     * @param boolean $bigEndian Write in BigEndian byte order. Default false.
+     * @param bool $writeAsHex Write the result in binary or hexadecimal system. Default false.
+     * @param bool $bigEndian Write in BigEndian byte order. Default false.
      *
      * @return string The WKB string representation of the input geometries
      */

@@ -69,7 +69,7 @@ class GeoJSON implements GeoAdapter
 
     /**
      * @param object $input
-     * @return string|null
+     * @return int|null
      */
     private function getSRID($input)
     {
@@ -77,7 +77,7 @@ class GeoJSON implements GeoAdapter
             $m = [];
             // parse CRS codes in forms "EPSG:1234" and "urn:ogc:def:crs:EPSG::1234"
             preg_match('#EPSG[:]+(\d+)#', $input->crs->properties->name, $m);
-            return isset($m[1]) ? $m[1] : null;
+            return isset($m[1]) ? (int) $m[1] : null;
         }
         
         return null;
@@ -121,7 +121,7 @@ class GeoJSON implements GeoAdapter
     }
 
     /**
-     * @param array $coordinates Array of coordinates
+     * @param array<int|float> $coordinates Array of coordinates
      * @return Point
      */
     private function arrayToPoint(array $coordinates): Point
@@ -139,7 +139,7 @@ class GeoJSON implements GeoAdapter
     }
 
     /**
-     * @param array $array
+     * @param array<array> $array
      * @return LineString
      */
     private function arrayToLineString(array $array): LineString
@@ -152,7 +152,7 @@ class GeoJSON implements GeoAdapter
     }
 
     /**
-     * @param array $array
+     * @param array<array> $array
      * @return Polygon
      */
     private function arrayToPolygon(array $array): Polygon
@@ -166,7 +166,7 @@ class GeoJSON implements GeoAdapter
 
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
-     * @param array $array
+     * @param array<array> $array
      * @return MultiPoint
      */
     private function arrayToMultiPoint(array $array): MultiPoint
@@ -180,7 +180,7 @@ class GeoJSON implements GeoAdapter
 
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
-     * @param array $array
+     * @param array<array> $array
      * @return MultiLineString
      */
     private function arrayToMultiLineString(array $array): MultiLineString
@@ -194,7 +194,7 @@ class GeoJSON implements GeoAdapter
 
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
-     * @param array $array
+     * @param array<array> $array
      * @return MultiPolygon
      */
     private function arrayToMultiPolygon(array $array): MultiPolygon
@@ -251,7 +251,7 @@ class GeoJSON implements GeoAdapter
      *
      * @param Geometry|GeometryCollection $geometry
      * @param bool|null $isRoot Is geometry the root geometry?
-     * @return array
+     * @return array<string, mixed>
      */
     public function getArray(Geometry $geometry, $isRoot = true): array
     {

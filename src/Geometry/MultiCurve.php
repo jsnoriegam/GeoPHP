@@ -11,9 +11,9 @@ abstract class MultiCurve extends MultiGeometry
 {
 
     /**
-     * @param array  $components
-     * @param bool   $allowEmptyComponents
-     * @param string $allowedComponentType
+     * @param Curve[] $components
+     * @param bool    $allowEmptyComponents
+     * @param string  $allowedComponentType
      */
     public function __construct(
         array $components = [],

@@ -11,10 +11,15 @@ use geoPHP\geoPHP;
  * Every MultiPoint is spatially equal under the definition in OGC 06-103r4 Clause 6.1.15.3 to a simple Multipoint.
  *
  * @package GeoPHPGeometry
+ * @method  Point[] getComponents()
  */
 class MultiPoint extends MultiGeometry
 {
 
+    /**
+     * 
+     * @param Point[] $components
+     */
     public function __construct(array $components = [])
     {
         parent::__construct($components, true, Point::class);
@@ -39,7 +44,7 @@ class MultiPoint extends MultiGeometry
     }
 
     /**
-     * @param  array $array
+     * @param  array<array> $array
      * @return MultiPoint
      */
     public static function fromArray(array $array): MultiPoint

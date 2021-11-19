@@ -57,10 +57,11 @@ class GPX implements GeoAdapter
      * Read GPX string into geometry object
      *
      * @param string $gpx A GPX string
-     * @param array $allowedElements Which elements can be read from each GPX type
+     * @param array<array> $allowedElements Which elements can be read from each GPX type
      *              If not specified, every element defined in the GPX specification can be read
      *              Can be overwritten with an associative array, with type name in keys.
      *              eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
+     * 
      * @return Geometry|GeometryCollection
      * @throws \Exception If GPX is not a valid XML
      */
@@ -139,7 +140,7 @@ class GPX implements GeoAdapter
     /**
      * @param \DOMNode $xml
      * @param string $nodeName
-     * @return array
+     * @return array<\DOMElement>
      */
     protected function childElements(\DOMNode $xml, string $nodeName = ''): array
     {
@@ -267,7 +268,7 @@ class GPX implements GeoAdapter
      *
      * @param \DOMNode $node
      * @param string[]|null $tagList
-     * @return array|string
+     * @return array<string>|string
      */
     protected static function parseNodeProperties($node, $tagList = null)
     {
@@ -314,7 +315,7 @@ class GPX implements GeoAdapter
      *
      * @param Geometry|GeometryCollection $geometry
      * @param string $namespace
-     * @param array $allowedElements Which elements can be added to each GPX type
+     * @param array<array> $allowedElements Which elements can be added to each GPX type
      *              If not specified, every element defined in the GPX specification can be added
      *              Can be overwritten with an associative array, with type name in keys.
      *              eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
@@ -358,6 +359,7 @@ class GPX implements GeoAdapter
             case Geometry::MULTI_POINT:
             case Geometry::MULTI_POLYGON:
             case Geometry::GEOMETRY_COLLECTION:
+                /** @var GeometryCollection $geometry */
                 return $this->collectionToGPX($geometry);
         }
         return '';
@@ -483,7 +485,7 @@ class GPX implements GeoAdapter
 
     /**
      * @param string $tagName
-     * @param string|array $value
+     * @param string|array<array> $value
      * @param string $indent
      * @return string
      */

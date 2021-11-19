@@ -36,7 +36,7 @@ class GoogleGeocode implements GeoAdapter
      * @param string $address Address to geocode
      * @param string $apiKey Your application's Google Maps Geocoding API key
      * @param string $returnType Type of Geometry to return. Can either be 'points' or 'bounds' (polygon)
-     * @param array|Geometry|null $bounds Limit the search area to within this region.
+     * @param array<string, int|float>|Geometry|null $bounds Limit the search area to within this region.
      *        For example by default geocoding "Cairo" will return the location of Cairo Egypt.
      *        If you pass a polygon of Illinois, it will return Cairo IL.
      * @param boolean $returnMultiple - Return all results in a multipoint or multipolygon

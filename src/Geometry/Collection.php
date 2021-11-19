@@ -110,7 +110,7 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * @return array
+     * @return array<string, int|float>
      */
     public function getBBox(): array
     {
@@ -174,7 +174,7 @@ abstract class Collection extends Geometry
     /**
      * Returns every sub-geometry as a multidimensional array
      *
-     * @return array
+     * @return array<int, array>
      */
     public function asArray(): array
     {
@@ -254,6 +254,7 @@ abstract class Collection extends Geometry
             if ($component instanceof Point) {
                 $points[] = $component;
             } else {
+                /** @var Collection $component */
                 static::getPointsRecursive($component, $points);
             }
         }

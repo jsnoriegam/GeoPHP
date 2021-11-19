@@ -24,6 +24,7 @@ abstract class BinaryAdapter
 
     /**
      * @param int $endian self::BIG_ENDIAN or self::LITTLE_ENDIAN
+     * @return void
      */
     public function setEndianness(int $endian)
     {

@@ -74,7 +74,7 @@ class Point extends Geometry
     }
 
     /**
-     * @param  array $coordinates
+     * @param  array<mixed> $coordinates
      * @return Point
      * @throws InvalidGeometryException
      */
@@ -146,7 +146,7 @@ class Point extends Geometry
      *
      * @return self
      * */
-    public function invertXY()
+    public function invertXY(): self
     {
         $x = $this->x;
         $this->x = $this->y;
@@ -166,7 +166,7 @@ class Point extends Geometry
     }
 
     /**
-     * @return array ['maxy' => .., 'miny' => .., 'maxx' => .., 'minx' => ..]
+     * @return array<string, int|float> ['maxy' => .., 'miny' => .., 'maxx' => .., 'minx' => ..]
      */
     public function getBBox(): array
     {
@@ -179,12 +179,12 @@ class Point extends Geometry
     }
 
     /**
-     * @return array
+     * @return array<int, mixed>
      */
     public function asArray(): array
     {
         if ($this->isEmpty()) {
-            return [NAN, NAN];
+            return [null, null];
         }
         if (!$this->hasZ) {
             return !$this->isMeasured ? [$this->x, $this->y] : [$this->x, $this->y, null, $this->m];
@@ -274,6 +274,7 @@ class Point extends Geometry
 
     /**
      * resets/empties all values
+     * @return void
      */
     public function flatten()
     {

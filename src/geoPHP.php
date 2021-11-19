@@ -45,7 +45,7 @@ class geoPHP
     const EARTH_AUTHALIC_RADIUS = 6371007.2;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     private static $adapterMap = [
         'wkt' => 'WKT',
@@ -64,7 +64,7 @@ class geoPHP
     ];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     private static $geometryList = [
         'point' => 'Point',
@@ -85,7 +85,7 @@ class geoPHP
     }
     
     /**
-     * @return array returns the supported adapter-map, e.g. ['wkt' => 'WKT',...]
+     * @return array<string, string> returns the supported adapter-map, e.g. ['wkt' => 'WKT',...]
      */
     public static function getAdapterMap(): array
     {
@@ -93,7 +93,7 @@ class geoPHP
     }
 
     /**
-     * @return array returns the mapped geometry-list, e.g. ['point' => 'Point',...]
+     * @return array<string, string> returns the mapped geometry-list, e.g. ['point' => 'Point',...]
      */
     public static function getGeometryList(): array
     {
@@ -272,6 +272,9 @@ class geoPHP
 
     /**
      * @param Geometry[]|GeometryCollection[] $unreduced
+     * @param Geometry[]|GeometryCollection[] $reduced
+     * @param array<string> $types
+     * @return void
      */
     private static function explodeCollections($unreduced, &$reduced, &$types)
     {
@@ -292,7 +295,7 @@ class geoPHP
      * @see geos::geom::GeometryFactory::buildGeometry
      *
      * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[]|null[] $geometries
-     * @return Geometry|null A Geometry of the "smallest", "most type-specific" class that can contain the elements.
+     * @return Geometry A Geometry of the "smallest", "most type-specific" class that can contain the elements.
      * @throws \Exception
      */
     public static function buildGeometry($geometries)
@@ -305,39 +308,36 @@ class geoPHP
         if ($geometries instanceof Geometry) {
             return $geometries;
         } else if (!is_array($geometries)) {
-            return null;
-            //FIXME should be: throw new \Exception('Input is not a Geometry or array of Geometries');
+            throw new \Exception('Input is not a Geometry or array of Geometries');
         } elseif (count($geometries) === 1) {
             // If it's an array of one, then just parse the one
             return self::buildGeometry(array_shift($geometries));
         }
 
         // So now we either have an array of geometries
-        // @var Geometry[]|GeometryCollection[] $geometries
+        /** @var Geometry[]|GeometryCollection[]|null $geometries */
         $geometryTypes = [];
         foreach ($geometries as $item) {
             if ($item) {
                 $geometryTypes[] = $item->geometryType();
             }
         }
+        
         $geometryTypes = array_unique($geometryTypes);
+        // should never happen
         if (empty($geometryTypes)) {
-            return null;
-            // FIXME normally it never happens. Should be refactored
+            throw new \Exception('Unknown type of Geometries given.');
         }
+        
         if (count($geometryTypes) === 1 && stripos($geometryTypes[0], 'MULTI') === false) {
-            #if (count($geometries) === 1) {
-            #    return $geometries[0];
-            #} else {
-                $newType = (strpos($geometryTypes[0], 'Multi') !== false ? '' : 'Multi') . $geometryTypes[0];
-                foreach ($geometries as $geometry) {
-                    if ($geometry->isEmpty()) {
-                        return new GeometryCollection($geometries);
-                    }
+            $newType = (strpos($geometryTypes[0], 'Multi') !== false ? '' : 'Multi') . $geometryTypes[0];
+            foreach ($geometries as $geometry) {
+                if ($geometry->isEmpty()) {
+                    return new GeometryCollection($geometries);
                 }
-                $class = '\\geoPHP\\Geometry\\' . $newType;
-                return new $class($geometries);
-            #}
+            }
+            $class = '\\geoPHP\\Geometry\\' . $newType;
+            return new $class($geometries);
         }
         return new GeometryCollection($geometries);
     }

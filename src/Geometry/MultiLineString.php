@@ -8,6 +8,7 @@ use geoPHP\geoPHP;
  * MultiLineString: A collection of LineStrings
  *
  * @package GeoPHPGeometry
+ * @method  LineString[] getComponents()
  */
 class MultiLineString extends MultiCurve
 {

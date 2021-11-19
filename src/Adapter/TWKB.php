@@ -43,7 +43,7 @@ class TWKB implements GeoAdapter
 {
 
     /**
-     * @var array
+     * @var array<string, int|bool>
      */
     protected $writeOptions = [
         'decimalDigitsXY' => 5,
@@ -69,7 +69,7 @@ class TWKB implements GeoAdapter
     private $writer;
 
     /**
-     * @var array mapping of geometry types to TWKB type codes
+     * @var array<string, int> mapping of geometry types to TWKB type codes
      */
     protected static $typeMap = [
         Geometry::POINT => 1,
@@ -201,8 +201,7 @@ class TWKB implements GeoAdapter
     }
 
     /**
-     * @param array $options
-     *
+     * @param array<string, int|float|bool|array> $options
      * @return Point
      * @throws \Exception
      */
@@ -233,7 +232,7 @@ class TWKB implements GeoAdapter
     }
 
     /**
-     * @param array $options
+     * @param array<string, int|float|bool|array> $options
      * @return LineString
      * @throws \Exception
      */
@@ -254,7 +253,7 @@ class TWKB implements GeoAdapter
     }
 
     /**
-     * @param array $options
+     * @param array<string, int|float|bool|array> $options
      *
      * @return Polygon
      * @throws \Exception
@@ -277,7 +276,7 @@ class TWKB implements GeoAdapter
 
     /**
      * @param string $type
-     * @param array $options
+     * @param array<string, int|float|bool|array> $options
      * @return MultiGeometry
      * @throws \Exception
      */

@@ -7,7 +7,8 @@ use geoPHP\geoPHP;
  * A LineString is defined by a sequence of points, (X,Y) pairs, which define the reference points of the line string.
  * Linear interpolation between the reference points defines the resulting linestring.
  *
- * @package GeoPHPGeometry
+ * @method   Point[] getComponents()
+ * @property Point[] $components
  */
 class LineString extends Curve
 {
@@ -21,7 +22,7 @@ class LineString extends Curve
     }
 
     /**
-     * @param  array $array
+     * @param  array<array> $array
      * @return LineString
      */
     public static function fromArray(array $array): LineString

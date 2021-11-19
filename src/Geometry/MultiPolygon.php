@@ -12,6 +12,10 @@ use geoPHP\geoPHP;
 class MultiPolygon extends MultiSurface
 {
 
+    /**
+     * 
+     * @param Polygon[] $components
+     */
     public function __construct(array $components = [])
     {
         parent::__construct($components, true, Polygon::class);

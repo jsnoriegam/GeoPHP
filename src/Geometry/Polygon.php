@@ -10,6 +10,7 @@ use geoPHP\geoPHP;
  * composed of a finite sequence of straight line segments.
  *
  * @property LineString[] $components
+ * @method   LineString[] getComponents()
  * @package GeoPHPGeometry
  */
 class Polygon extends Surface
@@ -155,7 +156,7 @@ class Polygon extends Surface
 
     /**
      * @param  LineString $ring
-     * @return array
+     * @return array<string, int|float|null>
      */
     protected function getRingCentroidAndArea(LineString $ring): array
     {
@@ -420,7 +421,7 @@ class Polygon extends Surface
     }
 
     /**
-     * @return array
+     * @return array<string, int|float>
      */
     public function getBBox(): array
     {

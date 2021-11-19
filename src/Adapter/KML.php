@@ -125,7 +125,7 @@ class KML implements GeoAdapter
     /**
      * @param \DOMNode $xml
      * @param string $nodeName
-     * @return array
+     * @return \DOMNode[]
      */
     protected function childElements(\DOMNode $xml, string $nodeName = ''): array
     {
@@ -247,7 +247,7 @@ class KML implements GeoAdapter
 
     /**
      * @param \DOMNode $xml
-     * @return array
+     * @return array<array>
      */
     protected function extractCoordinates(\DOMNode $xml): array
     {
@@ -369,6 +369,7 @@ class KML implements GeoAdapter
      */
     public function polygonToKML(Geometry $geometry): string
     {
+        /** @var LineString[] $components */
         $components = $geometry->getComponents();
         $str = '';
         if (!empty($components)) {

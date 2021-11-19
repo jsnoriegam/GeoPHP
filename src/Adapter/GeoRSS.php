@@ -114,7 +114,7 @@ class GeoRSS implements GeoAdapter
 
     /**
      * @param string $string
-     * @return array
+     * @return Point[]
      */
     protected function getPointsFromCoordinates(string $string): array
     {
@@ -135,7 +135,7 @@ class GeoRSS implements GeoAdapter
     }
 
     /**
-     * @return array
+     * @return Point[]
      */
     protected function parsePoints(): array
     {
@@ -149,7 +149,7 @@ class GeoRSS implements GeoAdapter
     }
 
     /**
-     * @return array
+     * @return LineString[]
      */
     protected function parseLines(): array
     {
@@ -163,7 +163,7 @@ class GeoRSS implements GeoAdapter
     }
 
     /**
-     * @return array
+     * @return Polygon[]
      */
     protected function parsePolygons(): array
     {
@@ -186,7 +186,7 @@ class GeoRSS implements GeoAdapter
     /**
      * Boxes are rendered into polygons.
      *
-     * @return array
+     * @return Polygon[]
      */
     protected function parseBoxes(): array
     {
@@ -210,7 +210,7 @@ class GeoRSS implements GeoAdapter
     /**
      * Circles are rendered into points
      * @todo Add good support once we have circular-string geometry support
-     * @return array
+     * @return Point[]
      */
     protected function parseCircles(): array
     {
@@ -232,18 +232,22 @@ class GeoRSS implements GeoAdapter
         $type = $geometry->geometryType();
         switch ($type) {
             case Geometry::POINT:
+                /** @var Point $geometry */
                 return $this->pointToGeoRSS($geometry);
             case Geometry::LINESTRING:
                 /** @noinspection PhpParamsInspection */
+                /** @var LineString $geometry */
                 return $this->linestringToGeoRSS($geometry);
             case Geometry::POLYGON:
                 /** @noinspection PhpParamsInspection */
+                /** @var Polygon $geometry */
                 return $this->PolygonToGeoRSS($geometry);
             case Geometry::MULTI_POINT:
             case Geometry::MULTI_LINESTRING:
             case Geometry::MULTI_POLYGON:
             case Geometry::GEOMETRY_COLLECTION:
                 /** @noinspection PhpParamsInspection */
+                /** @var GeometryCollection $geometry */
                 return $this->collectionToGeoRSS($geometry);
         }
         return null;

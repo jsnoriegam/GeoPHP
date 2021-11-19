@@ -138,6 +138,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getArea()
      * @deprecated since version 1.4
+     * @return float
      */
     public function area(): float
     {
@@ -147,6 +148,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getCentroid()
      * @deprecated since version 1.4
+     * @return Point
      */
     public function centroid(): Point
     {
@@ -156,6 +158,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getLength()
      * @deprecated since version 1.4
+     * @return float
      */
     public function length(): float
     {
@@ -167,6 +170,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getX()
      * @deprecated since version 1.4
+     * @return float | int | null
      */
     public function x()
     {
@@ -176,6 +180,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getY()
      * @deprecated since version 1.4
+     * @return float | int | null
      */
     public function y()
     {
@@ -185,6 +190,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getZ()
      * @deprecated since version 1.4
+     * @return float | int | null
      */
     public function z()
     {
@@ -194,6 +200,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getM()
      * @deprecated since version 1.4
+     * @return float | int | null
      */
     public function m()
     {
@@ -235,7 +242,7 @@ abstract class Geometry
     {
         throw new UnsupportedMethodException(
             get_called_class() . '::isRing',
-            null,
+            0,
             "It should only be called on a linear feature."
         );
     }
@@ -294,8 +301,14 @@ abstract class Geometry
     // Abstract: Non-Standard
     // ----------------------------------------------------------
 
+    /**
+     * @return array<int|float>
+     */
     abstract public function getBBox(): array;
 
+    /**
+     * @return array<int, array>
+     */
     abstract public function asArray(): array;
 
     /**
@@ -303,7 +316,10 @@ abstract class Geometry
      */
     abstract public function getPoints(): array;
 
-    abstract public function invertXY();
+    /**
+     * @return self
+     */
+    abstract public function invertXY(): self;
 
     /**
      * @param  bool $toArray return underlying components as LineStrings/Points or as array. "explode(true)" is faster
@@ -315,7 +331,10 @@ abstract class Geometry
 
     abstract public function haversineLength(): float; //degrees
 
-    // 3D to 2D
+    /**
+     * 3D to 2D
+     * @return void
+     */
     abstract public function flatten();
 
     // Elevations statistics
@@ -361,6 +380,7 @@ abstract class Geometry
     }
 
     /**
+     * @param int|float $verticalTolerance
      * @return int|float|null
      */
     public function elevationGain($verticalTolerance = 0)
@@ -369,6 +389,7 @@ abstract class Geometry
     }
 
     /**
+     * @param int|float $verticalTolerance
      * @return int|float|null
      */
     public function elevationLoss($verticalTolerance = 0)
@@ -382,6 +403,7 @@ abstract class Geometry
     /**
      * @see        Geometry::hasZ()
      * @deprecated since version 1.4
+     * @return bool
      */
     public function is3D(): bool
     {
@@ -399,7 +421,8 @@ abstract class Geometry
     }
 
     /**
-     * @param int $srid Spatial Reference System Identifier
+     * @param int|null $srid Spatial Reference System Identifier
+     * @return void
      */
     public function setSRID($srid)
     {
@@ -416,8 +439,9 @@ abstract class Geometry
     /**
      * Adds custom data to the geometry
      *
-     * @param string|array $property The name of the data or an associative array
+     * @param string|array<mixed> $property The name of the data or an associative array
      * @param mixed|null   $value    The data. Can be any type (string, integer, array, etc.)
+     * @return void
      */
     public function setData($property, $value = null)
     {
@@ -684,11 +708,19 @@ abstract class Geometry
         );*/
     }
 
+    /**
+     * 
+     * @return array<int|float>
+     */
     public function getBoundingBox(): array
     {
         return $this->getBBox();
     }
 
+    /**
+     * 
+     * @return Geometry[]
+     */
     public function dump(): array
     {
         return $this->getComponents();
@@ -717,27 +749,44 @@ abstract class Geometry
     /**
      * @see        Geometry::getGeos()
      * @deprecated since version 1.4
+     * @return \GEOSGeometry|false
      */
     public function geos()
     {
         return $this->getGeos();
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getGeomType(): string
     {
         return $this->geometryType();
     }
 
+    /**
+     *
+     * @return int|null
+     */
     public function getSRID()
     {
         return $this->srid;
     }
 
+    /**
+     *
+     * @return string
+     */
     public function asText(): string
     {
         return $this->out('wkt');
     }
 
+    /**
+     *
+     * @return string
+     */
     public function asBinary(): string
     {
         return $this->out('wkb');
@@ -776,6 +825,7 @@ abstract class Geometry
 
     /**
      * @param \GEOSGeometry|null $geos
+     * @return void
      */
     public function setGeos($geos = null)
     {
@@ -840,8 +890,8 @@ abstract class Geometry
     }
 
     /**
-     * @return             array ['valid' => (bool)..., 'reason' => (string)...]
-     * @throws             UnsupportedMethodException
+     * @return array<string,mixed> ['valid' => (bool)..., 'reason' => (string)...]
+     * @throws UnsupportedMethodException
      * @codeCoverageIgnore
      */
     public function checkValidity(): array
@@ -1286,7 +1336,7 @@ abstract class Geometry
 
     /**
      * @param float|int $distance
-     * @param array     $styleArray
+     * @param array<string, int|float> $styleArray
      * styleArray keys supported:
      * - 'quad_segs'
      *       (integer) Number of segments used to approximate a quarter circle (defaults to 8).

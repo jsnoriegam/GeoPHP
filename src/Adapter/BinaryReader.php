@@ -37,6 +37,7 @@ class BinaryReader extends BinaryAdapter
 
     /**
      * Opens the memory buffer
+     * @return void
      */
     public function open(string $input)
     {
@@ -47,6 +48,7 @@ class BinaryReader extends BinaryAdapter
     
     /**
      * Closes the memory buffer
+     * @return void
      */
     public function close()
     {
@@ -56,6 +58,9 @@ class BinaryReader extends BinaryAdapter
         unset($this->buffer);
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
         $this->close();

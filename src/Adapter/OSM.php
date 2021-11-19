@@ -39,12 +39,12 @@ class OSM implements GeoAdapter
     protected $xmlObj;
     
     /**
-     * @var array
+     * @var array<mixed>
      */
     protected $nodes = [];
     
     /**
-     * @var array
+     * @var array<int, array>
      */
     protected $ways = [];
     
@@ -239,9 +239,9 @@ class OSM implements GeoAdapter
     }
 
     /**
-     * @param array $relationWays
-     * @param array $nodes
-     * @return array $lineStrings
+     * @param array<array> $relationWays
+     * @param array<array> $nodes
+     * @return LineString[] $lineStrings
      */
     protected function processRoutes(array &$relationWays, array $nodes): array
     {
@@ -292,9 +292,9 @@ class OSM implements GeoAdapter
     }
 
     /**
-     * @param array $relationWays
-     * @param array $nodes
-     * @return array $relationPolygons
+     * @param array<array> $relationWays
+     * @param array<array> $nodes
+     * @return Polygon[] $relationPolygons
      */
     protected function processMultipolygon(array &$relationWays, array $nodes): array
     {
@@ -462,6 +462,7 @@ class OSM implements GeoAdapter
 
     /**
      * @param Geometry $geometry
+     * @return void
      */
     protected function processGeometry($geometry)
     {
@@ -511,6 +512,7 @@ class OSM implements GeoAdapter
 
     /**
      * @param LineString $line
+     * @return void
      */
     protected function processLineString($line)
     {
@@ -523,6 +525,7 @@ class OSM implements GeoAdapter
 
     /**
      * @param Polygon $polygon
+     * @return void
      */
     protected function processPolygon($polygon)
     {
@@ -532,6 +535,7 @@ class OSM implements GeoAdapter
 
     /**
      * @param Collection $collection
+     * @return void
      */
     protected function processCollection($collection)
     {
@@ -541,6 +545,15 @@ class OSM implements GeoAdapter
         }
     }
 
+    /**
+     * 
+     * @param numeric $left
+     * @param numeric $bottom
+     * @param numeric $right
+     * @param numeric $top
+     * @return string|false
+     * @throws \Exception
+     */
     public static function downloadFromOSMByBbox($left, $bottom, $right, $top)
     {
         /** @noinspection PhpUnusedParameterInspection */

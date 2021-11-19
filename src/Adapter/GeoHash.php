@@ -17,13 +17,11 @@ class GeoHash implements GeoAdapter
 {
     /**
      * @var string
-     */
-
-    /** @noinspection SpellCheckingInspection */
+     * @noinspection SpellCheckingInspection */
     public static $characterTable = "0123456789bcdefghjkmnpqrstuvwxyz";
 
     /**
-     * array of neighbouring hash character maps.
+     * @var array<string, array<string,string>> of neighbouring hash character maps.
      */
     private static $neighbours = [
         // north
@@ -49,7 +47,7 @@ class GeoHash implements GeoAdapter
     ];
 
     /**
-     * array of bordering hash character maps.
+     * @var array<string, array<string,string>> of bordering hash character maps.
      */
     private static $borders = [
         // north
@@ -163,17 +161,19 @@ class GeoHash implements GeoAdapter
         $i = 0;
         $error = 180;
         $hash = '';
-
+        $x = $point->getX();
+        $y = $point->getY();
+            
         if (!is_numeric($precision)) {
-            $lap = strlen($point->getY()) - strpos($point->getY(), ".");
-            $lop = strlen($point->getX()) - strpos($point->getX(), ".");
+            $lap = strlen(strval($y)) - strpos(strval($y), ".");
+            $lop = strlen(strval($x)) - strpos(strval($x), ".");
             $precision = pow(10, -max($lap - 1, $lop - 1, 0)) / 2;
         }
 
-        if ($point->getX() < $minLongitude || $point->getY() < $minLatitude ||
-            $point->getX() > $maxLongitude || $point->getY() > $maxLatitude
+        if ($x < $minLongitude || $y < $minLatitude ||
+            $x > $maxLongitude || $y > $maxLatitude
         ) {
-            throw new \Exception("Point coordinates ({$point->getX()}, {$point->getY()}) are out of lat/lon range");
+            throw new \Exception("Point coordinates (" . $x . ", " . $y . ") are out of lat/lon range");
         }
 
         while ($error >= $precision) {
@@ -182,7 +182,7 @@ class GeoHash implements GeoAdapter
                 if ((1 & $b) == (1 & $i)) {
                     // even char, even bit OR odd char, odd bit...a lon
                     $next = ($minLongitude + $maxLongitude) / 2;
-                    if ($point->getX() > $next) {
+                    if ($x > $next) {
                         $chr |= pow(2, $b);
                         $minLongitude = $next;
                     } else {
@@ -192,7 +192,7 @@ class GeoHash implements GeoAdapter
                 } else {
                     // odd char, even bit OR even char, odd bit...a lat
                     $next = ($minLatitude + $maxLatitude) / 2;
-                    if ($point->getY() > $next) {
+                    if ($y > $next) {
                         $chr |= pow(2, $b);
                         $minLatitude = $next;
                     } else {
@@ -214,9 +214,9 @@ class GeoHash implements GeoAdapter
      * @see https://github.com/asonge/php-geohash/issues/1
      *
      * @param string $hash a GeoHash
-     * @return array Associative array.
+     * @return array<string, int|float> Associative array.
      */
-    private function decode($hash)
+    private function decode($hash): array
     {
         $result = [];
         $minLatitude = -90;
@@ -291,6 +291,7 @@ class GeoHash implements GeoAdapter
         $result['maxLongitude'] = $maxLongitude;
         $result['centerLatitude'] = round(($minLatitude + $maxLatitude) / 2, max(1, -round(log10($latitudeError))) - 1);
         $result['centerLongitude'] = round(($minLongitude + $maxLongitude) / 2, max(1, -round(log10($longitudeError))) - 1);
+        
         return $result;
     }
 
