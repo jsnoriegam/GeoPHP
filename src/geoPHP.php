@@ -317,29 +317,35 @@ class geoPHP
         // So now we either have an array of geometries
         /** @var Geometry[]|GeometryCollection[]|null $geometries */
         $geometryTypes = [];
-        foreach ($geometries as $item) {
-            if ($item) {
-                $geometryTypes[] = $item->geometryType();
+        $validGeometries = [];
+        foreach ($geometries as $geometry) {
+            if ($geometry) {
+                $geometryTypes[] = $geometry->geometryType();
+                $validGeometries[] = $geometry;
             }
         }
-        
         $geometryTypes = array_unique($geometryTypes);
+        
         // should never happen
         if (empty($geometryTypes)) {
-            throw new \Exception('Unknown type of Geometries given.');
+            throw new \Exception('Empty geometries or unknown types of geometries given.');
         }
         
-        if (count($geometryTypes) === 1 && stripos($geometryTypes[0], 'MULTI') === false) {
-            $newType = (strpos($geometryTypes[0], 'Multi') !== false ? '' : 'Multi') . $geometryTypes[0];
-            foreach ($geometries as $geometry) {
+        // only one geometry-type
+        if (count($geometryTypes) === 1) {
+            $geometryType = 'Multi' . str_ireplace('Multi', '', $geometryTypes[0]);
+            foreach ($validGeometries as $geometry) {
                 if ($geometry->isEmpty()) {
-                    return new GeometryCollection($geometries);
+                    return new GeometryCollection($validGeometries);
                 }
             }
-            $class = '\\geoPHP\\Geometry\\' . $newType;
-            return new $class($geometries);
+            // only non-empty geometries
+            $class = '\\geoPHP\\Geometry\\' . $geometryType;
+            return new $class($validGeometries);
         }
-        return new GeometryCollection($geometries);
+        
+        // multiple geometry-types
+        return new GeometryCollection($validGeometries);
     }
 
     /**
