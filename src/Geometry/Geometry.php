@@ -170,7 +170,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getX()
      * @deprecated since version 1.4
-     * @return float | int | null
+     * @return float|int|null
      */
     public function x()
     {
@@ -180,7 +180,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getY()
      * @deprecated since version 1.4
-     * @return float | int | null
+     * @return float|int|null
      */
     public function y()
     {
@@ -190,7 +190,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getZ()
      * @deprecated since version 1.4
-     * @return float | int | null
+     * @return float|int|null
      */
     public function z()
     {
@@ -200,7 +200,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getM()
      * @deprecated since version 1.4
-     * @return float | int | null
+     * @return float|int|null
      */
     public function m()
     {
@@ -319,7 +319,7 @@ abstract class Geometry
     /**
      * @return self
      */
-    abstract public function invertXY(): self;
+    abstract public function invertXY();
 
     /**
      * @param  bool $toArray return underlying components as LineStrings/Points or as array. "explode(true)" is faster
@@ -709,7 +709,7 @@ abstract class Geometry
     }
 
     /**
-     * 
+     *
      * @return array<int|float>
      */
     public function getBoundingBox(): array
@@ -718,7 +718,7 @@ abstract class Geometry
     }
 
     /**
-     * 
+     *
      * @return Geometry[]
      */
     public function dump(): array

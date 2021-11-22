@@ -339,9 +339,9 @@ class TWKB implements GeoAdapter
         $this->writer = new BinaryWriter();
 
         $this->writeOptions = [
-            'decimalDigitsXY' => is_numeric($decimalDigitsXY) ? $decimalDigitsXY : $this->writeOptions['decimalDigitsXY'],
-            'decimalDigitsZ' => is_numeric($decimalDigitsZ) ? $decimalDigitsZ : $this->writeOptions['decimalDigitsZ'],
-            'decimalDigitsM' => is_numeric($decimalDigitsM) ? $decimalDigitsM : $this->writeOptions['decimalDigitsM'],
+            'decimalDigitsXY' => is_numeric($decimalDigitsXY) ? (int) $decimalDigitsXY : $this->writeOptions['decimalDigitsXY'],
+            'decimalDigitsZ' => is_numeric($decimalDigitsZ) ? (int) $decimalDigitsZ : $this->writeOptions['decimalDigitsZ'],
+            'decimalDigitsM' => is_numeric($decimalDigitsM) ? (int) $decimalDigitsM : $this->writeOptions['decimalDigitsM'],
             'includeSize' => $includeSizes ? true : $this->writeOptions['includeSize'],
             'includeBoundingBoxes' => $includeBoundingBoxes ? true : $this->writeOptions['includeBoundingBoxes']
         ];

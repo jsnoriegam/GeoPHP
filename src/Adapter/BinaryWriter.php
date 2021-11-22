@@ -23,7 +23,7 @@ class BinaryWriter extends BinaryAdapter
 {
 
     /**
-     * 
+     *
      * @param int $endianness
      */
     public function __construct($endianness = 0)

@@ -546,11 +546,11 @@ class OSM implements GeoAdapter
     }
 
     /**
-     * 
-     * @param numeric $left
-     * @param numeric $bottom
-     * @param numeric $right
-     * @param numeric $top
+     *
+     * @param int|float $left
+     * @param int|float $bottom
+     * @param int|float $right
+     * @param int|float $top
      * @return string|false
      * @throws \Exception
      */

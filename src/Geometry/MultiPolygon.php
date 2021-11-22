@@ -13,7 +13,7 @@ class MultiPolygon extends MultiSurface
 {
 
     /**
-     * 
+     *
      * @param Polygon[] $components
      */
     public function __construct(array $components = [])

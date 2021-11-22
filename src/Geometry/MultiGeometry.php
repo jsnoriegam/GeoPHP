@@ -203,7 +203,7 @@ abstract class MultiGeometry extends Collection
     }
 
     /**
-     * 
+     *
      * @param int|float $verticalTolerance
      * @return int|float|null
      */

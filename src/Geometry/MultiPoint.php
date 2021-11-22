@@ -17,7 +17,7 @@ class MultiPoint extends MultiGeometry
 {
 
     /**
-     * 
+     *
      * @param Point[] $components
      */
     public function __construct(array $components = [])

@@ -61,7 +61,7 @@ class GPX implements GeoAdapter
      *              If not specified, every element defined in the GPX specification can be read
      *              Can be overwritten with an associative array, with type name in keys.
      *              eg.: ['wptType' => ['ele', 'name'], 'trkptType' => ['ele'], 'metadataType' => null]
-     * 
+     *
      * @return Geometry|GeometryCollection
      * @throws \Exception If GPX is not a valid XML
      */

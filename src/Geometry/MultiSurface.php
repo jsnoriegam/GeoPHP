@@ -9,7 +9,7 @@ abstract class MultiSurface extends MultiGeometry
 {
 
     /**
-     * 
+     *
      * @param Surface[] $components
      * @param bool $allowEmptyComponents
      * @param string $allowedComponentType

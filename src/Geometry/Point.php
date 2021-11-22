@@ -146,7 +146,7 @@ class Point extends Geometry
      *
      * @return self
      * */
-    public function invertXY(): self
+    public function invertXY()
     {
         $x = $this->x;
         $this->x = $this->y;
