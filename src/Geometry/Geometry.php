@@ -327,7 +327,11 @@ abstract class Geometry
      */
     abstract public function explode(bool $toArray = false): array;
 
-    abstract public function greatCircleLength(float $radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float; //meters
+    /**
+     * @param  float|int $radius
+     * @return float 0.0
+     */
+    abstract public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float; //meters
 
     abstract public function haversineLength(): float; //degrees
 
@@ -653,7 +657,7 @@ abstract class Geometry
     }
 
     /**
-     * @return float|int|null
+     * @return float|null
      * @throws UnsupportedMethodException
      */
     public function getX()
@@ -667,7 +671,7 @@ abstract class Geometry
     }
 
     /**
-     * @return float|int|null
+     * @return float|null
      * @throws UnsupportedMethodException
      */
     public function getY()
@@ -681,7 +685,7 @@ abstract class Geometry
     }
 
     /**
-     * @return float|int|null
+     * @return float|null
      * @throws UnsupportedMethodException
      */
     public function getZ()
@@ -695,7 +699,7 @@ abstract class Geometry
     }
 
     /**
-     * @return float|int|null
+     * @return float|null
      * @throws UnsupportedMethodException
      */
     public function getM()

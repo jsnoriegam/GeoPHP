@@ -2,6 +2,7 @@
 namespace geoPHP\Geometry;
 
 use geoPHP\Exception\InvalidGeometryException;
+use geoPHP\geoPHP;
 
 /**
  * A Point is a 0-dimensional geometric object and represents a single location in coordinate space.
@@ -12,24 +13,24 @@ class Point extends Geometry
 {
 
     /**
-     * @var float
+     * @var float|null
      */
-    public $x;
+    public $x = null;
 
     /**
-     * @var float
+     * @var float|null
      */
-    public $y;
+    public $y = null;
 
     /**
-     * @var float
+     * @var float|null
      */
-    public $z;
+    public $z = null;
 
     /**
-     * @var float
+     * @var float|null
      */
-    public $m;
+    public $m = null;
 
     /**
      * Constructor
@@ -107,7 +108,7 @@ class Point extends Geometry
      */
     public function getX()
     {
-        return $this->x;
+        return $this->x ?? null;
     }
 
     /**
@@ -117,7 +118,7 @@ class Point extends Geometry
      */
     public function getY()
     {
-        return $this->y;
+        return $this->y ?? null;
     }
 
     /**
@@ -127,7 +128,7 @@ class Point extends Geometry
      */
     public function getZ()
     {
-        return $this->z;
+        return $this->z ?? null;
     }
 
     /**
@@ -137,7 +138,7 @@ class Point extends Geometry
      */
     public function getM()
     {
-        return $this->m;
+        return $this->m ?? null;
     }
 
     /**
@@ -440,7 +441,7 @@ class Point extends Geometry
      * @param  float|int $radius
      * @return float 0.0
      */
-    public function greatCircleLength($radius = null): float
+    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
         return 0.0;
     }

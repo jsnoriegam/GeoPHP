@@ -156,10 +156,10 @@ class LineString extends Curve
     }
 
     /**
-     * @param  float $radius Default is the semi-major axis of WGS84.
+     * @param  float|int $radius Default is the semi-major axis of WGS84.
      * @return float length in meters
      */
-    public function greatCircleLength(float $radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
+    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
         $length = 0.0;
         $rad = M_PI / 180;

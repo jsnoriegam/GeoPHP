@@ -1,6 +1,8 @@
 <?php
 namespace geoPHP\Geometry;
 
+use geoPHP\geoPHP;
+
 /**
  * A Surface is a 2-dimensional abstract geometric object.
  *
@@ -64,7 +66,7 @@ abstract class Surface extends Collection
         return 0.0;
     }
 
-    public function greatCircleLength(float $radius = null): float
+    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
         return 0.0;
     }
