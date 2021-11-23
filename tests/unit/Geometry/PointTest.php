@@ -322,8 +322,8 @@ class PointTest extends TestCase
     {
         $pointAsArray = (new Point())->asArray();
         parent::assertCount(2, $pointAsArray);
-        parent::assertNan($pointAsArray[0]);
-        parent::assertNan($pointAsArray[1]);
+        parent::assertNull($pointAsArray[0]);
+        parent::assertNull($pointAsArray[1]);
 
         $pointAsArray = (new Point(1, 2))->asArray();
         parent::assertSame($pointAsArray, [1.0, 2.0]);
