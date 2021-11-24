@@ -79,7 +79,7 @@ class MultiPoint extends MultiGeometry
      *
      * @return GeometryCollection GeometryCollection EMPTY
      */
-    public function boundary(): Geometry
+    public function boundary(): GeometryCollection
     {
         return new GeometryCollection();
     }
@@ -120,12 +120,17 @@ class MultiPoint extends MultiGeometry
     }
 
     /**
-     * Not valid for this geometry type
+     * Get all points separated
      *
-     * @param  bool|false $toArray
+     * @param  bool $toArray return points as objects or array of x,y(,z,m).
+     * @return Point[]|array{}|array<array>
      */
     public function explode(bool $toArray = false): array
     {
-        return [];
+        $parts = [];
+        foreach ($this->getComponents() as $pointObj) {
+            $parts[] = $toArray ? $pointObj->asArray() : $pointObj;
+        }
+        return $parts;
     }
 }

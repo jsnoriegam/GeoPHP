@@ -415,8 +415,8 @@ class LineString extends Curve
     /**
      * Get all line segments
      *
-     * @param  bool $toArray return segments as LineString or array of start and end points
-     * @return LineString[]|Point[]
+     * @param  bool $toArray return segments as LineString or array of start and end points.
+     * @return LineString[]|array{}|array<array>
      */
     public function explode(bool $toArray = false): array
     {

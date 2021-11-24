@@ -308,15 +308,15 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * Get all line segments
+     * Get all underlying components separated
      *
-     * @param  bool $toArray return segments as LineString or array of start and end points. Explode(true) is faster
-     * @return LineString[] | Point[][]
+     * @param  bool $toArray return underlying components as LineStrings/Points or as array of coordinate values.
+     * @return LineString[]|Point[]|array{}|array<array>
      */
     public function explode(bool $toArray = false): array
     {
         $parts = [];
-        foreach ($this->components as $component) {
+        foreach ($this->getComponents() as $component) {
             foreach ($component->explode($toArray) as $part) {
                 $parts[] = $part;
             }
@@ -330,7 +330,7 @@ abstract class Collection extends Geometry
     public function flatten()
     {
         if ($this->hasZ() || $this->isMeasured()) {
-            foreach ($this->components as $component) {
+            foreach ($this->getComponents() as $component) {
                 $component->flatten();
             }
             $this->hasZ = false;
@@ -352,7 +352,7 @@ abstract class Collection extends Geometry
         }
         
         $distance = null;
-        foreach ($this->components as $component) {
+        foreach ($this->getComponents() as $component) {
             $checkDistance = $component->distance($geometry);
             if ($checkDistance === 0.0) {
                 return 0.0;
@@ -372,7 +372,7 @@ abstract class Collection extends Geometry
     
     public function translate($dx = 0, $dy = 0, $dz = 0)
     {
-        foreach ($this->components as $component) {
+        foreach ($this->getComponents() as $component) {
             $component->translate($dx, $dy, $dz);
         }
     }

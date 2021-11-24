@@ -482,7 +482,8 @@ class Point extends Geometry
     /**
      * Not valid for this geometry type
      *
-     * @param  bool|false $toArray
+     * @param  bool $toArray default false
+     * @return array{}
      */
     public function explode(bool $toArray = false): array
     {

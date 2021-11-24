@@ -322,8 +322,8 @@ abstract class Geometry
     abstract public function invertXY();
 
     /**
-     * @param  bool $toArray return underlying components as LineStrings/Points or as array. "explode(true)" is faster
-     * @return LineString[]|Point[][]
+     * @param  bool $toArray return underlying components as LineStrings/Points or as array.
+     * @return LineString[]|Point[]|array{}|array[]
      */
     abstract public function explode(bool $toArray = false): array;
 
