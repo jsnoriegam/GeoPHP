@@ -79,7 +79,7 @@ class MultiPoint extends MultiGeometry
      *
      * @return GeometryCollection GeometryCollection EMPTY
      */
-    public function boundary(): GeometryCollection
+    public function boundary(): Geometry
     {
         return new GeometryCollection();
     }
