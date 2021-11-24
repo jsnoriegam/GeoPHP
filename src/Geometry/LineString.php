@@ -58,7 +58,7 @@ class LineString extends Curve
         /** @var Point|null $point */
         $point = $n >= 0
                 ? $this->geometryN($n)
-                : $this->geometryN(count($this->components) - abs($n + 1));
+                : $this->geometryN(count($this->components) - (int) abs($n + 1));
         
         return $point;
     }
@@ -416,7 +416,7 @@ class LineString extends Curve
      * Get all line segments
      *
      * @param  bool $toArray return segments as LineString or array of start and end points
-     * @return LineString[]|array[Point]
+     * @return LineString[]|Point[]
      */
     public function explode(bool $toArray = false): array
     {
