@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/swen100/geoPHP.svg?branch=master)](https://travis-ci.org/swen100/geoPHP)
+[![Code Intelligence Status](https://scrutinizer-ci.com/g/swen100/geoPHP/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/swen100/geoPHP/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/swen100/geoPHP/?branch=master)
 
 [geophp.net](https://geophp.net "GeoPHP homepage")
 
