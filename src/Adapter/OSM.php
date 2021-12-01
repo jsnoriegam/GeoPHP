@@ -90,11 +90,21 @@ class OSM implements GeoAdapter
 
         // Processing OSM Nodes
         $nodes = [];
+        $nodeId = 0;
         foreach ($this->xmlObj->getElementsByTagName('node') as $node) {
+            
+            $lat = null;
+            $lon = null;
+            
             /** @var \DOMElement $node */
-            $lat = $node->attributes->getNamedItem('lat')->nodeValue;
-            $lon = $node->attributes->getNamedItem('lon')->nodeValue;
-            $id = intval($node->attributes->getNamedItem('id')->nodeValue);
+            if($node->attributes !== null) {
+                $lat = $node->attributes->getNamedItem('lat')->nodeValue;
+                $lon = $node->attributes->getNamedItem('lon')->nodeValue;
+                $nodeId = intval($node->attributes->getNamedItem('id')->nodeValue);
+            } else {
+                ++$nodeId;
+            }
+            
             $tags = [];
             foreach ($node->getElementsByTagName('tag') as $tag) {
                 $key = $tag->attributes->getNamedItem('k')->nodeValue;
@@ -103,7 +113,7 @@ class OSM implements GeoAdapter
                 }
                 $tags[$key] = $tag->attributes->getNamedItem('v')->nodeValue;
             }
-            $nodes[$id] = [
+            $nodes[$nodeId] = [
                 'point' => new Point($lon, $lat),
                 'assigned' => false,
                 'tags' => $tags
@@ -115,11 +125,19 @@ class OSM implements GeoAdapter
 
         // Processing OSM Ways
         $ways = [];
+        $wayId = 0;
         foreach ($this->xmlObj->getElementsByTagName('way') as $way) {
             /** @var \DOMElement $way */
-            $id = intval($way->attributes->getNamedItem('id')->nodeValue);
+            if($way->attributes !== null) {
+                $wayId = intval($way->attributes->getNamedItem('id')->nodeValue);
+            } else {
+                ++$wayId;
+            }
             $wayNodes = [];
             foreach ($way->getElementsByTagName('nd') as $node) {
+                if($node->attributes === null) {
+                    continue;
+                }
                 $ref = intval($node->attributes->getNamedItem('ref')->nodeValue);
                 if (isset($nodes[$ref])) {
                     $nodes[$ref]['assigned'] = true;
@@ -135,7 +153,7 @@ class OSM implements GeoAdapter
                 $tags[$key] = $tag->attributes->getNamedItem('v')->nodeValue;
             }
             if (count($wayNodes) >= 2) {
-                $ways[$id] = [
+                $ways[$wayId] = [
                     'nodes' => $wayNodes,
                     'assigned' => false,
                     'tags' => $tags,

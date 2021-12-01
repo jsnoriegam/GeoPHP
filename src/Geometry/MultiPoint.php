@@ -105,8 +105,9 @@ class MultiPoint extends MultiGeometry
         if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @phpstan-ignore-next-line */
-            return geoPHP::geosToGeometry($geosObj->centroid());
+            /** @var Point|null $geometry */
+            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
 

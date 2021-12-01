@@ -76,8 +76,9 @@ class LineString extends Curve
         if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @phpstan-ignore-next-line */
-            return geoPHP::geosToGeometry($geosObj->centroid());
+            /** @var Point|null $geometry */
+            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
 
@@ -111,10 +112,11 @@ class LineString extends Curve
      */
     public function getLength(): float
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->length();
+            return $geosObj->length();
             // @codeCoverageIgnoreEnd
         }
         
@@ -440,10 +442,11 @@ class LineString extends Curve
      */
     public function isSimple(): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->isSimple();
+            return $geosObj->isSimple();
             // @codeCoverageIgnoreEnd
         }
         
@@ -466,9 +469,10 @@ class LineString extends Curve
      */
     public function isValid(): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->checkValidity()['valid'];
+            return $geosObj->checkValidity()['valid'];
         }
         
         // there should only be unique points but there have to be at least 2 of them
@@ -506,10 +510,12 @@ class LineString extends Curve
      */
     public function distance(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->distance($geometry->getGeos());
+            $geosObj2 = $geometry->getGeos();
+            return $geosObj2 !== false ? $geosObj->distance($geosObj2) : null;
             // @codeCoverageIgnoreEnd
         }
 

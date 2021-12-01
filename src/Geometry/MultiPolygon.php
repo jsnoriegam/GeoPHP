@@ -38,11 +38,13 @@ class MultiPolygon extends MultiSurface
             return new Point;
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @phpstan-ignore-next-line */
-            return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            /** @var Point|null $geometry */
+            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
 
@@ -67,10 +69,11 @@ class MultiPolygon extends MultiSurface
      */
     public function getArea(): float
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return (float) $this->getGeos()->area();
+            return (float) $geosObj->area();
             // @codeCoverageIgnoreEnd
         }
 
@@ -82,7 +85,7 @@ class MultiPolygon extends MultiSurface
     }
 
     /**
-     * @return LineString|MultiLineString
+     * @return Geometry LineString|MultiLineString
      */
     public function boundary(): Geometry
     {

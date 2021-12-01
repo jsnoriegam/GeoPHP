@@ -82,10 +82,11 @@ class Polygon extends Surface
             return 0.0;
         }
 
-        if ($this->getGeos() && $exteriorOnly === false) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj) && $exteriorOnly === false) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return (float) $this->getGeos()->area();
+            return (float) $geosObj->area();
             // @codeCoverageIgnoreEnd
         }
 
@@ -125,11 +126,13 @@ class Polygon extends Surface
             return new Point();
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @phpstan-ignore-next-line */
-            return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            /** @var Point|null $geometry */
+            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
 
@@ -245,13 +248,15 @@ class Polygon extends Surface
      */
     public function isSimple(): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->isSimple();
+            return $geosObj->isSimple();
             // @codeCoverageIgnoreEnd
         }
 
+        /** @var array<array> $segments */
         $segments = $this->explode(true);
         
         //TODO: instead of this O(n^2) algorithm implement Shamos-Hoey Algorithm which is only O(n*log(n))
@@ -276,17 +281,16 @@ class Polygon extends Surface
      */
     public function isValid(): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->checkValidity()['valid'];
+            return $geosObj->checkValidity()['valid'];
             // @codeCoverageIgnoreEnd
         }
         
         // all rings (LineStrings) have to be valid itself
-        /**
- * @var \geoPHP\Geometry\LineString $ring
-*/
+        /** @var \geoPHP\Geometry\LineString $ring */
         foreach ($this->components as $ring) {
             if ($ring->isEmpty()) {
                 continue;
@@ -294,6 +298,7 @@ class Polygon extends Surface
             if (!$ring->isValid()) {
                 return false;
             }
+            /** @var string $wkt */
             $wkt = str_ireplace(['LINESTRING(',')'], '', $ring->asText());
             $pts = array_unique(array_map('trim', explode(',', $wkt)));
             if (count($pts) < 3) {
@@ -383,10 +388,12 @@ class Polygon extends Surface
      */
     public function contains(Geometry $geometry): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->contains($geometry->getGeos());
+            $geosObj2 = $geometry->getGeos();
+            return $geosObj2 !== false ? $geosObj->contains($geosObj2) : false;
             // @codeCoverageIgnoreEnd
         }
 
@@ -409,8 +416,11 @@ class Polygon extends Surface
             return false;
         }
 
+        /** @var Point[] $innerEdge */
         foreach ($geometry->explode(true) as $innerEdge) {
-            foreach ($this->exteriorRing()->explode(true) as $outerEdge) {
+            /** @var array<array> $outerRing */
+            $outerRing = $this->exteriorRing()->explode(true);
+            foreach ($outerRing as $outerEdge) {
                 if (Geometry::segmentIntersects($innerEdge[0], $innerEdge[1], $outerEdge[0], $outerEdge[1])) {
                     return false;
                 }

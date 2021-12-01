@@ -249,9 +249,9 @@ class geoPHP
         }
         
         // So now we either have an array of geometries
-        // @var Geometry[]|GeometryCollection[] $geometries
         $reducedGeometries = [];
         $geometryTypes = [];
+        /** @var Geometry[]|GeometryCollection[] $geometries */
         self::explodeCollections($geometries, $reducedGeometries, $geometryTypes);
 
         $geometryTypes = array_unique($geometryTypes);

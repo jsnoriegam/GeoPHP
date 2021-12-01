@@ -105,9 +105,10 @@ abstract class Curve extends Collection
      */
     public function isValid(): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->checkValidity()['valid'];
+            return $geosObj->checkValidity()['valid'];
         }
         return $this->isSimple();
     }
@@ -120,11 +121,11 @@ abstract class Curve extends Collection
     public function boundary(): Geometry
     {
         return $this->isEmpty() ?
-                new LineString() :
-                ($this->isClosed() ?
-                    new MultiPoint() :
-                    new MultiPoint([$this->startPoint(), $this->endPoint()])
-                );
+            new LineString() :
+            ($this->isClosed() ?
+                new MultiPoint() :
+                new MultiPoint([$this->startPoint(), $this->endPoint()])
+            );
     }
 
     /**

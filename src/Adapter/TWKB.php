@@ -43,18 +43,34 @@ class TWKB implements GeoAdapter
 {
 
     /**
-     * @var array<string, int|bool>
+     * @var array{
+     *  'decimalDigitsXY':int,
+     *  'decimalDigitsZ':int,
+     *  'decimalDigitsM':int,
+     *  'includeSize':bool,
+     *  'includeBoundingBoxes':bool,
+     *  'hasM':bool,
+     *  'hasZ':bool,
+     *  'xyFactor':int|float,
+     *  'zFactor':int|float,
+     *  'mFactor':int|float
+     * }
      */
     protected $writeOptions = [
         'decimalDigitsXY' => 5,
         'decimalDigitsZ' => 0,
         'decimalDigitsM' => 0,
         'includeSize' => false,
-        'includeBoundingBoxes' => false
+        'includeBoundingBoxes' => false,
+        'hasM' => false,
+        'hasZ' => false,
+        'xyFactor' => 1,
+        'zFactor' => 1,
+        'mFactor' => 1
     ];
 
     /**
-     * @var Point|null
+     * @var Point
      */
     private $lastPoint;
 
@@ -125,9 +141,9 @@ class TWKB implements GeoAdapter
         $options['hasIdList'] = ($metadataHeader >> 2 & 1) == 1;
         $options['hasExtendedPrecision'] = ($metadataHeader >> 3 & 1) == 1;
         $options['isEmpty'] = ($metadataHeader >> 4 & 1) == 1;
-        $options['unused1'] = ($metadataHeader >> 5 & 1) == 1;
-        $options['unused2'] = ($metadataHeader >> 6 & 1) == 1;
-        $options['unused3'] = ($metadataHeader >> 7 & 1) == 1;
+        $unused1 = ($metadataHeader >> 5 & 1) == 1;
+        $unused2 = ($metadataHeader >> 6 & 1) == 1;
+        $unused3 = ($metadataHeader >> 7 & 1) == 1;
 
         if ($options['hasExtendedPrecision']) {
             $extendedPrecision = $this->reader->readUInt8();
@@ -143,6 +159,8 @@ class TWKB implements GeoAdapter
         } else {
             $options['hasZ'] = false;
             $options['hasM'] = false;
+            $options['zPrecisionFactor'] = 0;
+            $options['mPrecisionFactor'] = 0;
         }
         if ($options['hasSizeAttribute']) {
             $options['remainderSize'] = $this->reader->readUVarInt();
@@ -165,13 +183,13 @@ class TWKB implements GeoAdapter
             $options['boundingBox'] = ['minXYZM' => $bBoxMin, 'maxXYZM' => $bBoxMax];
         }
 
-        if ($options['unused1']) {
+        if ($unused1) {
             $this->reader->readUVarInt();
         }
-        if ($options['unused2']) {
+        if ($unused2) {
             $this->reader->readUVarInt();
         }
-        if ($options['unused3']) {
+        if ($unused3) {
             $this->reader->readUVarInt();
         }
 
@@ -201,7 +219,7 @@ class TWKB implements GeoAdapter
     }
 
     /**
-     * @param array<string, int|float|bool|array> $options
+     * @param array<string, mixed> $options
      * @return Point
      * @throws \Exception
      */
@@ -228,11 +246,12 @@ class TWKB implements GeoAdapter
         ) : null;
 
         $this->lastPoint = new Point($x, $y, $z, $m);
+        
         return $this->lastPoint;
     }
 
     /**
-     * @param array<string, int|float|bool|array> $options
+     * @param array<string, mixed> $options
      * @return LineString
      * @throws \Exception
      */
@@ -253,7 +272,7 @@ class TWKB implements GeoAdapter
     }
 
     /**
-     * @param array<string, int|float|bool|array> $options
+     * @param array<string, mixed> $options
      *
      * @return Polygon
      * @throws \Exception
@@ -276,7 +295,7 @@ class TWKB implements GeoAdapter
 
     /**
      * @param string $type
-     * @param array<string, int|float|bool|array> $options
+     * @param array<string, mixed> $options
      * @return MultiGeometry
      * @throws \Exception
      */
@@ -338,25 +357,18 @@ class TWKB implements GeoAdapter
     ): string {
         $this->writer = new BinaryWriter();
 
-        $this->writeOptions = [
-            'decimalDigitsXY' => is_numeric($decimalDigitsXY) ? (int) $decimalDigitsXY : $this->writeOptions['decimalDigitsXY'],
-            'decimalDigitsZ' => is_numeric($decimalDigitsZ) ? (int) $decimalDigitsZ : $this->writeOptions['decimalDigitsZ'],
-            'decimalDigitsM' => is_numeric($decimalDigitsM) ? (int) $decimalDigitsM : $this->writeOptions['decimalDigitsM'],
-            'includeSize' => $includeSizes ? true : $this->writeOptions['includeSize'],
-            'includeBoundingBoxes' => $includeBoundingBoxes ? true : $this->writeOptions['includeBoundingBoxes']
-        ];
-        $this->writeOptions = array_merge(
-            $this->writeOptions,
-            [
-                'xyFactor' => pow(10, $this->writeOptions['decimalDigitsXY']),
-                'zFactor' => pow(10, $this->writeOptions['decimalDigitsZ']),
-                'mFactor' => pow(10, $this->writeOptions['decimalDigitsM'])
-            ]
-        );
-
+        $this->writeOptions['decimalDigitsXY'] = is_numeric($decimalDigitsXY) ? (int) $decimalDigitsXY : $this->writeOptions['decimalDigitsXY'];
+        $this->writeOptions['decimalDigitsZ'] = is_numeric($decimalDigitsZ) ? (int) $decimalDigitsZ : $this->writeOptions['decimalDigitsZ'];
+        $this->writeOptions['decimalDigitsM'] = is_numeric($decimalDigitsM) ? (int) $decimalDigitsM : $this->writeOptions['decimalDigitsM'];
+        $this->writeOptions['includeSize'] = $includeSizes ? true : $this->writeOptions['includeSize'];
+        $this->writeOptions['includeBoundingBoxes'] = $includeBoundingBoxes ? true : $this->writeOptions['includeBoundingBoxes'];
+        $this->writeOptions['xyFactor'] = pow(10, $this->writeOptions['decimalDigitsXY']);
+        $this->writeOptions['zFactor'] = pow(10, $this->writeOptions['decimalDigitsZ']);
+        $this->writeOptions['mFactor'] = pow(10, $this->writeOptions['decimalDigitsM']);
+        
         $twkb = $this->writeGeometry($geometry);
-
-        return $writeAsHex ? current(unpack('H*', $twkb)) : $twkb;
+        
+        return $writeAsHex ? current( (array) unpack('H*', $twkb)) : $twkb;
     }
 
     /**

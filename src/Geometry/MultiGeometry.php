@@ -30,10 +30,11 @@ abstract class MultiGeometry extends Collection
      */
     public function isSimple(): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->isSimple();
+            return $geosObj->isSimple();
             // @codeCoverageIgnoreEnd
         }
 
@@ -102,10 +103,11 @@ abstract class MultiGeometry extends Collection
      */
     public function getArea(): float
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return (float) $this->getGeos()->area();
+            return (float) $geosObj->area();
             // @codeCoverageIgnoreEnd
         }
 

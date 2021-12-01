@@ -296,10 +296,12 @@ class Point extends Geometry
             return null;
         }
         
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->distance($geometry->getGeos());
+            $geosObj2 = $geometry->getGeos();
+            return is_object($geosObj2) ? $geosObj->distance($geosObj2) : null;
             // @codeCoverageIgnoreEnd
         }
         

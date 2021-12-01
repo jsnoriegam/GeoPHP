@@ -71,11 +71,13 @@ class GeometryCollection extends MultiGeometry
             return new Point();
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @phpstan-ignore-next-line */
-            return geoPHP::geosToGeometry($this->getGeos()->centroid());
+            /** @var Point|null $geometry */
+            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
 

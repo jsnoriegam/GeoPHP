@@ -118,10 +118,11 @@ abstract class Collection extends Geometry
             return [];
         }
 
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            $envelope = $this->getGeos()->envelope();
+            $envelope = $geosObj->envelope();
             /** @noinspection PhpUndefinedMethodInspection */
             if ($envelope->typeName() === 'Point') {
                 return geoPHP::geosToGeometry($envelope)->getBBox();
@@ -267,10 +268,12 @@ abstract class Collection extends Geometry
      */
     public function equals(Geometry $geometry): bool
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->equals($geometry->getGeos());
+            $geosObj2 = $geometry->getGeos();
+            return is_object($geosObj2) ? $geosObj->equals($geosObj2) : false;
             // @codeCoverageIgnoreEnd
         }
 
@@ -344,10 +347,12 @@ abstract class Collection extends Geometry
      */
     public function distance(Geometry $geometry)
     {
-        if ($this->getGeos()) {
+        $geosObj = $this->getGeos();
+        if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
-            return $this->getGeos()->distance($geometry->getGeos());
+            $geosObj2 = $geometry->getGeos();
+            return is_object($geosObj2) ? $geosObj->distance($geosObj2) : null;
             // @codeCoverageIgnoreEnd
         }
         
