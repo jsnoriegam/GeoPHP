@@ -213,12 +213,12 @@ class geoPHP
      * An array of geometries can be passed and they will be compiled into a single geometry
      *
      * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[] $geometries
-     * @return mixed Geometry|false
+     * @return Geometry|GeometryCollection
      */
     public static function geometryReduce($geometries)
     {
         if (empty($geometries)) {
-            return false;
+            return new GeometryCollection();
         }
 
         // If it is a single geometry

@@ -394,7 +394,8 @@ class OSM implements GeoAdapter
                     continue;
                 }
                 $containCount = 0;
-                for ($j = 0; $j < count($containment[$i]); $j++) {
+                $numCurContainment = count($containment[$i]);
+                for ($j = 0; $j < $numCurContainment; $j++) {
                     if (!$found[$j]) {
                         $containCount += $containment[$j][$i];
                     }

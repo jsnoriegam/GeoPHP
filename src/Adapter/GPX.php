@@ -159,10 +159,16 @@ class GPX implements GeoAdapter
      */
     protected function parsePoint(\DOMElement $node): Point
     {
-        $lat = $node->attributes->getNamedItem("lat")->nodeValue;
-        $lon = $node->attributes->getNamedItem("lon")->nodeValue;
-        $elevation = null;
+        $lat = null;
+        $lon = null;
+        
+        if($node->attributes !== null) {
+            $lat = $node->attributes->getNamedItem("lat")->nodeValue;
+            $lon = $node->attributes->getNamedItem("lon")->nodeValue;
+        }
+        
         $ele = $node->getElementsByTagName('ele');
+        
         if ($this->withElevation && $ele->length) {
             $elevation = $ele->item(0)->nodeValue;
             $point = new Point($lon, $lat, $elevation <> 0 ? $elevation : null);
@@ -171,8 +177,11 @@ class GPX implements GeoAdapter
         }
         $point->setData($this->parseNodeProperties($node, $this->gpxTypes->get($node->nodeName . 'Type')));
         if ($node->nodeName === 'rtept' && $this->parseGarminRpt) {
-            foreach ($this->xpath->query('.//gpx:extensions/gpxx:RoutePointExtension/gpxx:rpt', $node) as $element) {
-                $this->trackFromRoute[] = $this->parsePoint($element);
+            $rpts = $this->xpath->query('.//gpx:extensions/gpxx:RoutePointExtension/gpxx:rpt', $node);
+            if($rpts !== false) {
+                foreach ($rpts as $element) {
+                    $this->trackFromRoute[] = $this->parsePoint($element);
+                }
             }
         }
         return $point;
@@ -199,7 +208,7 @@ class GPX implements GeoAdapter
 
     /**
      * @param \DOMDocument $xmlObject
-     * @return LineString[]
+     * @return LineString[]|MultiLineString[]
      */
     protected function parseTracks($xmlObject): array
     {

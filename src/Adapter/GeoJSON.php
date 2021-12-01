@@ -24,7 +24,7 @@ class GeoJSON implements GeoAdapter
     /**
      * Given an object or a string, return a Geometry
      *
-     * @param string|object $input The GeoJSON string or object
+     * @param string|\stdClass $input The GeoJSON string or object
      * @return Geometry
      * @throws \Exception
      */
@@ -40,6 +40,7 @@ class GeoJSON implements GeoAdapter
             throw new \Exception('Invalid GeoJSON');
         }
 
+        /** @var \stdClass $input */
         return $this->parseJSONObjects($input);
     }
     
@@ -68,7 +69,7 @@ class GeoJSON implements GeoAdapter
     }
 
     /**
-     * @param object $input
+     * @param \stdClass $input
      * @return int|null
      */
     private function getSRID($input)
@@ -84,7 +85,7 @@ class GeoJSON implements GeoAdapter
     }
 
     /**
-     * @param object $obj
+     * @param \stdClass $obj
      * @return Geometry
      * @throws \Exception
      */
@@ -101,7 +102,7 @@ class GeoJSON implements GeoAdapter
     }
 
     /**
-     * @param object $obj
+     * @param \stdClass $obj
      * @return Geometry
      * @throws \Exception
      */
@@ -207,7 +208,7 @@ class GeoJSON implements GeoAdapter
     }
 
     /**
-     * @param object $obj
+     * @param \stdClass $obj
      * @throws \Exception
      * @return GeometryCollection
      */
@@ -236,7 +237,8 @@ class GeoJSON implements GeoAdapter
      */
     public function write(Geometry $geometry): string
     {
-        return json_encode($this->getArray($geometry));
+        $response = json_encode($this->getArray($geometry));
+        return $response ? $response : '';
     }
 
     /**
@@ -250,10 +252,10 @@ class GeoJSON implements GeoAdapter
      * The geometry should'nt be measured, since geoJSON specification (RFC 7946) only supports the dimensional positions.
      *
      * @param Geometry|GeometryCollection $geometry
-     * @param bool|null $isRoot Is geometry the root geometry?
+     * @param bool $isRoot Is geometry the root geometry?
      * @return array<string, mixed>
      */
-    public function getArray(Geometry $geometry, $isRoot = true): array
+    public function getArray(Geometry $geometry, bool $isRoot = true): array
     {
         if ($geometry->geometryType() === Geometry::GEOMETRY_COLLECTION) {
             $components = [];

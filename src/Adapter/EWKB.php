@@ -13,8 +13,8 @@ class EWKB extends WKB
      * Serialize geometries into WKB string.
      *
      * @param Geometry $geometry The geometry
-     * @param boolean $writeAsHex Write the result in binary or hexadecimal system. Default false.
-     * @param boolean $bigEndian Write in BigEndian byte order. Default false.
+     * @param bool $writeAsHex Write the result in binary or hexadecimal system. Default false.
+     * @param bool $bigEndian Write in BigEndian byte order. Default false.
      *
      * @return string The WKB string representation of the input geometries
      */

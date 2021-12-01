@@ -157,7 +157,7 @@ class WKB implements GeoAdapter
         }
         $this->dimension = 2 + ($this->hasZ ? 1 : 0) + ($this->hasM ? 1 : 0);
 
-        if (!$geometryType) {
+        if ($geometryType === null) {
             $geometryType = $wkbType & 0xF; // remove any masks from type
         }
         $geometry = null;
@@ -189,7 +189,7 @@ class WKB implements GeoAdapter
                     ' (' . (self::$typeMap[$geometryType] ?? 'unknown') . ') not supported'
                 );
         }
-        if ($SRID) {
+        if ($SRID !== null) {
             $geometry->setSRID($SRID);
         }
         
@@ -226,7 +226,7 @@ class WKB implements GeoAdapter
         $lineLength = $this->reader->readUInt32();
 
         // Return an empty linestring if there is no line-length
-        if (!$lineLength) {
+        if ($lineLength === null) {
             return new LineString();
         }
 

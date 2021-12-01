@@ -49,10 +49,10 @@ class GeoRSS implements GeoAdapter
      * Serialize geometries into a GeoRSS string.
      *
      * @param Geometry $geometry
-     * @param boolean|string $namespace
+     * @param string $namespace
      * @return string The georss string representation of the input geometries
      */
-    public function write(Geometry $geometry, $namespace = null): string
+    public function write(Geometry $geometry, $namespace = ''): string
     {
         $namespace = trim($namespace);
         if (!empty($namespace)) {
@@ -92,7 +92,7 @@ class GeoRSS implements GeoAdapter
     }
 
     /**
-     * @return Geometry|GeometryCollection|false
+     * @return Geometry|GeometryCollection
      * @throws \Exception
      */
     protected function geomFromXML()
@@ -225,9 +225,9 @@ class GeoRSS implements GeoAdapter
 
     /**
      * @param Geometry $geometry
-     * @return string|null
+     * @return string
      */
-    protected function geometryToGeoRSS(Geometry $geometry)
+    protected function geometryToGeoRSS(Geometry $geometry): string
     {
         $type = $geometry->geometryType();
         switch ($type) {
@@ -250,7 +250,7 @@ class GeoRSS implements GeoAdapter
                 /** @var GeometryCollection $geometry */
                 return $this->collectionToGeoRSS($geometry);
         }
-        return null;
+        return '';
     }
 
     /**

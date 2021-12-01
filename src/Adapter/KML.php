@@ -196,7 +196,7 @@ class KML implements GeoAdapter
 
         /** @noinspection SpellCheckingInspection */
         $outerBoundaryIs = $this->childElements($xml, 'outerboundaryis');
-        if (!$outerBoundaryIs) {
+        if (empty($outerBoundaryIs)) {
             return new Polygon();
         }
         $outerBoundaryElement = $outerBoundaryIs[0];

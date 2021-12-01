@@ -76,7 +76,7 @@ class GeoHash implements GeoAdapter
      * Convert the geoHash to a Point. The point is 2-dimensional.
      *
      * @param string $hash a GeoHash
-     * @param boolean $asGrid Return the center point of hash grid or the grid cell as Polygon
+     * @param bool $asGrid Return the center point of hash grid or the grid cell as Polygon
      * @return Point|Polygon the converted GeoHash
      */
     public function read(string $hash, bool $asGrid = false): Geometry

@@ -69,21 +69,18 @@ class WKT implements GeoAdapter
         if (geoPHP::geosInstalled()) {
             /** @noinspection PhpUndefinedClassInspection */
             $reader = new \GEOSWKTReader();
-            $geom = geoPHP::geosToGeometry($reader->read($wkt));
-            if ($srid) {
-                $geom->setSRID($srid);
-            }
-            return $geom;
+            $geometry = geoPHP::geosToGeometry($reader->read($wkt));
+        } else {
+            $geometry = $this->parseTypeAndGetData($wkt);
         }
         
-        $geometry = $this->parseTypeAndGetData($wkt);
-        if ($geometry) {
+        if ($geometry !== null) {
             if ($srid) {
                 $geometry->setSRID($srid);
             }
             return $geometry;
         }
-        throw new \Exception('Invalid Wkt');
+        throw new \Exception('Invalid WKT given.');
     }
 
     /**
