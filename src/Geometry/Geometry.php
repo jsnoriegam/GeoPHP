@@ -302,7 +302,7 @@ abstract class Geometry
     // ----------------------------------------------------------
 
     /**
-     * @return array<int|float>
+     * @return array{'minx'?:float|null, 'miny'?:float|null, 'maxx'?:float|null, 'maxy'?:float|null}
      */
     abstract public function getBBox(): array;
 
@@ -506,6 +506,11 @@ abstract class Geometry
         }
 
         $boundingBox = $this->getBBox();
+        
+        if (empty($boundingBox)) {
+            return new Polygon([new LineString()]);
+        }
+        
         $points = [
             new Point($boundingBox['maxx'], $boundingBox['miny']),
             new Point($boundingBox['maxx'], $boundingBox['maxy']),
@@ -715,7 +720,7 @@ abstract class Geometry
 
     /**
      *
-     * @return array<int|float>
+     * @return array{'minx'?:float|null, 'miny'?:float|null, 'maxx'?:float|null, 'maxy'?:float|null}
      */
     public function getBoundingBox(): array
     {

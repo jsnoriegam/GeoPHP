@@ -64,10 +64,8 @@ class MultiLineString extends MultiCurve
             $y += $componentCentroid->getY() * $componentLength;
             $totalLength += $componentLength;
         }
-        if ($totalLength === 0.0) {
-            return $this->getPoints()[0];
-        }
-        return new Point($x / $totalLength, $y / $totalLength);
+
+        return $totalLength !== 0.0 ? new Point($x / $totalLength, $y / $totalLength) : $this->getPoints()[0];
     }
 
     /**

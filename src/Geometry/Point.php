@@ -167,10 +167,14 @@ class Point extends Geometry
     }
 
     /**
-     * @return array<string, int|float> ['maxy' => .., 'miny' => .., 'maxx' => .., 'minx' => ..]
+     * @return array{'minx'?:float|null, 'miny'?:float|null, 'maxx'?:float|null, 'maxy'?:float|null}
      */
     public function getBBox(): array
     {
+        if ($this->isEmpty()) {
+            return [];
+        }
+        
         return [
             'maxy' => $this->getY(),
             'miny' => $this->getY(),

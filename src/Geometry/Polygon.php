@@ -147,14 +147,12 @@ class Polygon extends Surface
                 $y += $ca['y'] * $ca['area'];
             } else {
                 $totalArea -= $ca['area'];
-                $x += $ca['x'] * $ca['area'] * -1;
-                $y += $ca['y'] * $ca['area'] * -1;
+                $x -= $ca['x'] * $ca['area'];
+                $y -= $ca['y'] * $ca['area'];
             }
         }
-        if ($totalArea === 0.0) {
-            return new Point();
-        }
-        return new Point($x / $totalArea, $y / $totalArea);
+
+        return $totalArea !== 0.0 ? new Point($x / $totalArea, $y / $totalArea) : new Point();
     }
 
     /**
@@ -431,7 +429,7 @@ class Polygon extends Surface
     }
 
     /**
-     * @return array<string, int|float>
+     * @return array{'minx'?:float|null, 'miny'?:float|null, 'maxx'?:float|null, 'maxy'?:float|null}
      */
     public function getBBox(): array
     {

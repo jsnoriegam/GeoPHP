@@ -110,7 +110,7 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * @return array<string, int|float>
+     * @return array{'minx'?:float|null, 'miny'?:float|null, 'maxx'?:float|null, 'maxy'?:float|null}
      */
     public function getBBox(): array
     {
@@ -145,9 +145,9 @@ abstract class Collection extends Geometry
         foreach ($this->components as $i => $component) {
             $componentBoundingBox = $component->getBBox();
 
-            #if ($componentBoundingBox === null) {
-            #    continue;
-            #}
+            if (empty($componentBoundingBox)) {
+                continue;
+            }
             
             // On the first run through, set the bounding box to the component's bounding box
             if ($i === 0) {
