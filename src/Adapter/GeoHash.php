@@ -289,8 +289,8 @@ class GeoHash implements GeoAdapter
         $result['minLongitude'] = $minLongitude;
         $result['maxLatitude'] = $maxLatitude;
         $result['maxLongitude'] = $maxLongitude;
-        $result['centerLatitude'] = round(($minLatitude + $maxLatitude) / 2, max(1, -round(log10($latitudeError))) - 1);
-        $result['centerLongitude'] = round(($minLongitude + $maxLongitude) / 2, max(1, -round(log10($longitudeError))) - 1);
+        $result['centerLatitude'] = round(($minLatitude + $maxLatitude) / 2, (int) max(1, -round(log10($latitudeError))) - 1);
+        $result['centerLongitude'] = round(($minLongitude + $maxLongitude) / 2, (int) max(1, -round(log10($longitudeError))) - 1);
         
         return $result;
     }
