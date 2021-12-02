@@ -143,13 +143,15 @@ class geoPHP
         $adapterType = '\\geoPHP\\Adapter\\' . self::$adapterMap[$type];
         $adapter = new $adapterType();
 
-        // Data is not an array, just pass it normally
+        // when data is not an array -> just pass it normally
         if (!is_array($data)) {
+            /** @phpstan-ignore-next-line */
             $result = call_user_func_array([$adapter, "read"], array_merge([$data], $args));
         } else {
             // Data is an array, combine all passed in items into a single geometry
             $geometries = [];
             foreach ($data as $item) {
+                /** @phpstan-ignore-next-line */
                 $geometries[] = call_user_func_array([$adapter, "read"], array_merge($item, $args));
             }
             $result = geoPHP::buildGeometry($geometries);
@@ -333,6 +335,7 @@ class geoPHP
         
         // only one geometry-type
         if (count($geometryTypes) === 1) {
+            /** @var array<string> $geometryTypes */
             $geometryType = 'Multi' . str_ireplace('Multi', '', $geometryTypes[0]);
             foreach ($validGeometries as $geometry) {
                 if ($geometry->isEmpty()) {
@@ -358,14 +361,17 @@ class geoPHP
      */
     public static function detectFormat($input)
     {
+        /** @var resource $mem */
         $mem = fopen('php://memory', 'x+');
         fwrite($mem, $input, 11); // Write 11 bytes - we can detect the vast majority of formats in the first 11 bytes
         fseek($mem, 0);
 
         $bin = fread($mem, 11);
-        $bytes = unpack("c*", $bin);
+        $bytes = $bin !== false ? unpack("c*", $bin) : '';
 
         // If bytes is empty, then we were passed empty input
+        /** @var string $bin */
+        /** @var array<mixed> $bytes */
         if (empty($bytes)) {
             return false;
         }
@@ -378,7 +384,9 @@ class geoPHP
 
         // Detect WKB or EWKB -- first byte is 1 (little endian indicator)
         if ($bytes[1] == 1 || $bytes[1] == 0) {
-            $wkbType = current(unpack($bytes[1] == 1 ? 'V' : 'N', substr($bin, 1, 4)));
+            $data = unpack($bytes[1] == 1 ? 'V' : 'N', substr($bin, 1, 4));
+            /** @var array<float> $data */
+            $wkbType = current($data);
             if (array_search($wkbType & 0xF, Adapter\WKB::$typeMap)) {
                 // If SRID byte is TRUE (1), it's EWKB
                 if ($wkbType & Adapter\WKB::SRID_MASK == Adapter\WKB::SRID_MASK) {
@@ -393,7 +401,9 @@ class geoPHP
         // The shortest possible WKB string (LINESTRING EMPTY) is 18 hex-chars (9 encoded bytes) long
         // This differentiates it from a geohash, which is always shorter than 13 characters.
         if ($bytes[1] == 48 && ($bytes[2] == 49 || $bytes[2] == 48) && strlen($input) > 12) {
-            $mask = current(unpack($bytes[2] == 49 ? 'V' : 'N', hex2bin(substr($bin, 2, 8)))) & Adapter\WKB::SRID_MASK;
+            $data = unpack($bytes[2] == 49 ? 'V' : 'N', (string) hex2bin(substr($bin, 2, 8)));
+            /** @var array<float> $data */
+            $mask = current($data) & Adapter\WKB::SRID_MASK;
             return $mask == Adapter\WKB::SRID_MASK ? 'ewkb:true' : 'wkb:true';
         }
 
@@ -408,7 +418,7 @@ class geoPHP
         }
 
         // Detect WKT - starts with a geometry type name
-        if (Adapter\WKT::isWktType(strstr($input, ' ', true))) {
+        if (Adapter\WKT::isWktType((string) strstr($input, ' ', true))) {
             return 'wkt';
         }
 
@@ -435,7 +445,7 @@ class geoPHP
 
         // We need an 8 byte string for geohash and unpacked WKB / WKT
         fseek($mem, 0);
-        $string = trim(fread($mem, 8));
+        $string = trim((string)fread($mem, 8));
 
         // Detect geohash - geohash ONLY contains lowercase chars and numerics
         $matches = [];

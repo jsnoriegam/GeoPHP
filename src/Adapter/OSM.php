@@ -92,12 +92,11 @@ class OSM implements GeoAdapter
         $nodes = [];
         $nodeId = 0;
         foreach ($this->xmlObj->getElementsByTagName('node') as $node) {
-            
             $lat = null;
             $lon = null;
             
             /** @var \DOMElement $node */
-            if($node->attributes !== null) {
+            if ($node->attributes !== null) {
                 $lat = $node->attributes->getNamedItem('lat')->nodeValue;
                 $lon = $node->attributes->getNamedItem('lon')->nodeValue;
                 $nodeId = intval($node->attributes->getNamedItem('id')->nodeValue);
@@ -128,14 +127,14 @@ class OSM implements GeoAdapter
         $wayId = 0;
         foreach ($this->xmlObj->getElementsByTagName('way') as $way) {
             /** @var \DOMElement $way */
-            if($way->attributes !== null) {
+            if ($way->attributes !== null) {
                 $wayId = intval($way->attributes->getNamedItem('id')->nodeValue);
             } else {
                 ++$wayId;
             }
             $wayNodes = [];
             foreach ($way->getElementsByTagName('nd') as $node) {
-                if($node->attributes === null) {
+                if ($node->attributes === null) {
                     continue;
                 }
                 $ref = intval($node->attributes->getNamedItem('ref')->nodeValue);

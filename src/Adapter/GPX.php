@@ -162,7 +162,7 @@ class GPX implements GeoAdapter
         $lat = null;
         $lon = null;
         
-        if($node->attributes !== null) {
+        if ($node->attributes !== null) {
             $lat = $node->attributes->getNamedItem("lat")->nodeValue;
             $lon = $node->attributes->getNamedItem("lon")->nodeValue;
         }
@@ -178,7 +178,7 @@ class GPX implements GeoAdapter
         $point->setData($this->parseNodeProperties($node, $this->gpxTypes->get($node->nodeName . 'Type')));
         if ($node->nodeName === 'rtept' && $this->parseGarminRpt) {
             $rpts = $this->xpath->query('.//gpx:extensions/gpxx:RoutePointExtension/gpxx:rpt', $node);
-            if($rpts !== false) {
+            if ($rpts !== false) {
                 foreach ($rpts as $element) {
                     $this->trackFromRoute[] = $this->parsePoint($element);
                 }

@@ -124,14 +124,10 @@ class MultiPoint extends MultiGeometry
      * Get all points separated
      *
      * @param  bool $toArray return points as objects or array of x,y(,z,m).
-     * @return Point[]|array{}|array<array>
+     * @return array{}
      */
     public function explode(bool $toArray = false): array
     {
-        $parts = [];
-        foreach ($this->getComponents() as $pointObj) {
-            $parts[] = $toArray ? $pointObj->asArray() : $pointObj;
-        }
-        return $parts;
+        return [];
     }
 }

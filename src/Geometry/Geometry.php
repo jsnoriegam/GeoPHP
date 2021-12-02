@@ -170,7 +170,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getX()
      * @deprecated since version 1.4
-     * @return float|int|null
+     * @return float|null
      */
     public function x()
     {
@@ -180,7 +180,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getY()
      * @deprecated since version 1.4
-     * @return float|int|null
+     * @return float|null
      */
     public function y()
     {
@@ -190,7 +190,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getZ()
      * @deprecated since version 1.4
-     * @return float|int|null
+     * @return float|null
      */
     public function z()
     {
@@ -200,7 +200,7 @@ abstract class Geometry
     /**
      * @see        Geometry::getM()
      * @deprecated since version 1.4
-     * @return float|int|null
+     * @return float|null
      */
     public function m()
     {
@@ -537,6 +537,7 @@ abstract class Geometry
         $processorType = '\\geoPHP\\Adapter\\' . geoPHP::getAdapterMap()[$format];
         $processor = new $processorType;
         array_unshift($args, $this);
+        /** @phpstan-ignore-next-line */
         $result = call_user_func_array([$processor, 'write'], $args);
 
         return $result;
@@ -866,7 +867,8 @@ abstract class Geometry
         $geosObj = $this->getGeos();
         if (is_object($geosObj)) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $geosObj->equalsExact($geometry->getGeos());
+            $geosObj2 = $geometry->getGeos();
+            return is_object($geosObj2) ? $geosObj->equalsExact($geosObj2) : false;
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }
@@ -882,12 +884,13 @@ abstract class Geometry
     {
         $geosObj = $this->getGeos();
         if (is_object($geosObj)) {
-            if ($pattern) {
+            $geosObj2 = $geometry->getGeos();
+            if ($pattern !== null) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return $geosObj->relate($geometry->getGeos(), $pattern);
+                return is_object($geosObj2) ? $geosObj->relate($geosObj2, $pattern) : null;
             } else {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return $geosObj->relate($geometry->getGeos());
+                return is_object($geosObj2) ? $geosObj->relate($geosObj2) : null;
             }
         }
         throw UnsupportedMethodException::geos(__METHOD__);
@@ -949,8 +952,9 @@ abstract class Geometry
     {
         $geosObj = $this->getGeos();
         if (is_object($geosObj)) {
+            $geosObj2 = $geometry->getGeos();
             /** @noinspection PhpUndefinedMethodInspection */
-            return geoPHP::geosToGeometry($geosObj->intersection($geometry->getGeos()));
+            return is_object($geosObj2) ? geoPHP::geosToGeometry($geosObj->intersection($geosObj2)) : null;
         }
         throw UnsupportedMethodException::geos(__METHOD__);
     }

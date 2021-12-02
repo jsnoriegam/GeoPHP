@@ -52,7 +52,7 @@ class MultiLineString extends MultiCurve
 
         $x = 0;
         $y = 0;
-        $totalLength = 0;
+        $totalLength = 0.0;
         $components = $this->getComponents();
         foreach ($components as $line) {
             if ($line->isEmpty()) {
@@ -64,7 +64,7 @@ class MultiLineString extends MultiCurve
             $y += $componentCentroid->getY() * $componentLength;
             $totalLength += $componentLength;
         }
-        if ($totalLength == 0) {
+        if ($totalLength === 0.0) {
             return $this->getPoints()[0];
         }
         return new Point($x / $totalLength, $y / $totalLength);

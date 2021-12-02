@@ -151,7 +151,7 @@ class Polygon extends Surface
                 $y += $ca['y'] * $ca['area'] * -1;
             }
         }
-        if ($totalArea == 0.0) {
+        if ($totalArea === 0.0) {
             return new Point();
         }
         return new Point($x / $totalArea, $y / $totalArea);

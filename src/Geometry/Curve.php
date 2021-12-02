@@ -124,7 +124,7 @@ abstract class Curve extends Collection
             new LineString() :
             ($this->isClosed() ?
                 new MultiPoint() :
-                new MultiPoint([$this->startPoint(), $this->endPoint()])
+                new MultiPoint([$this->startPoint() ?? new Point(), $this->endPoint() ?? new Point()])
             );
     }
 

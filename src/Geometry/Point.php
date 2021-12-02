@@ -333,10 +333,11 @@ class Point extends Geometry
             return $distance;
         }
         
-        // For LineString, Polygons, MultiLineString and MultiPolygon. the nearest point might be a vertex,
+        // For LineString, Polygons, MultiLineString and MultiPolygon. The nearest point might be a vertex,
         // but it could also be somewhere along a line-segment that makes up the geometry (between vertices).
-        // Here we brute force check all line segments that make up these geometries
+        // Here we brute force check all line segments that make up these geometries.
         $distance = null;
+        /** @var Point[] $seg */
         foreach ($geometry->explode(true) as $seg) {
             // As per http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
             // and http://paulbourke.net/geometry/pointline/

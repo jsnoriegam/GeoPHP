@@ -418,7 +418,7 @@ class LineString extends Curve
      * Get all line segments
      *
      * @param  bool $toArray return segments as LineString or array of start and end points.
-     * @return LineString[]|array{}|array<array>
+     * @return LineString[]|Point[][]
      */
     public function explode(bool $toArray = false): array
     {
@@ -451,6 +451,7 @@ class LineString extends Curve
         }
         
         $segments = $this->explode(true);
+        /** @var Point[][] $segments */
         foreach ($segments as $i => $segment) {
             foreach ($segments as $j => $checkSegment) {
                 if ($i != $j) {

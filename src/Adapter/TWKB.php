@@ -43,18 +43,7 @@ class TWKB implements GeoAdapter
 {
 
     /**
-     * @var array{
-     *  'decimalDigitsXY':int,
-     *  'decimalDigitsZ':int,
-     *  'decimalDigitsM':int,
-     *  'includeSize':bool,
-     *  'includeBoundingBoxes':bool,
-     *  'hasM':bool,
-     *  'hasZ':bool,
-     *  'xyFactor':int|float,
-     *  'zFactor':int|float,
-     *  'mFactor':int|float
-     * }
+     * @var array{'decimalDigitsXY':int,'decimalDigitsZ':int,'decimalDigitsM':int,'includeSize':bool,'includeBoundingBoxes':bool,'hasM':bool,'hasZ':bool,'xyFactor':int|float,'zFactor':int|float,'mFactor':int|float}
      */
     protected $writeOptions = [
         'decimalDigitsXY' => 5,
@@ -368,7 +357,7 @@ class TWKB implements GeoAdapter
         
         $twkb = $this->writeGeometry($geometry);
         
-        return $writeAsHex ? current( (array) unpack('H*', $twkb)) : $twkb;
+        return $writeAsHex ? current((array) unpack('H*', $twkb)) : $twkb;
     }
 
     /**
