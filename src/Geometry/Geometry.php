@@ -815,7 +815,7 @@ abstract class Geometry
     public function getGeos()
     {
         // If it's already been set, just return it
-        if (isset($this->geos) && geoPHP::geosInstalled()) {
+        if (isset($this->geos)) {
             return $this->geos;
         }
 
