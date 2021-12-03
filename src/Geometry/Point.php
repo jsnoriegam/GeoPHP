@@ -316,6 +316,7 @@ class Point extends Geometry
             return null;
         }
         
+        // use GEOS if available
         $geosObj = $this->getGeos();
         if (is_object($geosObj)) {
             // @codeCoverageIgnoreStart
@@ -325,36 +326,58 @@ class Point extends Geometry
             // @codeCoverageIgnoreEnd
         }
         
-        if ($geometry->geometryType() === Geometry::POINT) {
-            return sqrt(
-                pow(($this->getX() - $geometry->getX()), 2) +
-                pow(($this->getY() - $geometry->getY()), 2)
-            );
-        }
-        
-        if ($geometry->geometryType() === Geometry::MULTI_POINT
-            || $geometry->geometryType() === Geometry::GEOMETRY_COLLECTION
-        ) {
-            $distance = null;
-            foreach ($geometry->getComponents() as $component) {
-                $checkDistance = $this->distance($component);
-                if ($checkDistance === 0.0) {
-                    return 0.0;
-                }
-                if ($checkDistance === null) {
-                    continue;
-                }
-                $distance = $distance ?? $checkDistance;
+        switch ($geometry->geometryType() ) {
+            // Point
+            case Geometry::POINT:
+                return sqrt(
+                    pow(($this->getX() - $geometry->getX()), 2) +
+                    pow(($this->getY() - $geometry->getY()), 2)
+                );
+            
+            // MultiPoint, GeometryCollection
+            case Geometry::MULTI_POINT:
+            case Geometry::GEOMETRY_COLLECTION:
+                return $this->distanceToMultiPointOrCollection($geometry);
                 
-                if ($checkDistance < $distance) {
-                    $distance = $checkDistance;
-                }
+            // LineString, Polygon, MultiLineString, MultiPolygon.
+            default:
+                return $this->distanceToMultiGeometry($geometry);
+        }
+    }
+    
+    /**
+     * @param  Geometry|Collection $geometry
+     * @return float
+     */
+    private function distanceToMultiPointOrCollection($geometry): float
+    {
+        $distance = null;
+        foreach ($geometry->getComponents() as $component) {
+            $checkDistance = $this->distance($component);
+            if ($checkDistance === 0.0) {
+                return 0.0;
             }
-            return $distance;
+            if ($checkDistance === null) {
+                continue;
+            }
+            $distance = $distance ?? $checkDistance;
+
+            if ($checkDistance < $distance) {
+                $distance = $checkDistance;
+            }
         }
         
-        // For LineString, Polygons, MultiLineString and MultiPolygon. The nearest point might be a vertex,
-        // but it could also be somewhere along a line-segment that makes up the geometry (between vertices).
+        return $distance;
+    }
+    
+    /**
+     * @param  Geometry $geometry
+     * @return float
+     */
+    private function distanceToMultiGeometry(Geometry $geometry): float
+    {
+        // The nearest point might be a vertex, but it could also be somewhere along a line-segment 
+        // that makes up the geometry (between vertices).
         // Here we brute force check all line segments that make up these geometries.
         $distance = null;
         /** @var Point[] $seg */
