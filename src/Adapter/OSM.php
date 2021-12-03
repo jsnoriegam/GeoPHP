@@ -78,17 +78,13 @@ class OSM implements GeoAdapter
 
         return $geom;
     }
-
+    
     /**
-     * @staticvar array $polygonalTypes
-     * @staticvar array $linearTypes
-     * @return Geometry
+     * 
+     * @return array<array> nodes
      */
-    protected function geomFromXML(): Geometry
+    private function parseNodes(): array
     {
-        $geometries = [];
-
-        // Processing OSM Nodes
         $nodes = [];
         $nodeId = 0;
         foreach ($this->xmlObj->getElementsByTagName('node') as $node) {
@@ -118,11 +114,17 @@ class OSM implements GeoAdapter
                 'tags' => $tags
             ];
         }
-        if (empty($nodes)) {
-            return new GeometryCollection();
-        }
+        
+        return $nodes;
+    }
 
-        // Processing OSM Ways
+    /**
+     * 
+     * @param array<array> $nodes
+     * @return array<array> ways
+     */
+    private function parseWays(array $nodes): array
+    {
         $ways = [];
         $wayId = 0;
         foreach ($this->xmlObj->getElementsByTagName('way') as $way) {
@@ -160,8 +162,22 @@ class OSM implements GeoAdapter
                 ];
             }
         }
-
-        // Processing OSM Relations
+        
+        return $ways;
+    }
+    
+    /**
+     * 
+     * @staticvar array<string> $polygonalTypes
+     * @staticvar array<string> $linearTypes
+     * @param array<array> $nodes
+     * @param array<array> $ways
+     * @return array<array> geometries
+     */
+    private function parseRelations(array $nodes, array $ways): array
+    {
+        $geometries = [];
+        
         /** @var \DOMElement $relation */
         foreach ($this->xmlObj->getElementsByTagName('relation') as $relation) {
             
@@ -221,8 +237,30 @@ class OSM implements GeoAdapter
                 $geometries[] = count($geometryCollection) === 1 ? $geometryCollection[0] : new GeometryCollection($geometryCollection);
             }
         }
+        
+        return $geometries;
+    }
+    
+    /**
+     * @staticvar array $polygonalTypes
+     * @staticvar array $linearTypes
+     * @return Geometry
+     */
+    protected function geomFromXML(): Geometry
+    {
+        // Processing OSM Nodes
+        $nodes = $this->parseNodes();
+        if (empty($nodes)) {
+            return new GeometryCollection();
+        }
 
-        // Process ways
+        // Processing OSM Ways
+        $ways = $this->parseWays($nodes);
+
+        // Processing OSM Relations
+        $geometries = $this->parseRelations($nodes, $ways);
+
+        // add way-geometries
         foreach ($ways as $way) {
             if ((!$way['assigned'] || !empty($way['tags'])) &&
                     !isset($way['tags']['boundary']) &&
@@ -246,6 +284,7 @@ class OSM implements GeoAdapter
             }
         }
 
+        // add node-geometries
         foreach ($nodes as $node) {
             if (!$node['assigned'] || !empty($node['tags'])) {
                 $geometries[] = $node['point'];
@@ -315,60 +354,9 @@ class OSM implements GeoAdapter
      */
     protected function processMultipolygon(array &$relationWays, array $nodes): array
     {
-        /* TODO: what to do with broken rings?
-         * I propose to force-close if start -> end point distance is less then 10% of line length, otherwise drop it.
-         * But if dropped, its inner ring will be outers, which is not good.
-         * We should save the role for each ring (outer, inner, mixed) during ring creation and check it during ring grouping
-         */
-
-        // Construct rings
-        /** @var Polygon[] $rings */
-        $rings = [];
-        while (!empty($relationWays)) {
-            $ring = array_shift($relationWays);
-            if ($ring[0] !== $ring[count($ring) - 1]) {
-                do {
-                    $waysAdded = 0;
-                    foreach ($relationWays as $id => $wayNodes) {
-                        // Last node of ring = first node of way => put way to the end of ring
-                        if ($ring[count($ring) - 1] === $wayNodes[0]) {
-                            $ring = array_merge($ring, array_slice($wayNodes, 1));
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                            // Last node of ring = last node of way => reverse way and put to the end of ring
-                        } elseif ($ring[count($ring) - 1] === $wayNodes[count($wayNodes) - 1]) {
-                            $ring = array_merge($ring, array_slice(array_reverse($wayNodes), 1));
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                            // First node of ring = last node of way => put way to the beginning of ring
-                        } elseif ($ring[0] === $wayNodes[count($wayNodes) - 1]) {
-                            $ring = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $ring);
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                            // First node of ring = first node of way => reverse way and put to the beginning of ring
-                        } elseif ($ring[0] === $wayNodes[0]) {
-                            $ring = array_merge(array_reverse(array_slice($wayNodes, 1)), $ring);
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                        }
-                    }
-                    // If ring members are not ordered, we need to repeat end matching some times
-                } while ($waysAdded > 0 && $ring[0] !== $ring[count($ring) - 1]);
-            }
-
-            // Create the new Polygon
-            if ($ring[0] === $ring[count($ring) - 1]) {
-                $ringPoints = [];
-                foreach ($ring as $ringNode) {
-                    $ringPoints[] = $nodes[$ringNode]['point'];
-                }
-                $newPolygon = new Polygon([new LineString($ringPoints)]);
-                if ($newPolygon->isSimple()) {
-                    $rings[] = $newPolygon;
-                }
-            }
-        }
-
+        // create polygons
+        $rings = $this->constructRings($relationWays, $nodes);
+        
         // Calculate containment
         $containment = array_fill(0, count($rings), array_fill(0, count($rings), false));
         foreach ($rings as $i => $ring) {
@@ -450,6 +438,68 @@ class OSM implements GeoAdapter
         }
 
         return $relationPolygons;
+    }
+    
+    /**
+     * @TODO: what to do with broken rings? 
+     * I propose to force-close if start -> end point distance is less then 10% of line length, otherwise drop it.
+     * But if dropped, its inner ring will be outers, which is not good.
+     * We should save the role for each ring (outer, inner, mixed) during ring creation and check it during ring grouping
+     * 
+     * @param array<array> $relationWays
+     * @param array<array> $nodes
+     * @return Polygon[]
+     */
+    private function constructRings(array &$relationWays, array $nodes): array
+    {
+        /** @var Polygon[] $rings */
+        $rings = [];
+        while (!empty($relationWays)) {
+            $ring = array_shift($relationWays);
+            if ($ring[0] !== $ring[count($ring) - 1]) {
+                do {
+                    $waysAdded = 0;
+                    foreach ($relationWays as $id => $wayNodes) {
+                        // Last node of ring = first node of way => put way to the end of ring
+                        if ($ring[count($ring) - 1] === $wayNodes[0]) {
+                            $ring = array_merge($ring, array_slice($wayNodes, 1));
+                            unset($relationWays[$id]);
+                            ++$waysAdded;
+                            // Last node of ring = last node of way => reverse way and put to the end of ring
+                        } elseif ($ring[count($ring) - 1] === $wayNodes[count($wayNodes) - 1]) {
+                            $ring = array_merge($ring, array_slice(array_reverse($wayNodes), 1));
+                            unset($relationWays[$id]);
+                            ++$waysAdded;
+                            // First node of ring = last node of way => put way to the beginning of ring
+                        } elseif ($ring[0] === $wayNodes[count($wayNodes) - 1]) {
+                            $ring = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $ring);
+                            unset($relationWays[$id]);
+                            ++$waysAdded;
+                            // First node of ring = first node of way => reverse way and put to the beginning of ring
+                        } elseif ($ring[0] === $wayNodes[0]) {
+                            $ring = array_merge(array_reverse(array_slice($wayNodes, 1)), $ring);
+                            unset($relationWays[$id]);
+                            ++$waysAdded;
+                        }
+                    }
+                    // If ring members are not ordered, we need to repeat end matching some times
+                } while ($waysAdded > 0 && $ring[0] !== $ring[count($ring) - 1]);
+            }
+
+            // Create the new Polygon
+            if ($ring[0] === $ring[count($ring) - 1]) {
+                $ringPoints = [];
+                foreach ($ring as $ringNode) {
+                    $ringPoints[] = $nodes[$ringNode]['point'];
+                }
+                $newPolygon = new Polygon([new LineString($ringPoints)]);
+                if ($newPolygon->isSimple()) {
+                    $rings[] = $newPolygon;
+                }
+            }
+        }
+        
+        return $rings;
     }
 
     /**
