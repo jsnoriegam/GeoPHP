@@ -233,7 +233,7 @@ class PointTest extends TestCase
             '2 coordinates is not 3D'   => [false, 1, 2],
             '3 coordinates'             => [true, 1, 2, 3],
             '4 coordinates'             => [true, 1, 2, 3, 4],
-            'x, y is null but z is not' => [true, null, null, 3, 4],
+            'x, y is null but z is not' => [false, null, null, 3, 4],
             'z is null'                 => [false, 1, 2, null, 4],
             'empty point'               => [false],
         ];
@@ -253,7 +253,7 @@ class PointTest extends TestCase
             '2 coordinates is false'    => [false, 1, 2],
             '3 coordinates is false'    => [false, 1, 2, 3],
             '4 coordinates'             => [true, 1, 2, 3, 4],
-            'x, y is null but m is not' => [true, null, null, 3, 4],
+            'x, y is null but m is not' => [false, null, null, 3, 4],
             'm is null'                 => [false, 1, 2, 3, null],
             'empty point'               => [false],
         ];
@@ -466,17 +466,17 @@ class PointTest extends TestCase
                 ['zDifference'],
                 ['elevationGain'],
                 ['elevationLoss'],
-                #['numGeometries'], # returns 1
-                #['geometryN'], # raises TypeError
+                //['numGeometries'], # returns 1
+                //['geometryN'], # raises TypeError
                 ['startPoint'],
                 ['endPoint'],
-                #['isRing'], # throws UnsupportedMethodException
-                #['isClosed'], # returns true
-                #['pointN'], # raises TypeError
+                //['isRing'], # throws UnsupportedMethodException
+                //['isClosed'], # returns true
+                //['pointN'], # raises TypeError
                 ['exteriorRing'],
                 ['numInteriorRings'],
-                #['interiorRingN'], # raises TypeError
-                #['explode'] # returns array
+                //['interiorRingN'], # raises TypeError
+                //['explode'] # returns array
         ];
     }
 

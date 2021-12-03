@@ -71,13 +71,13 @@ class MultiPointTest extends TestCase
     {
         parent::assertTrue( (new Point(1, 2, 3))->is3D() );
         parent::assertTrue( (new Point(1, 2, 3, 4))->is3D() );
-        parent::assertTrue( (new Point(null, null, 3, 4))->is3D() );
+        parent::assertFalse( (new Point(null, null, 3, 4))->is3D() );
     }
 
     public function testIsMeasured()
     {
         parent::assertTrue( (new Point(1, 2, null, 4))->isMeasured() );
-        parent::assertTrue( (new Point(null, null , null, 4))->isMeasured() );
+        parent::assertFalse( (new Point(null, null , null, 4))->isMeasured() );
     }
 
     public function providerCentroid()

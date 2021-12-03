@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains the CollectionTest class.
  * For more information see the class description below.
@@ -12,6 +13,8 @@ namespace geoPHP\Tests\Geometry;
 use \geoPHP\Geometry\Collection;
 use \geoPHP\Geometry\Point;
 use \geoPHP\Geometry\LineString;
+use \geoPHP\Adapter\WKT;
+use \geoPHP\Geometry\Polygon;
 use \PHPUnit\Framework\TestCase;
 
 /**
@@ -23,9 +26,9 @@ class CollectionTest extends TestCase
     public function providerIs3D()
     {
         return [
-                [[new Point(1, 2)], false],
-                [[new Point(1, 2, 3)], true],
-                [[new Point(1, 2, 3), new Point(1, 2)], true],
+            [[new Point(1, 2)], false],
+            [[new Point(1, 2, 3)], true],
+            [[new Point(1, 2, 3), new Point(1, 2)], true],
         ];
     }
 
@@ -46,11 +49,11 @@ class CollectionTest extends TestCase
     public function providerIsMeasured()
     {
         return [
-                [[new Point()], false],
-                [[new Point(1, 2)], false],
-                [[new Point(1, 2, 3)], false],
-                [[new Point(1, 2, 3, 4)], true],
-                [[new Point(1, 2, 3, 4), new Point(1, 2)], true],
+            [[new Point()], false],
+            [[new Point(1, 2)], false],
+            [[new Point(1, 2, 3)], false],
+            [[new Point(1, 2, 3, 4)], true],
+            [[new Point(1, 2, 3, 4), new Point(1, 2)], true],
         ];
     }
 
@@ -71,9 +74,9 @@ class CollectionTest extends TestCase
     public function providerIsEmpty()
     {
         return [
-                [[], true],
-                [[new Point()], true],
-                [[new Point(1, 2)], false],
+            [[], true],
+            [[new Point()], true],
+            [[new Point(1, 2)], false],
         ];
     }
 
@@ -105,12 +108,12 @@ class CollectionTest extends TestCase
     public function testAsArray()
     {
         $components = [
-                new Point(1, 2),
-                new LineString()
+            new Point(1, 2),
+            new LineString()
         ];
         $expected = [
-                [1, 2],
-                []
+            [1, 2],
+            []
         ];
 
         /** @var Collection $stub */
@@ -122,9 +125,9 @@ class CollectionTest extends TestCase
     public function testFlatten()
     {
         $components = [
-                new Point(1, 2, 3, 4),
-                new Point(5, 6, 7, 8),
-                new LineString([new Point(1, 2, 3, 4), new Point(5, 6, 7, 8)]),
+            new Point(1, 2, 3, 4),
+            new Point(5, 6, 7, 8),
+            new LineString([new Point(1, 2, 3, 4), new Point(5, 6, 7, 8)]),
         ];
 
         /** @var Collection $stub */
@@ -140,7 +143,7 @@ class CollectionTest extends TestCase
     {
         $points = [new Point(1, 2), new Point(3, 4), new Point(5, 6), new Point(1, 2)];
         $components = [
-                new \geoPHP\Geometry\Polygon([new LineString($points)])
+            new \geoPHP\Geometry\Polygon([new LineString($points)])
         ];
 
         /** @var Collection $stub */
@@ -155,4 +158,64 @@ class CollectionTest extends TestCase
             parent::assertSame($segment->endPoint(), $points[$i + 1]);
         }
     }
+
+    private function getPolygons()
+    {
+        $WKT = new WKT;
+        $polygons = [
+            $WKT->read("POLYGON((0 0,10 0,10 10,0 10,0 0))"),
+            $WKT->read("POLYGON((1431 2852,2937 2937,4829 1028,4920 4502,1682 6402,1431 2852))"),
+            $WKT->read("POLYGON((-1431 -2852,-2937 -2937,-4829 -1028,-4920 -4502,-1682 -6402,-1431 -2852))"),
+            $WKT->read("POLYGON((1431 2852,2937 2937,4829 1028,4920 4502,1682 6402,1431 2852),(1500 3000,2500 3000,2000 3500,1500 3000))")
+        ];
+
+        return $polygons;
+    }
+    
+    public function providerGetArea()
+    {
+        $polygons = $this->getPolygons();
+        
+        return [
+            [$polygons[0], 100.0],
+            [$polygons[1], 10453331.0],
+            [$polygons[2], 10453331.0],
+            [$polygons[3], 10203331.0]
+        ];
+    }
+
+    /**
+     * @dataProvider providerGetArea
+     *
+     * @param Polygon $polygon
+     * @param float $result
+     */
+    public function testGetArea($polygon, $result)
+    {
+        parent::assertSame($polygon->getArea(), $result);
+    }
+
+    public function providerGetCentroid()
+    {
+        $polygons = $this->getPolygons();
+        
+        return [
+            [$polygons[0], new Point(5, 5)],
+            [$polygons[1], new Point(3221.958091667941, 3895.521921736399)],
+            [$polygons[2], new Point(-3221.958091667941, -3895.521921736399)],
+            [$polygons[3], new Point(3251.8982673730106, 3913.380189175477)]
+        ];
+    }
+
+    /**
+     * @dataProvider providerGetCentroid
+     *
+     * @param Polygon $polygon
+     * @param float $result
+     */
+    public function testGetCentroid($polygon, $result)
+    {
+        parent::assertEquals($polygon->getCentroid(), $result);
+    }
+
 }
