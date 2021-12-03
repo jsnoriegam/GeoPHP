@@ -22,6 +22,16 @@ abstract class Collection extends Geometry
     protected $components = [];
 
     /**
+     * @var bool True if Geometry has Z (altitude) value
+     */
+    protected $hasZ = false;
+
+    /**
+     * @var bool True if Geometry has M (measure) value
+     */
+    protected $isMeasured = false;
+    
+    /**
      * Constructor: Checks and sets component geometries
      *
      * @param  Geometry[] $components           array of geometries
@@ -151,7 +161,27 @@ abstract class Collection extends Geometry
             'minx' => $minX,
         ];
     }
+    
+    /**
+     * check if Geometry has a measure value
+     *
+     * @return bool true if collection has measure values
+     */
+    public function isMeasured(): bool
+    {
+        return $this->isMeasured;
+    }
 
+    /**
+     * check if Geometry has Z (altitude) coordinate
+     *
+     * @return bool true if geometry has a Z-value
+     */
+    public function hasZ(): bool
+    {
+        return $this->hasZ;
+    }
+    
     /**
      * Returns every sub-geometry as a multidimensional array
      *

@@ -60,7 +60,6 @@ class Point extends Geometry
             if (!is_numeric($z)) {
                 throw new InvalidGeometryException("Cannot construct Point. z should be numeric");
             }
-            $this->hasZ = true;
             $this->z = $this->x !== null ? floatval($z) : null;
         }
 
@@ -69,7 +68,6 @@ class Point extends Geometry
             if (!is_numeric($m)) {
                 throw new InvalidGeometryException("Cannot construct Point. m should be numeric");
             }
-            $this->isMeasured = true;
             $this->m = $this->x !== null ? floatval($m) : null;
         }
     }
@@ -142,6 +140,26 @@ class Point extends Geometry
     }
 
     /**
+     * check if Geometry has a measure value
+     *
+     * @return bool true if collection has measure values
+     */
+    public function isMeasured(): bool
+    {
+        return $this->getM() !== null;
+    }
+
+    /**
+     * check if Geometry has Z (altitude) coordinate
+     *
+     * @return bool true if geometry has a Z-value
+     */
+    public function hasZ(): bool
+    {
+        return $this->getZ() !== null;
+    }
+    
+    /**
      * Inverts x and y coordinates
      * Useful if old applications still use lng lat
      *
@@ -192,10 +210,10 @@ class Point extends Geometry
             return [null, null];
         }
         if (!$this->hasZ()) {
-            return !$this->isMeasured ? [$this->x, $this->y] : [$this->x, $this->y, null, $this->m];
+            return !$this->isMeasured() ? [$this->x, $this->y] : [$this->x, $this->y, null, $this->m];
         }
         
-        return !$this->isMeasured ? [$this->x, $this->y, $this->z] : [$this->x, $this->y, $this->z, $this->m];
+        return !$this->isMeasured() ? [$this->x, $this->y, $this->z] : [$this->x, $this->y, $this->z, $this->m];
     }
 
     /**
@@ -285,8 +303,6 @@ class Point extends Geometry
     {
         unset($this->z);
         unset($this->m);
-        $this->hasZ = false;
-        $this->isMeasured = false;
         $this->setGeos(null);
     }
 

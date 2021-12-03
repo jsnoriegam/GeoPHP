@@ -420,10 +420,7 @@ abstract class Geometry
      *
      * @return bool true if collection has measure values
      */
-    public function isMeasured(): bool
-    {
-        return $this->isMeasured;
-    }
+    abstract public function isMeasured(): bool;
 
     /**
      * @param int|null $srid Spatial Reference System Identifier
@@ -656,13 +653,10 @@ abstract class Geometry
     /**
      * check if Geometry has Z (altitude) coordinate
      *
-     * @return bool true if collection has a Z-value
+     * @return bool true if geometry has a Z-value
      */
-    public function hasZ(): bool
-    {
-        return $this->hasZ;
-    }
-
+    abstract public function hasZ(): bool;
+    
     /**
      * @return float|null
      * @throws UnsupportedMethodException
