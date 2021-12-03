@@ -81,7 +81,7 @@ class OSM implements GeoAdapter
     
     /**
      * 
-     * @return array<array> nodes
+     * @return array<array>|array{} nodes
      */
     private function parseNodes(): array
     {
@@ -121,9 +121,9 @@ class OSM implements GeoAdapter
     /**
      * 
      * @param array<array> $nodes
-     * @return array<array> ways
+     * @return array<array>|array{} ways
      */
-    private function parseWays(array $nodes): array
+    private function parseWays(array &$nodes): array
     {
         $ways = [];
         $wayId = 0;
@@ -172,54 +172,17 @@ class OSM implements GeoAdapter
      * @staticvar array<string> $linearTypes
      * @param array<array> $nodes
      * @param array<array> $ways
-     * @return array<array> geometries
+     * @return Geometry[]|array{} geometries
      */
-    private function parseRelations(array $nodes, array $ways): array
+    private function parseRelations(array &$nodes, array &$ways): array
     {
         $geometries = [];
         
         /** @var \DOMElement $relation */
         foreach ($this->xmlObj->getElementsByTagName('relation') as $relation) {
             
-            /** @var Point[] */
-            $relationPoints = [];
-            /** @var LineString[] */
-            $relationLines = [];
-            /** @var Polygon[] */
-            $relationPolygons = [];
-
-            static $polygonalTypes = ['multipolygon', 'boundary'];
-            static $linearTypes = ['route', 'waterway'];
-            $relationType = null;
-            foreach ($relation->getElementsByTagName('tag') as $tag) {
-                if ($tag->attributes->getNamedItem('k')->nodeValue === 'type') {
-                    $relationType = $tag->attributes->getNamedItem('v')->nodeValue;
-                }
-            }
-
             // Collect relation members
-            /** @var array[] $relationWays */
-            $relationWays = [];
-            foreach ($relation->getElementsByTagName('member') as $member) {
-                $memberType = $member->attributes->getNamedItem('type')->nodeValue;
-                $ref = $member->attributes->getNamedItem('ref')->nodeValue;
-
-                if ($memberType === 'node' && isset($nodes[$ref])) {
-                    $nodes[$ref]['assigned'] = true;
-                    $relationPoints[] = $nodes[$ref]['point'];
-                }
-                if ($memberType === 'way' && isset($ways[$ref])) {
-                    $ways[$ref]['assigned'] = true;
-                    $relationWays[$ref] = $ways[$ref]['nodes'];
-                }
-            }
-
-            if (in_array($relationType, $polygonalTypes)) {
-                $relationPolygons = $this->processMultipolygon($relationWays, $nodes);
-            }
-            if (in_array($relationType, $linearTypes)) {
-                $relationLines = $this->processRoutes($relationWays, $nodes);
-            }
+            list($relationPoints, $relationLines, $relationPolygons) = $this->parseRelationMembers($relation, $nodes, $ways);
 
             // Assemble relation geometries
             $geometryCollection = [];
@@ -239,6 +202,75 @@ class OSM implements GeoAdapter
         }
         
         return $geometries;
+    }
+    
+    /**
+     * 
+     * @param \DOMElement $relation
+     * @param array<array> $nodes
+     * @param array<array> $ways
+     * @return array<array>
+     */
+    private function parseRelationMembers(\DOMElement $relation, array &$nodes, array &$ways): array
+    {
+        /** @var Point[] $relationPoints */
+        $relationPoints = [];
+        
+        /** @var array[] $relationWays */
+        $relationWays = [];
+        
+        /** @var Polygon[] $relationPolygons */
+        $relationPolygons = [];
+        
+        /** @var LineString[] $relationLines */
+        $relationLines = [];
+        
+        // walk the members
+        foreach ($relation->getElementsByTagName('member') as $member) {
+            $memberType = $member->attributes->getNamedItem('type')->nodeValue;
+            $ref = $member->attributes->getNamedItem('ref')->nodeValue;
+
+            if ($memberType === 'node' && isset($nodes[$ref])) {
+                $nodes[$ref]['assigned'] = true;
+                $relationPoints[] = $nodes[$ref]['point'];
+            }
+            if ($memberType === 'way' && isset($ways[$ref])) {
+                $ways[$ref]['assigned'] = true;
+                $relationWays[$ref] = $ways[$ref]['nodes'];
+            }
+        }
+        
+        $relationType = $this->getRelationType($relation);
+        
+        // add polygons
+        static $polygonalTypes = ['multipolygon', 'boundary'];
+        if (in_array($relationType, $polygonalTypes)) {
+            $relationPolygons = $this->processMultipolygon($relationWays, $nodes);
+        }
+
+        // add lines
+        static $linearTypes = ['route', 'waterway'];
+        if (in_array($relationType, $linearTypes)) {
+            $relationLines = $this->processRoutes($relationWays, $nodes);
+        }
+            
+        return [$relationPoints, $relationLines, $relationPolygons];
+    }
+    
+    /**
+     * 
+     * @param \DOMElement $relation
+     * @return string|null
+     */
+    private function getRelationType(\DOMElement $relation)
+    {
+        foreach ($relation->getElementsByTagName('tag') as $tag) {
+            if ($tag->attributes->getNamedItem('k')->nodeValue === 'type') {
+                return $tag->attributes->getNamedItem('v')->nodeValue;
+            }
+        }
+        
+        return null;
     }
     
     /**
