@@ -13,12 +13,12 @@ abstract class Curve extends Collection
 {
 
     /**
-     * @var Point
+     * @var Point|null
      */
     protected $startPoint;
 
     /**
-     * @var Point
+     * @var Point|null
      */
     protected $endPoint;
 

@@ -530,39 +530,50 @@ class LineString extends Curve
         }
         
         if ($geometry->geometryType() === Geometry::LINESTRING) {
-            $distance = PHP_INT_MAX;
-            $geometrySegments = $geometry->explode();
-            /** @var LineString $seg1 */
-            foreach ($this->explode() as $seg1) {
-                /** @var LineString $seg2 */
-                foreach ($geometrySegments as $seg2) {
-                    if ($seg1->lineSegmentIntersect($seg2)) {
-                        return 0.0;
-                    }
-                    // Because line-segments are straight, the shortest distance will occur at an endpoint.
-                    // If they are parallel, an endpoint calculation is still accurate.
-                    $startPt1 = $seg1->startPoint();
-                    $startPt2 = $seg2->startPoint();
-                    $endPt1 = $seg1->endPoint();
-                    $endPt2 = $seg2->endPoint();
-                    
-                    $distance = $startPt1 && $startPt2 && $endPt1 && $endPt2 ? min(
-                        $distance,
-                        $startPt1->distance($seg2),
-                        $endPt1->distance($seg2),
-                        $startPt2->distance($seg1),
-                        $endPt2->distance($seg1)
-                    ) : 0.0;
-
-                    if ($distance === 0.0) {
-                        return 0.0;
-                    }
-                }
-            }
-            return (float) $distance;
+            /** @var LineString $geometry */
+            return $this->distanceToLinestring($geometry);
         }
         
         // It can be treated as a collection
         return parent::distance($geometry);
+    }
+    
+    /**
+     * @param  LineString $geometry
+     * @return float
+     */
+    private function distanceToLinestring(LineString $geometry): float
+    {
+        $distance = PHP_INT_MAX;
+        $geometrySegments = $geometry->explode();
+        
+        /** @var LineString $seg1 */
+        foreach ($this->explode() as $seg1) {
+            /** @var LineString $seg2 */
+            foreach ($geometrySegments as $seg2) {
+                if ($seg1->lineSegmentIntersect($seg2)) {
+                    return 0.0;
+                }
+                // Because line-segments are straight, the shortest distance will occur at an endpoint.
+                // If they are parallel, an endpoint calculation is still accurate.
+                $startPt1 = $seg1->startPoint();
+                $startPt2 = $seg2->startPoint();
+                $endPt1 = $seg1->endPoint();
+                $endPt2 = $seg2->endPoint();
+
+                $distance = $startPt1 && $startPt2 && $endPt1 && $endPt2 ? min(
+                    $distance,
+                    $startPt1->distance($seg2),
+                    $endPt1->distance($seg2),
+                    $startPt2->distance($seg1),
+                    $endPt2->distance($seg1)
+                ) : 0.0;
+
+                if ($distance === 0.0) {
+                    return 0.0;
+                }
+            }
+        }
+        return (float) $distance;
     }
 }
