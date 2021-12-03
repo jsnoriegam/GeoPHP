@@ -105,10 +105,10 @@ class GeoHash implements GeoAdapter
      * Convert the geometry to geohash.
      *
      * @param Geometry $geometry
-     * @param float|null $precision
+     * @param float|null $precision default 0.0000001
      * @return string the GeoHash or null when the $geometry is not a Point
      */
-    public function write(Geometry $geometry, $precision = null): string
+    public function write(Geometry $geometry, $precision = 0.0000001): string
     {
         if ($geometry->isEmpty()) {
             return '';
@@ -117,27 +117,30 @@ class GeoHash implements GeoAdapter
         if ($geometry->geometryType() === Geometry::POINT) {
             /** @var Point $geometry */
             return $this->encodePoint($geometry, $precision);
-        } else {
-            // The GeoHash is the smallest hash grid ID that fits the envelope
-            $envelope = $geometry->envelope();
-            $geoHashes = [];
-            $geohash = '';
-            foreach ($envelope->getPoints() as $point) {
-                $geoHashes[] = $this->encodePoint($point, 0.0000001);
-            }
-            $i = 0;
-            while ($i < strlen($geoHashes[0])) {
-                $char = $geoHashes[0][$i];
-                foreach ($geoHashes as $hash) {
-                    if ($hash[$i] != $char) {
-                        return $geohash;
-                    }
-                }
-                $geohash .= $char;
-                $i++;
-            }
-            return $geohash;
         }
+        
+        // The GeoHash is the smallest hash grid ID that fits the envelope
+        $envelope = $geometry->envelope();
+        $geoHashes = [];
+        $geohash = '';
+        foreach ($envelope->getPoints() as $point) {
+            $geoHashes[] = $this->encodePoint($point, $precision);
+        }
+
+        $i = 0;
+        while ($i < strlen($geoHashes[0])) {
+            $char = $geoHashes[0][$i];
+
+            foreach ($geoHashes as $hash) {
+                if ($hash[$i] != $char) {
+                    return $geohash;
+                }
+            }
+            $geohash .= $char;
+            ++$i;
+        }
+
+        return $geohash;
     }
 
     /**
@@ -163,7 +166,7 @@ class GeoHash implements GeoAdapter
         $hash = '';
         $x = $point->getX();
         $y = $point->getY();
-            
+        
         if (!is_numeric($precision)) {
             $lap = strlen(strval($y)) - strpos(strval($y), ".");
             $lop = strlen(strval($x)) - strpos(strval($x), ".");

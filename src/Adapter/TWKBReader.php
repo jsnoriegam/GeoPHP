@@ -37,6 +37,8 @@ use geoPHP\Geometry\MultiGeometry;
  * - bounding box: can read and write, but don't store readed boxes (API missing)
  * - size attribute: can read and write size attribute, but seeking is not supported
  * - ID list: can read and write, but API is completely missing
+ * 
+ * @property Point $lastPoint
  */
 trait TWKBReader
 {
@@ -258,7 +260,7 @@ trait TWKBReader
                 $idList[] = $this->reader->readSVarInt();
             }
         }
-
+        
         $components = [];
         for ($i = 0; $i < $multiLength; $i++) {
             if ($type !== 'Geometry') {
@@ -268,7 +270,7 @@ trait TWKBReader
                 $components[] = $this->getGeometry();
             }
         }
-        
+
         switch ($type) {
             case 'Point':
                 return new MultiPoint($components);

@@ -59,7 +59,7 @@ class BinaryReader extends BinaryAdapter
      */
     public function close()
     {
-        if (is_resource($this->buffer)) {
+        if (isset($this->buffer) && is_resource($this->buffer)) {
             fclose($this->buffer);
         }
         unset($this->buffer);

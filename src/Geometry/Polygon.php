@@ -39,10 +39,12 @@ class Polygon extends Surface
                         array_merge($component->getComponents(), [$component->startPoint()])
                     );
                 } else {
+                    $startPt = $component->startPoint();
+                    $endPt = $component->endPoint();
                     throw new InvalidGeometryException(
                         'Cannot create Polygon: contains a non-closed ring (first point: '
-                            . implode(' ', $component->startPoint()->asArray()) . ', last point: '
-                            . implode(' ', $component->endPoint()->asArray()) . ')'
+                            . implode(' ', $startPt ? $startPt->asArray() : []) . ', last point: '
+                            . implode(' ', $endPt ? $endPt->asArray() : []) . ')'
                     );
                 }
             }

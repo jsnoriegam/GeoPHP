@@ -304,7 +304,8 @@ class WKB implements GeoAdapter
         $this->writer = new BinaryWriter($bigEndian ? BinaryWriter::BIG_ENDIAN : BinaryWriter::LITTLE_ENDIAN);
         $wkb = $this->writeGeometry($geometry);
 
-        return $writeAsHex ? current(unpack('H*', $wkb)) : $wkb;
+        $data = unpack('H*', $wkb);
+        return $writeAsHex ? ($data ? current($data) : '') : $wkb;
     }
 
     /**
