@@ -37,11 +37,18 @@ class BinaryReader extends BinaryAdapter
 
     /**
      * Opens the memory buffer
+     * 
+     * @param string $input
+     * @throws \Exception
      * @return void
      */
     public function open(string $input)
     {
-        $this->buffer = fopen('php://memory', 'x+');
+        $stream = fopen('php://memory', 'x+');
+        if ($stream === false) {
+            throw new \Exception("Error. Could not open PHP memory for writing.");
+        }
+        $this->buffer = $stream;
         fwrite($this->buffer, $input);
         fseek($this->buffer, 0);
     }
@@ -74,7 +81,8 @@ class BinaryReader extends BinaryAdapter
     public function readSInt8()
     {
         $char = fread($this->buffer, 1);
-        return $char !== '' ? current(unpack("c", $char)) : null;
+        $data = !empty($char) ? unpack("c", $char) : [];
+        return !empty($data) ? current($data) : null;
     }
 
     /**
@@ -85,7 +93,8 @@ class BinaryReader extends BinaryAdapter
     public function readUInt8()
     {
         $char = fread($this->buffer, 1);
-        return $char !== '' ? current(unpack("C", $char)) : null;
+        $data = !empty($char) ? unpack("C", $char) : [];
+        return !empty($data) ? current($data) : null;
     }
 
     /**
@@ -96,7 +105,8 @@ class BinaryReader extends BinaryAdapter
     public function readUInt32()
     {
         $int32 = fread($this->buffer, 4);
-        return $int32 !== '' ? current(unpack($this->isLittleEndian() ? 'V' : 'N', $int32)) : null;
+        $data = !empty($int32) ? unpack($this->isLittleEndian() ? 'V' : 'N', $int32) : [];
+        return !empty($data) ? current($data) : null;
     }
 
     /**
@@ -108,9 +118,8 @@ class BinaryReader extends BinaryAdapter
     public function readDoubles($length = 1): array
     {
         $bin = fread($this->buffer, $length);
-        return $this->isLittleEndian() ?
-            array_values(unpack("d*", $bin)) :
-            array_reverse(unpack("d*", strrev($bin)));
+        $data = !empty($bin) ? ($this->isLittleEndian() ? unpack("d*", $bin) : unpack("d*", strrev($bin))) : [];
+        return is_array($data) ? array_values($data) : [];
     }
 
     /**

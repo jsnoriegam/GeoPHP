@@ -63,26 +63,6 @@ abstract class Collection extends Geometry
         
         $this->components = $components;
     }
-    
-    /**
-     * check if Geometry has Z (altitude) coordinate
-     *
-     * @return bool true if collection has Z value.
-     */
-    public function is3D(): bool
-    {
-        return $this->hasZ;
-    }
-
-    /**
-     * check if Geometry has a measure value
-     *
-     * @return bool true if collection has measure values
-     */
-    public function isMeasured(): bool
-    {
-        return $this->isMeasured;
-    }
 
     /**
      * Returns Collection component geometries

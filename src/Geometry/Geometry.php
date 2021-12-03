@@ -72,7 +72,7 @@ abstract class Geometry
      */
     private $geos;
 
-    /*     * **************************************
+    /** **************************************
      * Basic methods on geometric objects  *
      * ************************************* */
 
@@ -405,19 +405,20 @@ abstract class Geometry
     // ----------------------------------------------------------
 
     /**
-     * @see        Geometry::hasZ()
+     * check if Geometry has Z (altitude) coordinate
+     * 
      * @deprecated since version 1.4
-     * @return bool
+     * @return bool true if collection has Z value.
      */
     public function is3D(): bool
     {
         return $this->hasZ();
     }
-
+    
     /**
      * check if Geometry has a measure value
      *
-     * @return bool True if collection has measure value
+     * @return bool true if collection has measure values
      */
     public function isMeasured(): bool
     {
@@ -1349,7 +1350,7 @@ abstract class Geometry
 
     /**
      * @param float|int $distance
-     * @param array<string, int|float> $styleArray
+     * @param array{quad_segs?:int|float,join?:int,mitre_limit?:int|float} $styleArray
      * styleArray keys supported:
      * - 'quad_segs'
      *       (integer) Number of segments used to approximate a quarter circle (defaults to 8).

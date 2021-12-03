@@ -191,7 +191,7 @@ class Point extends Geometry
         if ($this->isEmpty()) {
             return [null, null];
         }
-        if (!$this->hasZ) {
+        if (!$this->hasZ()) {
             return !$this->isMeasured ? [$this->x, $this->y] : [$this->x, $this->y, null, $this->m];
         }
         

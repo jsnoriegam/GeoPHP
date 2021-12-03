@@ -528,8 +528,9 @@ class LineString extends Curve
         if ($geometry->geometryType() === Geometry::LINESTRING) {
             $distance = PHP_INT_MAX;
             $geometrySegments = $geometry->explode();
+            /** @var LineString $seg1 */
             foreach ($this->explode() as $seg1) {
-                // @var LineString $seg2
+                /** @var LineString $seg2 */
                 foreach ($geometrySegments as $seg2) {
                     if ($seg1->lineSegmentIntersect($seg2)) {
                         return 0.0;
