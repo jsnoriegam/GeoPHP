@@ -347,9 +347,9 @@ class Point extends Geometry
     
     /**
      * @param  Geometry|Collection $geometry
-     * @return float
+     * @return float|null
      */
-    private function distanceToMultiPointOrCollection($geometry): float
+    private function distanceToMultiPointOrCollection($geometry)
     {
         $distance = null;
         foreach ($geometry->getComponents() as $component) {
@@ -372,9 +372,9 @@ class Point extends Geometry
     
     /**
      * @param  Geometry $geometry
-     * @return float
+     * @return float|null
      */
-    private function distanceToMultiGeometry(Geometry $geometry): float
+    private function distanceToMultiGeometry(Geometry $geometry)
     {
         // The nearest point might be a vertex, but it could also be somewhere along a line-segment 
         // that makes up the geometry (between vertices).
