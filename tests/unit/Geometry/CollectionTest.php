@@ -211,11 +211,13 @@ class CollectionTest extends TestCase
      * @dataProvider providerGetCentroid
      *
      * @param Polygon $polygon
-     * @param float $result
+     * @param Point $result
      */
     public function testGetCentroid($polygon, $result)
     {
-        parent::assertEquals($polygon->getCentroid(), $result);
+        $centroid = $polygon->getCentroid();
+        $result->getGeos();
+        parent::assertEquals($centroid, $result);
     }
 
 }
