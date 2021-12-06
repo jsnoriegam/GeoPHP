@@ -333,7 +333,7 @@ class LineString extends Curve
         $startPt = $this->startPoint();
         $endPt = $this->endPoint();
         
-        if ($startPt && $endPt && $startPt->hasZ() && $endPt->hasZ()) {
+        if ($startPt->hasZ() && $endPt->hasZ()) {
             return abs($startPt->getZ() - $endPt->getZ());
         }
         
@@ -352,8 +352,7 @@ class LineString extends Curve
     public function elevationGain($verticalTolerance = 0)
     {
         $gain = 0.0;
-        $lastPt = $this->startPoint();
-        $lastEle = $lastPt ? $lastPt->getZ() : 0.0;
+        $lastEle = $this->startPoint()->getZ();
         $numPoints = $this->numPoints();
         
         foreach ($this->getPoints() as $i => $point) {
@@ -556,18 +555,13 @@ class LineString extends Curve
                 }
                 // Because line-segments are straight, the shortest distance will occur at an endpoint.
                 // If they are parallel, an endpoint calculation is still accurate.
-                $startPt1 = $seg1->startPoint();
-                $startPt2 = $seg2->startPoint();
-                $endPt1 = $seg1->endPoint();
-                $endPt2 = $seg2->endPoint();
-
-                $distance = $startPt1 && $startPt2 && $endPt1 && $endPt2 ? min(
+                $distance = min(
                     $distance,
-                    $startPt1->distance($seg2),
-                    $endPt1->distance($seg2),
-                    $startPt2->distance($seg1),
-                    $endPt2->distance($seg1)
-                ) : 0.0;
+                    $seg1->startPoint()->distance($seg2),
+                    $seg1->endPoint()->distance($seg2),
+                    $seg2->startPoint()->distance($seg1),
+                    $seg2->endPoint()->distance($seg1)
+                );
 
                 if ($distance === 0.0) {
                     return 0.0;
