@@ -406,7 +406,7 @@ abstract class Geometry
 
     /**
      * check if Geometry has Z (altitude) coordinate
-     * 
+     *
      * @deprecated since version 1.4
      * @return bool true if collection has Z value.
      */

@@ -326,7 +326,7 @@ class Point extends Geometry
             // @codeCoverageIgnoreEnd
         }
         
-        switch ($geometry->geometryType() ) {
+        switch ($geometry->geometryType()) {
             // Point
             case Geometry::POINT:
                 return sqrt(
@@ -376,7 +376,7 @@ class Point extends Geometry
      */
     private function distanceToMultiGeometry(Geometry $geometry)
     {
-        // The nearest point might be a vertex, but it could also be somewhere along a line-segment 
+        // The nearest point might be a vertex, but it could also be somewhere along a line-segment
         // that makes up the geometry (between vertices).
         // Here we brute force check all line segments that make up these geometries.
         $distance = null;

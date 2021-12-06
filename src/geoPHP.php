@@ -336,7 +336,7 @@ class geoPHP
         // only one geometry-type
         if (count($geometryTypes) === 1) {
             /** @var array<string> $geometryTypes */
-            $geometryType = 'Multi' . str_ireplace('Multi', '', $geometryTypes[0]);
+            $geometryType = 'Multi' . (string) str_ireplace('Multi', '', $geometryTypes[0]);
             foreach ($validGeometries as $geometry) {
                 if ($geometry->isEmpty()) {
                     return new GeometryCollection($validGeometries);
@@ -387,7 +387,8 @@ class geoPHP
             $data = unpack($bytes[1] == 1 ? 'V' : 'N', substr($bin, 1, 4));
             /** @var array<float> $data */
             $wkbType = current($data);
-            if (array_search($wkbType & 0xF, Adapter\WKB::$typeMap)) {
+            $needle = $wkbType & 0xF;
+            if (array_search($needle, Adapter\WKB::$typeMap)) {
                 // If SRID byte is TRUE (1), it's EWKB
                 if ($wkbType & Adapter\WKB::SRID_MASK == Adapter\WKB::SRID_MASK) {
                     return 'ewkb';

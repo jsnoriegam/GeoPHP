@@ -37,7 +37,7 @@ class BinaryReader extends BinaryAdapter
 
     /**
      * Opens the memory buffer
-     * 
+     *
      * @param string $input
      * @throws \Exception
      * @return void

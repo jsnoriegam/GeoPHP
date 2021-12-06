@@ -80,7 +80,7 @@ class OSM implements GeoAdapter
     }
     
     /**
-     * 
+     *
      * @return array<array>|array{} nodes
      */
     private function parseNodes(): array
@@ -119,7 +119,7 @@ class OSM implements GeoAdapter
     }
 
     /**
-     * 
+     *
      * @param array<array> $nodes
      * @return array<array>|array{} ways
      */
@@ -167,9 +167,7 @@ class OSM implements GeoAdapter
     }
     
     /**
-     * 
-     * @staticvar array<string> $polygonalTypes
-     * @staticvar array<string> $linearTypes
+     *
      * @param array<array> $nodes
      * @param array<array> $ways
      * @return Geometry[]|array{} geometries
@@ -180,7 +178,6 @@ class OSM implements GeoAdapter
         
         /** @var \DOMElement $relation */
         foreach ($this->xmlObj->getElementsByTagName('relation') as $relation) {
-            
             // Collect relation members
             list($relationPoints, $relationLines, $relationPolygons) = $this->parseRelationMembers($relation, $nodes, $ways);
 
@@ -205,7 +202,9 @@ class OSM implements GeoAdapter
     }
     
     /**
-     * 
+     *
+     * @staticvar array<string> $polygonalTypes
+     * @staticvar array<string> $linearTypes
      * @param \DOMElement $relation
      * @param array<array> $nodes
      * @param array<array> $ways
@@ -258,7 +257,7 @@ class OSM implements GeoAdapter
     }
     
     /**
-     * 
+     *
      * @param \DOMElement $relation
      * @return string|null
      */
@@ -473,11 +472,11 @@ class OSM implements GeoAdapter
     }
     
     /**
-     * @TODO: what to do with broken rings? 
+     * @TODO: what to do with broken rings?
      * I propose to force-close if start -> end point distance is less then 10% of line length, otherwise drop it.
      * But if dropped, its inner ring will be outers, which is not good.
      * We should save the role for each ring (outer, inner, mixed) during ring creation and check it during ring grouping
-     * 
+     *
      * @param array<array> $relationWays
      * @param array<array> $nodes
      * @return Polygon[]

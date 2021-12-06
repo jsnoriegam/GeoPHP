@@ -13,12 +13,12 @@ abstract class Curve extends Collection
 {
 
     /**
-     * @var Point|null
+     * @var Point
      */
     protected $startPoint;
 
     /**
-     * @var Point|null
+     * @var Point
      */
     protected $endPoint;
 
@@ -51,7 +51,7 @@ abstract class Curve extends Collection
     }
 
     /**
-     * @return Point|null
+     * @return Point
      */
     public function startPoint()
     {
@@ -62,7 +62,7 @@ abstract class Curve extends Collection
     }
 
     /**
-     * @return Point|null
+     * @return Point
      */
     public function endPoint()
     {
@@ -77,7 +77,7 @@ abstract class Curve extends Collection
      */
     public function isClosed(): bool
     {
-        return ($this->startPoint() && $this->endPoint() ? $this->startPoint()->equals($this->endPoint()) : false);
+        return $this->startPoint()->equals($this->endPoint());
     }
 
     /**
