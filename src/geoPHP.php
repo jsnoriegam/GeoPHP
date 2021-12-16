@@ -145,13 +145,11 @@ class geoPHP
 
         // when data is not an array -> just pass it normally
         if (!is_array($data)) {
-            /** @phpstan-ignore-next-line */
             $result = call_user_func_array([$adapter, "read"], array_merge([$data], $args));
         } else {
             // Data is an array, combine all passed in items into a single geometry
             $geometries = [];
             foreach ($data as $item) {
-                /** @phpstan-ignore-next-line */
                 $geometries[] = call_user_func_array([$adapter, "read"], array_merge($item, $args));
             }
             $result = geoPHP::buildGeometry($geometries);

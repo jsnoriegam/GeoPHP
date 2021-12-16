@@ -540,7 +540,6 @@ abstract class Geometry
         $processorType = '\\geoPHP\\Adapter\\' . geoPHP::getAdapterMap()[$format];
         $processor = new $processorType;
         array_unshift($args, $this);
-        /** @phpstan-ignore-next-line */
         $result = call_user_func_array([$processor, 'write'], $args);
 
         return $result;
