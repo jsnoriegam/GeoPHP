@@ -397,7 +397,7 @@ class OSM implements GeoAdapter
                 }
             }
         }
-        $containmentCount = count($containment);
+        
 
         /*
           print '&nbsp; &nbsp;';
@@ -414,15 +414,31 @@ class OSM implements GeoAdapter
         }*/
 
         // Group rings (outers and inners)
-
-        /** @var boolean[] $found */
+        return $this->createRelationPolygons($containment, $rings);
+    }
+    
+    /**
+     * Group rings (outers and inners)
+     *
+     * @param array<int,array> $containment
+     * @param Polygon[] $rings
+     * @return Polygon[]
+     */
+    private function createRelationPolygons(array $containment, array $rings)
+    {
+        $containmentCount = count($containment);
+        
+        /** @var bool[] $found */
         $found = array_fill(0, $containmentCount, false);
-        $foundCount = 0;
-        $round = 0;
+        
         /** @var int[][] $polygonsRingIds */
         $polygonsRingIds = [];
+        
         /** @var Polygon[] $relationPolygons */
         $relationPolygons = [];
+        
+        $foundCount = 0;
+        $round = 0;
         while ($foundCount < $containmentCount && $round < 100) {
             $ringsFound = [];
             for ($i = 0; $i < $containmentCount; $i++) {
@@ -467,7 +483,7 @@ class OSM implements GeoAdapter
             }
             ++$round;
         }
-
+        
         return $relationPolygons;
     }
     
@@ -487,34 +503,10 @@ class OSM implements GeoAdapter
         $rings = [];
         while (!empty($relationWays)) {
             $ring = array_shift($relationWays);
+            
+            // ring is not closed
             if ($ring[0] !== $ring[count($ring) - 1]) {
-                do {
-                    $waysAdded = 0;
-                    foreach ($relationWays as $id => $wayNodes) {
-                        // Last node of ring = first node of way => put way to the end of ring
-                        if ($ring[count($ring) - 1] === $wayNodes[0]) {
-                            $ring = array_merge($ring, array_slice($wayNodes, 1));
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                            // Last node of ring = last node of way => reverse way and put to the end of ring
-                        } elseif ($ring[count($ring) - 1] === $wayNodes[count($wayNodes) - 1]) {
-                            $ring = array_merge($ring, array_slice(array_reverse($wayNodes), 1));
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                            // First node of ring = last node of way => put way to the beginning of ring
-                        } elseif ($ring[0] === $wayNodes[count($wayNodes) - 1]) {
-                            $ring = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $ring);
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                            // First node of ring = first node of way => reverse way and put to the beginning of ring
-                        } elseif ($ring[0] === $wayNodes[0]) {
-                            $ring = array_merge(array_reverse(array_slice($wayNodes, 1)), $ring);
-                            unset($relationWays[$id]);
-                            ++$waysAdded;
-                        }
-                    }
-                    // If ring members are not ordered, we need to repeat end matching some times
-                } while ($waysAdded > 0 && $ring[0] !== $ring[count($ring) - 1]);
+                $this->closeRing($relationWays, $ring);
             }
 
             // Create the new Polygon
@@ -531,6 +523,43 @@ class OSM implements GeoAdapter
         }
         
         return $rings;
+    }
+    
+    /**
+     *
+     * @param array<int, array> $relationWays
+     * @param array<int|float> $ring
+     * @return void
+     */
+    private function closeRing(array &$relationWays, array &$ring)
+    {
+        do {
+            $waysAdded = 0;
+            foreach ($relationWays as $id => $wayNodes) {
+                // Last node of ring = first node of way => put way to the end of ring
+                if ($ring[count($ring) - 1] === $wayNodes[0]) {
+                    $ring = array_merge($ring, array_slice($wayNodes, 1));
+                    unset($relationWays[$id]);
+                    ++$waysAdded;
+                    // Last node of ring = last node of way => reverse way and put to the end of ring
+                } elseif ($ring[count($ring) - 1] === $wayNodes[count($wayNodes) - 1]) {
+                    $ring = array_merge($ring, array_slice(array_reverse($wayNodes), 1));
+                    unset($relationWays[$id]);
+                    ++$waysAdded;
+                    // First node of ring = last node of way => put way to the beginning of ring
+                } elseif ($ring[0] === $wayNodes[count($wayNodes) - 1]) {
+                    $ring = array_merge(array_slice($wayNodes, 0, count($wayNodes) - 1), $ring);
+                    unset($relationWays[$id]);
+                    ++$waysAdded;
+                    // First node of ring = first node of way => reverse way and put to the beginning of ring
+                } elseif ($ring[0] === $wayNodes[0]) {
+                    $ring = array_merge(array_reverse(array_slice($wayNodes, 1)), $ring);
+                    unset($relationWays[$id]);
+                    ++$waysAdded;
+                }
+            }
+            // If ring members are not ordered, we need to repeat end matching some times
+        } while ($waysAdded > 0 && $ring[0] !== $ring[count($ring) - 1]);
     }
 
     /**
