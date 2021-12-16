@@ -273,9 +273,9 @@ class Point extends Geometry
     public function equals(Geometry $geometry): bool
     {
         return $geometry->geometryType() === Geometry::POINT
-            ? ( abs(($this->getX()??0) - ($geometry->getX()??0)) <= 1.0E-9 &&
-                abs(($this->getY()??0) - ($geometry->getY()??0)) <= 1.0E-9 &&
-                abs(($this->getZ()??0) - ($geometry->getZ()??0)) <= 1.0E-9)
+            ? (abs(($this->getX() ?? 0) - ($geometry->getX() ?? 0)) <= 1.0E-9 &&
+                abs(($this->getY() ?? 0) - ($geometry->getY() ?? 0)) <= 1.0E-9 &&
+                abs(($this->getZ() ?? 0) - ($geometry->getZ() ?? 0)) <= 1.0E-9)
             : false;
     }
 
