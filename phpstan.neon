@@ -1,0 +1,11 @@
+parameters:
+    stubFiles:
+        - stubs/GEOSConstants.php
+        - stubs/GEOSFunctions.php
+        - stubs/GEOSGeometry.php
+        - stubs/GEOSWKBReader.php
+        - stubs/GEOSWKBWriter.php
+        - stubs/GEOSWKTReader.php
+        - stubs/GEOSWKTWriter.php
+    excludePaths:
+        - src/Algorithm/*
