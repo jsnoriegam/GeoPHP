@@ -124,7 +124,7 @@ class GPX implements GeoAdapter
 
         $geometry = geoPHP::buildGeometry($geometries);
         if (in_array('metadata', $this->gpxTypes->get('gpxType')) && $xmlObject->getElementsByTagName('metadata')->length === 1) {
-            $metadata = self::parseNodeProperties(
+            $metadata = $this->parseNodeProperties(
                 $xmlObject->getElementsByTagName('metadata')->item(0),
                 $this->gpxTypes->get('metadataType')
             );
@@ -277,44 +277,77 @@ class GPX implements GeoAdapter
      * @param string[]|null $tagList
      * @return array<string>|string
      */
-    protected static function parseNodeProperties($node, $tagList = null)
+    protected function parseNodeProperties(\DOMNode $node, $tagList = null)
     {
         if ($node->nodeType === XML_TEXT_NODE) {
             return $node->nodeValue;
         }
+        
         $result = [];
+        
+        // add/parse properties from childs to result
+        if ($node->hasChildNodes()) {
+            $this->addChildNodeProperties($result, $node, $tagList);
+        }
+        
+        // add attributes to result
+        if ($node->hasAttributes()) {
+            $this->addNodeAttributes($result, $node);
+        }
+        
+        return $result;
+    }
+    
+    /**
+     *
+     * @param array<string, mixed>|string $result
+     * @param \DOMNode $node
+     * @param string[]|null $tagList
+     * @return void
+     */
+    private function addChildNodeProperties(&$result, \DOMNode $node, $tagList)
+    {
         foreach ($node->childNodes as $childNode) {
             /** @var \DOMNode $childNode */
             if ($childNode->hasChildNodes()) {
                 if ($tagList === null || in_array($childNode->nodeName, $tagList ?: [])) {
                     if ($node->firstChild->nodeName == $node->lastChild->nodeName && $node->childNodes->length > 1) {
-                        $result[$childNode->nodeName][] = self::parseNodeProperties($childNode);
+                        $result[$childNode->nodeName][] = $this->parseNodeProperties($childNode);
                     } else {
-                        $result[$childNode->nodeName] = self::parseNodeProperties($childNode);
+                        $result[$childNode->nodeName] = $this->parseNodeProperties($childNode);
                     }
                 }
             } elseif ($childNode->nodeType === 1 && in_array($childNode->nodeName, $tagList ?: [])) {
-                $result[$childNode->nodeName] = self::parseNodeProperties($childNode);
+                // node is a DOMElement
+                $result[$childNode->nodeName] = $this->parseNodeProperties($childNode);
             } elseif ($childNode->nodeType === 3) {
+                // node is a DOMText
                 $result = $childNode->nodeValue;
             }
         }
-        if ($node->hasAttributes()) {
-            if (is_string($result)) {
-                // As of the GPX specification text node cannot have attributes, thus this never happens
-                $result = ['#text' => $result];
-            }
-            $attributes = [];
-            foreach ($node->attributes as $attribute) {
-                if ($attribute->name !== 'lat' && $attribute->name !== 'lon' && trim($attribute->value) !== '') {
-                    $attributes[$attribute->name] = trim($attribute->value);
-                }
-            }
-            if (count($attributes)) {
-                $result['@attributes'] = $attributes;
+    }
+    
+    /**
+     *
+     * @param array<string, mixed>|string $result
+     * @param \DOMNode $node
+     * @return void
+     */
+    private function addNodeAttributes(&$result, \DOMNode $node)
+    {
+        if (is_string($result)) {
+            // As of the GPX specification text node cannot have attributes, thus this never happens
+            $result = ['#text' => $result];
+        }
+        $attributes = [];
+        foreach ($node->attributes as $attribute) {
+            if ($attribute->name !== 'lat' && $attribute->name !== 'lon' && trim($attribute->value) !== '') {
+                $attributes[$attribute->name] = trim($attribute->value);
             }
         }
-        return $result;
+        if (!empty($attributes)) {
+            $result['@attributes'] = $attributes;
+        }
     }
 
     /**
