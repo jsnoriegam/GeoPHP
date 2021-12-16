@@ -43,8 +43,8 @@ class Polygon extends Surface
                     $endPt = $component->endPoint();
                     throw new InvalidGeometryException(
                         'Cannot create Polygon: contains a non-closed ring (first point: '
-                            . implode(' ', $startPt ? $startPt->asArray() : []) . ', last point: '
-                            . implode(' ', $endPt ? $endPt->asArray() : []) . ')'
+                            . implode(' ', $startPt->asArray()) . ', last point: '
+                            . implode(' ', $endPt->asArray()) . ')'
                     );
                 }
             }

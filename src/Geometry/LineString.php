@@ -87,7 +87,7 @@ class LineString extends Curve
         $length = 0.0;
         $points = $this->getPoints();
         $numPoints = count($points) - 1;
-        for ($i=0; $i < $numPoints; ++$i) {
+        for ($i = 0; $i < $numPoints; ++$i) {
             $currX = $points[$i]->getX();
             $currY = $points[$i]->getY();
             $nextX = $points[$i + 1]->getX();
@@ -122,11 +122,11 @@ class LineString extends Curve
         
         $length = 0.0;
         $points = $this->getPoints();
-        $numPoints = count($points)-1;
-        for ($i=0; $i<$numPoints; ++$i) {
+        $numPoints = count($points) - 1;
+        for ($i = 0; $i<$numPoints; ++$i) {
             $length += sqrt(
-                pow(($points[$i]->getX() - $points[$i+1]->getX()), 2) +
-                pow(($points[$i]->getY() - $points[$i+1]->getY()), 2)
+                pow(($points[$i]->getX() - $points[$i + 1]->getX()), 2) +
+                pow(($points[$i]->getY() - $points[$i + 1]->getY()), 2)
             );
         }
         
