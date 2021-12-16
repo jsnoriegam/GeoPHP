@@ -169,10 +169,17 @@ class KML implements GeoAdapter
         $pointArray = [];
         $hasZ = false;
         $hasM = false;
+
         foreach ($coordinates as $set) {
             $hasZ = $hasZ || (isset($set[2]) && $set[2]);
             $hasM = $hasM || (isset($set[3]) && $set[3]);
         }
+
+
+        if (count($coordinates) == 1) {
+            $coordinates[1] = $coordinates[0];
+        }
+
         foreach ($coordinates as $set) {
             $pointArray[] = new Point(
                 $set[0],
@@ -181,7 +188,7 @@ class KML implements GeoAdapter
                 ($hasM ? (isset($set[3]) ? $set[3] : 0) : null)
             );
         }
-        
+
         return new LineString($pointArray);
     }
 
