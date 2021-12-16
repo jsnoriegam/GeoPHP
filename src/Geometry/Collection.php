@@ -108,26 +108,10 @@ abstract class Collection extends Geometry
             return [];
         }
 
+        // use GEOS library
         $geosObj = $this->getGeos();
         if (is_object($geosObj)) {
-            // @codeCoverageIgnoreStart
-            /** @noinspection PhpUndefinedMethodInspection */
-            $envelope = $geosObj->envelope();
-            /** @noinspection PhpUndefinedMethodInspection */
-            if ($envelope->typeName() === 'Point') {
-                return geoPHP::geosToGeometry($envelope)->getBBox();
-            }
-
-            /** @noinspection PhpUndefinedMethodInspection */
-            $geosRing = $envelope->exteriorRing();
-            /** @noinspection PhpUndefinedMethodInspection */
-            return [
-                'maxy' => $geosRing->pointN(3)->getY(),
-                'miny' => $geosRing->pointN(1)->getY(),
-                'maxx' => $geosRing->pointN(1)->getX(),
-                'minx' => $geosRing->pointN(3)->getX(),
-            ];
-            // @codeCoverageIgnoreEnd
+            return $this->getBBoxWithGeos($geosObj);
         }
 
         // Go through each component and get the max and min x and y
@@ -160,6 +144,34 @@ abstract class Collection extends Geometry
             'maxx' => $maxX,
             'minx' => $minX,
         ];
+    }
+    
+    /**
+     * @param \GEOSGeometry $geosObj
+     * @return array{'minx'?:float|null, 'miny'?:float|null, 'maxx'?:float|null, 'maxy'?:float|null}
+     */
+    private function getBBoxWithGeos($geosObj): array
+    {
+        // @codeCoverageIgnoreStart
+        /** @noinspection PhpUndefinedMethodInspection */
+        $envelope = $geosObj->envelope();
+        
+        /** @noinspection PhpUndefinedMethodInspection */
+        if ($envelope->typeName() === 'Point') {
+            return geoPHP::geosToGeometry($envelope)->getBBox();
+        }
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        $geosRing = $envelope->exteriorRing();
+        
+        /** @noinspection PhpUndefinedMethodInspection */
+        return [
+            'maxy' => $geosRing->pointN(3)->getY(),
+            'miny' => $geosRing->pointN(1)->getY(),
+            'maxx' => $geosRing->pointN(1)->getX(),
+            'minx' => $geosRing->pointN(3)->getX(),
+        ];
+        // @codeCoverageIgnoreEnd
     }
     
     /**
@@ -272,7 +284,9 @@ abstract class Collection extends Geometry
     }
 
     /**
-     * @todo   speed it up with array_diff
+     * Returns TRUE if the given Geometries are "spatially equal".
+     * Ordering of points can be different but represent the same geometry structure
+     * 
      * @param  Geometry $geometry
      * @return bool
      */
@@ -287,16 +301,26 @@ abstract class Collection extends Geometry
             // @codeCoverageIgnoreEnd
         }
 
+        $thisPoints = $this->getPoints();
+        $otherPoints = $geometry->getPoints();
+
+        /*
+        // using some sort of simplification method that strips redundant vertices (that are all in a row)
+        // Hint: this mehtod is mostly slower as long as number of points is less than 1000
+        $asWkt = function(Point $pt){
+            return implode(' ', $pt->asArray());
+        };
+        $ptsA = array_unique(array_map($asWkt, $thisPoints));
+        $ptsB = array_unique(array_map($asWkt, $otherPoints));
+
+        return count(array_diff($ptsA, $ptsB)) === 0;
+        */
+        
         // To test for equality we check to make sure that there is a matching point
         // in the other geometry for every point in this geometry.
         // This is slightly more strict than the standard, which
         // uses Within(A,B) = true and Within(B,A) = true
-        // @@TODO: Eventually we could fix this by using some sort of simplification
-        // method that strips redundant vertices (that are all in a row)
-
-        $thisPoints = $this->getPoints();
-        $otherPoints = $geometry->getPoints();
-
+        
         // First do a check to make sure they have the same number of vertices
         if (count($thisPoints) !== count($otherPoints)) {
             return false;
