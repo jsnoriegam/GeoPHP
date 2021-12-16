@@ -661,7 +661,7 @@ class OSM implements GeoAdapter
                 if (isset($errContext['http_response_header'])) {
                     foreach ($errContext['http_response_header'] as $line) {
                         if (strpos($line, 'Error: ') > -1) {
-                              throw new \Exception($line);
+                            throw new \Exception($line);
                         }
                     }
                 }

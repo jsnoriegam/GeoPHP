@@ -299,7 +299,7 @@ class Polygon extends Surface
                 return false;
             }
             /** @var string $wkt */
-            $wkt = str_ireplace(['LINESTRING(',')'], '', $ring->asText());
+            $wkt = str_ireplace(['LINESTRING(', ')'], '', $ring->asText());
             $pts = array_unique(array_map('trim', explode(',', $wkt)));
             if (count($pts) < 3) {
                 return false;

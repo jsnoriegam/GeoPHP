@@ -86,16 +86,16 @@ class LineString extends Curve
         $y = 0;
         $length = 0.0;
         $points = $this->getPoints();
-        $numPoints = count($points)-1;
-        for ($i=0; $i<$numPoints; ++$i) {
+        $numPoints = count($points) - 1;
+        for ($i=0; $i < $numPoints; ++$i) {
             $currX = $points[$i]->getX();
             $currY = $points[$i]->getY();
-            $nextX = $points[$i+1]->getX();
-            $nextY = $points[$i+1]->getY();
+            $nextX = $points[$i + 1]->getX();
+            $nextY = $points[$i + 1]->getY();
             
             $dx = $nextX - $currX;
             $dy = $nextY - $currY;
-            $segmentLength = sqrt($dx*$dx + $dy*$dy);
+            $segmentLength = sqrt($dx * $dx + $dy * $dy);
             $length += $segmentLength;
             $x += ($currX + $nextX) / 2 * $segmentLength;
             $y += ($currY + $nextY) / 2 * $segmentLength;

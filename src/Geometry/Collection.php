@@ -61,8 +61,7 @@ abstract class Collection extends Geometry
                 }
             } else {
                 $componentType = gettype($components[$i]) !== 'object' ?
-                    gettype($components[$i]) :
-                    get_class($components[$i]);
+                    gettype($components[$i]) : get_class($components[$i]);
                 
                 throw new InvalidGeometryException(
                     'Cannot create a collection of ' . $componentType . ' components, ' .
@@ -286,7 +285,7 @@ abstract class Collection extends Geometry
     /**
      * Returns TRUE if the given Geometries are "spatially equal".
      * Ordering of points can be different but represent the same geometry structure
-     * 
+     *
      * @param  Geometry $geometry
      * @return bool
      */

@@ -195,7 +195,7 @@ class WKT implements GeoAdapter
          * MULTIPOINT (1 2, 3 4)
          */
         foreach (explode(',', $dataString) as $part) {
-            $points[] =  $this->parsePoint(trim($part, ' ()'));
+            $points[] = $this->parsePoint(trim($part, ' ()'));
         }
         return new MultiPoint($points);
     }
@@ -215,7 +215,7 @@ class WKT implements GeoAdapter
         $m = [];
         if (preg_match_all('/(\([^(]+?\)|EMPTY)/', $dataString, $m)) {
             foreach ($m[1] as $part) {
-                $lines[] =  $this->parseLineString(trim($part, ' ()'));
+                $lines[] = $this->parseLineString(trim($part, ' ()'));
             }
         }
         return new MultiLineString($lines);

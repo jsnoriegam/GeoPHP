@@ -309,7 +309,7 @@ class geoPHP
         // If it is a single geometry
         if ($geometries instanceof Geometry) {
             return $geometries;
-        } else if (!is_array($geometries)) {
+        } elseif (!is_array($geometries)) {
             throw new \Exception('Input is not a Geometry or array of Geometries');
         } elseif (count($geometries) === 1) {
             // If it's an array of one, then just parse the one
@@ -377,7 +377,7 @@ class geoPHP
         }
 
         // First char is a tab, space or carriage-return. trim it and try again
-        if (in_array($bytes[1], [9,10,32], true)) {
+        if (in_array($bytes[1], [9, 10, 32], true)) {
             $input = ltrim($input);
             return geoPHP::detectFormat($input);
         }
@@ -446,7 +446,7 @@ class geoPHP
 
         // We need an 8 byte string for geohash and unpacked WKB / WKT
         fseek($mem, 0);
-        $string = trim((string)fread($mem, 8));
+        $string = trim((string) fread($mem, 8));
 
         // Detect geohash - geohash ONLY contains lowercase chars and numerics
         $matches = [];

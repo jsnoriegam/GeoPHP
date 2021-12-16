@@ -111,8 +111,7 @@ class KML implements GeoAdapter
         
         // The document does not have a placemark, try to create a valid geometry from the root element
         $nodeName = $this->xmlObject->documentElement->nodeName === 'multigeometry' ?
-                'geometrycollection' :
-                $this->xmlObject->documentElement->nodeName;
+                'geometrycollection' : $this->xmlObject->documentElement->nodeName;
 
         if (array_key_exists($nodeName, geoPHP::getGeometryList())) {
             $function = 'parse' . geoPHP::getGeometryList()[$nodeName];
@@ -174,7 +173,6 @@ class KML implements GeoAdapter
             $hasZ = $hasZ || (isset($set[2]) && $set[2]);
             $hasM = $hasM || (isset($set[3]) && $set[3]);
         }
-
 
         if (count($coordinates) == 1) {
             $coordinates[1] = $coordinates[0];

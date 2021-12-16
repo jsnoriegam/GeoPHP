@@ -227,14 +227,12 @@ class GPX implements GeoAdapter
                     $points[] = $this->parsePoint($trkpt);
                 }
                 // Avoids creating invalid LineString
-                if (count($points)>1) {
+                if (count($points) > 1) {
                     $segments[] = new LineString($points);
                 }
             }
             if (!empty($segments)) {
-                $track = count($segments) === 1 ?
-                   $segments[0] :
-                   new MultiLineString($segments);
+                $track = count($segments) === 1 ? $segments[0] : new MultiLineString($segments);
                 $track->setData($this->parseNodeProperties($trk, $this->gpxTypes->get('trkType')));
                 $track->setData('gpxType', 'track');
                 $tracks[] = $track;
@@ -451,7 +449,7 @@ class GPX implements GeoAdapter
     {
         $metadata = self::processGeometryData($geometry, $this->gpxTypes->get('metadataType'));
         $metadata = empty($metadata) || !in_array('metadataType', $this->gpxTypes->get('gpxType')) ?
-            '' : "<metadata>\n" . $metadata. "</metadata>\n\n";
+            '' : "<metadata>\n" . $metadata . "</metadata>\n\n";
         $wayPoints = $routes = $tracks = "";
 
         foreach ($geometry->getComponents() as $component) {
