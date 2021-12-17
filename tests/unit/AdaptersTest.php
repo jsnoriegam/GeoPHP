@@ -24,7 +24,7 @@ class AdaptersTest extends TestCase
 
                 // Test adapter output and input. Do a round-trip and re-test
                 foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
-                    if ($adapter_key == 'GoogleGeocode') {
+                    if ($adapter_key == 'google_geocode') {
                         //Don't test google geocoder regularly. Comment to test
                         continue;
                     }
@@ -47,7 +47,7 @@ class AdaptersTest extends TestCase
                 }
 
                 foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
-                    if ($adapter_key != 'GoogleGeocode') {
+                    if ($adapter_key != 'google_geocode') {
                         //Don't test google geocoder regularily. Comment to test
                         continue;
                     }
