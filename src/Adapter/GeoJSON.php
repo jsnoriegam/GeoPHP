@@ -24,15 +24,15 @@ class GeoJSON implements GeoAdapter
     /**
      * Given an object or a string, return a Geometry
      *
-     * @param string|\stdClass $input The GeoJSON string or object
+     * @param string $input The GeoJSON string or object
      * @return Geometry
      * @throws \Exception
      */
-    public function read($input): Geometry
+    public function read(string $input): Geometry
     {
-        if (is_string($input)) {
+        #if (is_string($input)) {
             $input = json_decode($input);
-        }
+        #}
         if (!is_object($input)) {
             throw new \Exception('Invalid JSON');
         }
