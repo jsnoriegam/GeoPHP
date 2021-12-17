@@ -1,4 +1,8 @@
 parameters:
+    level: 6
+    paths:
+        - src
+        - tests
     stubFiles:
         - stubs/GEOSConstants.php
         - stubs/GEOSFunctions.php
