@@ -19,6 +19,9 @@ use PHPUnit\Framework\TestCase;
 class PointTest extends TestCase
 {
 
+    /**
+     * @return array<string, array>
+     */
     public function providerValidCoordinatesXY()
     {
         return [
@@ -35,6 +38,7 @@ class PointTest extends TestCase
      *
      * @param int|float $x
      * @param int|float $y
+     * @return void
      */
     public function testValidCoordinatesXY($x, $y)
     {
@@ -51,7 +55,10 @@ class PointTest extends TestCase
         parent::assertTrue(is_float($point->y()));
     }
 
-    public function providerValidCoordinatesXYZ_or_XYM()
+    /**
+     * @return array<string, array>
+     */
+    public function providerValidCoordinatesXYZOrXYM()
     {
         return [
             'null coordinates' => [0, 0, 0],
@@ -63,11 +70,12 @@ class PointTest extends TestCase
     }
 
     /**
-     * @dataProvider providerValidCoordinatesXYZ_or_XYM
+     * @dataProvider providerValidCoordinatesXYZOrXYM
      *
      * @param int|float $x
      * @param int|float $y
      * @param int|float $z
+     * @return void
      */
     public function testValidCoordinatesXYZ($x, $y, $z)
     {
@@ -87,13 +95,14 @@ class PointTest extends TestCase
     }
 
     /**
-     * @dataProvider providerValidCoordinatesXYZ_or_XYM
+     * @dataProvider providerValidCoordinatesXYZOrXYM
      *
      * @param int|float $x
      * @param int|float $y
      * @param int|float $m
+     * @return void
      */
-    function testValidCoordinatesXYM($x, $y, $m)
+    public function testValidCoordinatesXYM($x, $y, $m)
     {
         $point = new Point($x, $y, null, $m);
 
@@ -110,6 +119,9 @@ class PointTest extends TestCase
         parent::assertTrue(is_float($point->m()));
     }
 
+    /**
+     * @return array<string, array>
+     */
     public function providerValidCoordinatesXYZM()
     {
         return [
@@ -128,6 +140,7 @@ class PointTest extends TestCase
      * @param int|float $y
      * @param int|float $z
      * @param int|float $m
+     * @return void
      */
     public function testValidCoordinatesXYZM($x, $y, $z, $m)
     {
@@ -148,6 +161,9 @@ class PointTest extends TestCase
         parent::assertTrue(is_float($point->m()));
     }
 
+    /**
+     * @return void
+     */
     public function testConstructorWithoutParameters()
     {
         $point = new Point();
@@ -160,6 +176,9 @@ class PointTest extends TestCase
         parent::assertNull($point->m());
     }
 
+    /**
+     * @return array<string, array>
+     */
     public function providerEmpty()
     {
         return [
@@ -179,6 +198,7 @@ class PointTest extends TestCase
      * @param int|float|null $y
      * @param int|float|null $z
      * @param int|float|null $m
+     * @return void
      */
     public function testEmpty($x = null, $y = null, $z = null, $m = null)
     {
@@ -192,6 +212,9 @@ class PointTest extends TestCase
         parent::assertNull($point->m());
     }
 
+    /**
+     * @return array<string, array>
+     */
     public function providerInvalidCoordinates()
     {
         return [
@@ -209,14 +232,17 @@ class PointTest extends TestCase
      * @param mixed $y
      * @param mixed $z
      * @param mixed $m
+     * @return void
      */
     public function testConstructorWithInvalidCoordinates($x, $y, $z = null, $m = null)
     {
         $this->expectException(InvalidGeometryException::class);
-
         new Point($x, $y, $z, $m);
     }
 
+    /**
+     * @return void
+     */
     public function testGeometryType()
     {
         $point = new Point();
@@ -227,6 +253,9 @@ class PointTest extends TestCase
         parent::assertInstanceOf(\geoPHP\Geometry\Geometry::class, $point);
     }
 
+    /**
+     * @return array<string, array>
+     */
     public function providerIs3D()
     {
         return [
@@ -241,12 +270,21 @@ class PointTest extends TestCase
 
     /**
      * @dataProvider providerIs3D
+     * @param bool $result
+     * @param mixed $x
+     * @param mixed $y
+     * @param mixed $z
+     * @param mixed $m
+     * @return void
      */
     public function testIs3D($result, $x = null, $y = null, $z = null, $m = null)
     {
         parent::assertSame($result, (new Point($x, $y, $z, $m))->is3D());
     }
 
+    /**
+     * @return array<string, array>
+     */
     public function providerIsMeasured()
     {
         return [
@@ -261,19 +299,28 @@ class PointTest extends TestCase
 
     /**
      * @dataProvider providerIsMeasured
+     * @param bool $result
+     * @param mixed $x
+     * @param mixed $y
+     * @param mixed $z
+     * @param mixed $m
+     * @return void
      */
     public function testIsMeasured($result, $x = null, $y = null, $z = null, $m = null)
     {
         parent::assertSame($result, (new Point($x, $y, $z, $m))->isMeasured());
     }
 
+    /**
+     * @return void
+     */
     public function testGetComponents()
     {
         $point = new Point(1, 2);
         $components = $point->getComponents();
 
         //parent::assertIsArray($components);
-        parent::assertTrue(is_array($components) );
+        parent::assertTrue(is_array($components));
         parent::assertCount(1, $components);
         parent::assertSame($point, $components[0]);
     }
@@ -285,6 +332,7 @@ class PointTest extends TestCase
      * @param int|float $y
      * @param int|float $z
      * @param int|float $m
+     * @return void
      */
     public function testInvertXY($x, $y, $z, $m)
     {
@@ -301,12 +349,18 @@ class PointTest extends TestCase
         parent::assertEquals($point, $originalPoint);
     }
 
+    /**
+     * @return void
+     */
     public function testCentroidIsThePointItself()
     {
         $point = new Point(1, 2, 3, 4);
         parent::assertSame($point, $point->centroid());
     }
 
+    /**
+     * @return void
+     */
     public function testBBox()
     {
         $point = new Point(1, 2);
@@ -318,6 +372,9 @@ class PointTest extends TestCase
         ]);
     }
 
+    /**
+     * @return void
+     */
     public function testAsArray()
     {
         $pointAsArray = (new Point())->asArray();
@@ -338,11 +395,17 @@ class PointTest extends TestCase
         parent::assertSame($pointAsArray, [1.0, 2.0, 3.0, 4.0]);
     }
 
+    /**
+     * @return void
+     */
     public function testBoundary()
     {
         parent::assertEquals((new Point(1, 2))->boundary(), new GeometryCollection());
     }
 
+    /**
+     * @return void
+     */
     public function testEquals()
     {
         parent::assertTrue((new Point())->equals(new Point()));
@@ -359,6 +422,9 @@ class PointTest extends TestCase
         parent::assertFalse($point->equals(new GeometryCollection()));
     }
 
+    /**
+     * @return void
+     */
     public function testFlatten()
     {
         $point = new Point(1, 2, 3, 4);
@@ -372,6 +438,9 @@ class PointTest extends TestCase
         parent::assertFalse($point->isMeasured());
     }
 
+    /**
+     * @return array<string, array>
+     */
     public function providerDistance()
     {
         return [
@@ -396,7 +465,7 @@ class PointTest extends TestCase
             'MultiPoint, one of two is empty' =>
                 [MultiPoint::fromArray([[], [0, 10]]), 10.0],
             'GeometryCollection, closest component is 10' =>
-                [new GeometryCollection([new Point(0,10), new Point()]), 10.0]
+                [new GeometryCollection([new Point(0, 10), new Point()]), 10.0]
             // FIXME: this geometry collection crashes GEOS
             // TODO: test other types
         ];
@@ -407,6 +476,7 @@ class PointTest extends TestCase
      *
      * @param Geometry $otherGeometry
      * @param float $expectedDistance
+     * @return void
      */
     public function testDistance($otherGeometry, $expectedDistance)
     {
@@ -423,33 +493,39 @@ class PointTest extends TestCase
      * @dataProvider providerDistance
      *
      * @param Geometry $otherGeometry
+     * @return void
      */
     public function testDistanceEmpty($otherGeometry)
     {
         $point = new Point();
-
         parent::assertNull($point->distance($otherGeometry));
     }
 
+    /**
+     * @return void
+     */
     public function testTrivialMethods()
     {
         $point = new Point(1, 2, 3, 4);
 
-        parent::assertSame( $point->dimension(), 0 );
+        parent::assertSame($point->dimension(), 0);
 
-        parent::assertSame( $point->numPoints(), 1 );
+        parent::assertSame($point->numPoints(), 1);
 
-        parent::assertSame( $point->numGeometries(), 1 );
+        parent::assertSame($point->numGeometries(), 1);
         
-        parent::assertSame( $point->getPoints(), [$point] );
+        parent::assertSame($point->getPoints(), [$point]);
 
-        parent::assertTrue( $point->isSimple());
+        parent::assertTrue($point->isSimple());
         
-        parent::assertTrue( $point->isClosed() );
+        parent::assertTrue($point->isClosed());
         
-        parent::assertSame( $point->explode(), [] );
+        parent::assertSame($point->explode(), []);
     }
 
+    /**
+     * @return void
+     */
     public function testMinMaxMethods()
     {
         $point = new Point(1, 2, 3, 4);
@@ -460,23 +536,26 @@ class PointTest extends TestCase
         parent::assertEquals($point->maximumM(), 4);
     }
 
+    /**
+     * @return array[]
+     */
     public function providerMethodsNotValidForPointReturnsNull()
     {
         return [
-                ['zDifference'],
-                ['elevationGain'],
-                ['elevationLoss'],
-                //['numGeometries'], # returns 1
-                //['geometryN'], # raises TypeError
-                ['startPoint'],
-                ['endPoint'],
-                //['isRing'], # throws UnsupportedMethodException
-                //['isClosed'], # returns true
-                //['pointN'], # raises TypeError
-                ['exteriorRing'],
-                ['numInteriorRings'],
-                //['interiorRingN'], # raises TypeError
-                //['explode'] # returns array
+            ['zDifference'],
+            ['elevationGain'],
+            ['elevationLoss'],
+            //['numGeometries'], # returns 1
+            //['geometryN'], # raises TypeError
+            ['startPoint'],
+            ['endPoint'],
+            //['isRing'], # throws UnsupportedMethodException
+            //['isClosed'], # returns true
+            //['pointN'], # raises TypeError
+            ['exteriorRing'],
+            ['numInteriorRings'],
+            //['interiorRingN'], # raises TypeError
+            //['explode'] # returns array
         ];
     }
 
@@ -484,12 +563,16 @@ class PointTest extends TestCase
      * @dataProvider providerMethodsNotValidForPointReturnsNull
      *
      * @param string $methodName
+     * @return void
      */
     public function testPlaceholderMethodsReturnsNull($methodName)
     {
-        parent::assertNull( (new Point(1, 2, 3, 4))->$methodName(null) );
+        parent::assertNull((new Point(1, 2, 3, 4))->$methodName(null));
     }
 
+    /**
+     * @return array[]
+     */
     public function providerMethodsNotValidForPointReturns0()
     {
         return [
@@ -505,10 +588,10 @@ class PointTest extends TestCase
      * @dataProvider providerMethodsNotValidForPointReturns0
      *
      * @param string $methodName
+     * @return void
      */
     public function testPlaceholderMethods($methodName)
     {
-        parent::assertSame( (new Point(1, 2, 3, 4))->$methodName(null), 0.0 );
+        parent::assertSame((new Point(1, 2, 3, 4))->$methodName(null), 0.0);
     }
-
 }

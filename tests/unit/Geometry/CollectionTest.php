@@ -10,6 +10,7 @@
 
 namespace geoPHP\Tests\Geometry;
 
+use geoPHP\Geometry\Geometry;
 use \geoPHP\Geometry\Collection;
 use \geoPHP\Geometry\Point;
 use \geoPHP\Geometry\LineString;
@@ -23,6 +24,9 @@ use \PHPUnit\Framework\TestCase;
 class CollectionTest extends TestCase
 {
 
+    /**
+     * @return array[]
+     */
     public function providerIs3D()
     {
         return [
@@ -37,15 +41,18 @@ class CollectionTest extends TestCase
      *
      * @param Point[] $components
      * @param bool    $result
+     * @return void
      */
     public function testIs3D($components, $result)
     {
         /** @var Collection $stub */
         $stub = $this->getMockForAbstractClass(Collection::class, [$components, true]);
-
         parent::assertEquals($stub->is3D(), $result);
     }
 
+    /**
+     * @return array[]
+     */
     public function providerIsMeasured()
     {
         return [
@@ -62,15 +69,18 @@ class CollectionTest extends TestCase
      *
      * @param Point[] $components
      * @param bool    $result
+     * @return void
      */
     public function testIsMeasured($components, $result)
     {
         /** @var Collection $stub */
         $stub = $this->getMockForAbstractClass(Collection::class, [$components, true]);
-
         parent::assertEquals($stub->isMeasured(), $result);
     }
 
+    /**
+     * @return array[]
+     */
     public function providerIsEmpty()
     {
         return [
@@ -85,6 +95,7 @@ class CollectionTest extends TestCase
      *
      * @param Point[] $components
      * @param bool    $result
+     * @return void
      */
     public function testIsEmpty($components, $result)
     {
@@ -94,6 +105,9 @@ class CollectionTest extends TestCase
         parent::assertEquals($stub->isEmpty(), $result);
     }
 
+    /**
+     * @return void
+     */
     public function testNonApplicableMethods()
     {
         /** @var Collection $stub */
@@ -105,6 +119,9 @@ class CollectionTest extends TestCase
         parent::assertNull($stub->m());
     }
 
+    /**
+     * @return void
+     */
     public function testAsArray()
     {
         $components = [
@@ -122,6 +139,9 @@ class CollectionTest extends TestCase
         parent::assertEquals($stub->asArray(), $expected);
     }
 
+    /**
+     * @return void
+     */
     public function testFlatten()
     {
         $components = [
@@ -139,6 +159,9 @@ class CollectionTest extends TestCase
         parent::assertFalse($stub->getPoints()[0]->hasZ());
     }
 
+    /**
+     * @return void
+     */
     public function testExplode()
     {
         $points = [new Point(1, 2), new Point(3, 4), new Point(5, 6), new Point(1, 2)];
@@ -159,6 +182,9 @@ class CollectionTest extends TestCase
         }
     }
 
+    /**
+     * @return Geometry[]
+     */
     private function getPolygons()
     {
         $WKT = new WKT;
@@ -172,6 +198,9 @@ class CollectionTest extends TestCase
         return $polygons;
     }
     
+    /**
+     * @return array[]
+     */
     public function providerGetArea()
     {
         $polygons = $this->getPolygons();
@@ -189,12 +218,16 @@ class CollectionTest extends TestCase
      *
      * @param Polygon $polygon
      * @param float $result
+     * @return void
      */
     public function testGetArea($polygon, $result)
     {
         parent::assertSame($polygon->getArea(), $result);
     }
 
+    /**
+     * @return array[]
+     */
     public function providerGetCentroid()
     {
         $polygons = $this->getPolygons();
@@ -212,6 +245,7 @@ class CollectionTest extends TestCase
      *
      * @param Polygon $polygon
      * @param Point $result
+     * @return void
      */
     public function testGetCentroid($polygon, $result)
     {
@@ -219,5 +253,4 @@ class CollectionTest extends TestCase
         $result->getGeos();
         parent::assertEquals($centroid, $result);
     }
-
 }

@@ -9,7 +9,6 @@
  *
  * Feel free to add more test methods.
  */
-
 require '../vendor/autoload.php';
 
 use geoPHP\Geometry\Point;
@@ -18,30 +17,41 @@ use geoPHP\Geometry\Polygon;
 use geoPHP\Geometry\GeometryCollection;
 use geoPHP\geoPHP;
 
-function testStart($message) {
+/**
+ * @param string $message
+ * @return void
+ */
+function testStart($message)
+{
     $GLOBALS['runTime'] = microtime(true);
     echo $message . "\n";
 }
-function testEnd($result=null, $ready=false) {
+
+/**
+ *
+ * @param mixed $result
+ * @param bool $ready
+ * @return void
+ */
+function testEnd($result = null, $ready = false)
+{
     if ($ready) {
         echo "\nTotal run time: " . round(microtime(true) - $GLOBALS['startTime'], 4) . ' sec,';
     } else {
         echo '  Time: ' . round(microtime(true) - $GLOBALS['runTime'], 4) . ' sec,';
     }
     echo
-            ' Memory: ' . round(memory_get_usage()/1024/1024 - $GLOBALS['startMem'], 4) . 'MB' .
-            ' Memory peak: ' . round(memory_get_peak_usage()/1024/1024, 4) . 'MB' .
-            ($result ? ' Result: ' . $result : '') .
-            "\n";
+    ' Memory: ' . round(memory_get_usage() / 1024 / 1024 - $GLOBALS['startMem'], 4) . 'MB' .
+    ' Memory peak: ' . round(memory_get_peak_usage() / 1024 / 1024, 4) . 'MB' .
+    ($result ? ' Result: ' . $result : '') .
+    "\n";
 }
 
-GeoPhp::geosInstalled(FALSE);
-
+GeoPhp::geosInstalled(false);
 
 $startTime = microtime(true);
-$startMem = memory_get_usage(true)/1024/1024;
-$res=null;
-
+$startMem = memory_get_usage(true) / 1024 / 1024;
+$res = null;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,34 +60,34 @@ $pointCount = 10000;
 testStart("Creating " . $pointCount . " EMPTY Point:");
 /** @var Point[] $points */
 $points = [];
-for ($i=0; $i < $pointCount; $i++) {
+for ($i = 0; $i < $pointCount; $i++) {
     $points[] = new Point();
 }
 testEnd();
 
 testStart("Creating " . $pointCount . " Point:");
 $points = [];
-for ($i=0; $i < $pointCount; $i++) {
-    $points[] = new Point($i, $i+1);
+for ($i = 0; $i < $pointCount; $i++) {
+    $points[] = new Point($i, $i + 1);
 }
 testEnd();
 
 testStart("Creating " . $pointCount . " PointZ:");
 $points = [];
-for ($i=0; $i < $pointCount; $i++) {
-    $points[] = new Point($i, $i+1, $i+2);
+for ($i = 0; $i < $pointCount; $i++) {
+    $points[] = new Point($i, $i + 1, $i + 2);
 }
 testEnd();
 
 testStart("Creating " . $pointCount . " PointZM:");
 $points = [];
-for ($i=0; $i < $pointCount; $i++) {
-    $points[] = new Point($i, $i+1, $i+2, $i+3);
+for ($i = 0; $i < $pointCount; $i++) {
+    $points[] = new Point($i, $i + 1, $i + 2, $i + 3);
 }
 testEnd();
 
 testStart("Test points Point::is3D():");
-foreach($points as $point) {
+foreach ($points as $point) {
     $point->is3D();
 }
 testEnd();
@@ -87,7 +97,7 @@ $lineString = new LineString($points);
 testEnd();
 
 testStart("Test LineString::getComponents() points isMeasured():");
-foreach($lineString->getComponents() as $point) {
+foreach ($lineString->getComponents() as $point) {
     $point->isMeasured();
 }
 testEnd();
@@ -127,7 +137,7 @@ testEnd();
 $polygon = [];
 $rings = [];
 testStart("Creating Polygon (50 ring, each has 500 point):");
-for($i=0; $i < 50; $i++) {
+for ($i = 0; $i < 50; $i++) {
     $rings[] = $shortClosedLineString;
 }
 $polygon = new Polygon($rings);
@@ -135,7 +145,7 @@ testEnd();
 
 $components = [];
 testStart("Creating GeometryCollection (50 polygon):");
-for($i=0; $i < 50; $i++) {
+for ($i = 0; $i < 50; $i++) {
     $components[] = $polygon;
 }
 $collection = new GeometryCollection($components);
@@ -144,9 +154,6 @@ testEnd();
 testStart("GeometryCollection::getPoints():");
 $res = $collection->getPoints();
 testEnd(count($res));
-
-
-
 
 //////////////////////////////////////////////////////////////////////////
 

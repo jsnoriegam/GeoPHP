@@ -7,10 +7,20 @@ use geoPHP\Geometry\Geometry;
 
 run_test();
 
+/**
+ * @return void
+ */
 function run_test()
 {
     set_time_limit(0);
-    set_error_handler("FailOnError");
+
+    $FailOnError = function ($error_level, $error_message, $error_file, $error_line, $error_context) {
+        echo "$error_level: $error_message in $error_file on line $error_line\n";
+        echo "\e[31m" . "FAIL" . "\e[39m\n";
+        exit(1);
+    };
+
+    set_error_handler($FailOnError);
 
     header("Content-type: text");
 
@@ -55,6 +65,7 @@ function run_test()
 
 /**
  * @param \geoPHP\Geometry\Geometry $geometry
+ * @return void
  */
 function testGeometry(Geometry $geometry)
 {
@@ -91,11 +102,10 @@ function testGeometry(Geometry $geometry)
         $geometry->isMeasured();
         $geometry->isEmpty();
         $geometry->coordinateDimension();
-        $geometry->translate(1,1,1);
+        $geometry->translate(1, 1, 1);
         $geometry->getGeos();
         $geometry->asText();
         $geometry->asBinary();
-        
     } catch (\geoPHP\Exception\UnsupportedMethodException $e) {
         if (getenv("VERBOSE") == 1 || getopt('v')) {
             print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
@@ -135,8 +145,7 @@ function testGeometry(Geometry $geometry)
         $geometry->delaunayTriangulation(1.0);
         $geometry->voronoiDiagram(1.0);
         $geometry->offsetCurve(1.0);
-        $geometry->clipByRect(1,1,10,10);
-        
+        $geometry->clipByRect(1, 1, 10, 10);
     } catch (\Exception $e) {
         if (getenv("VERBOSE") == 1 || getopt('v')) {
             print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
@@ -146,6 +155,7 @@ function testGeometry(Geometry $geometry)
 
 /**
  * @param \geoPHP\Geometry\Geometry $geometry
+ * @return void
  */
 function testAdapters(Geometry $geometry)
 {
@@ -199,9 +209,10 @@ function testAdapters(Geometry $geometry)
             // Turn GEOS on
             geoPHP::geosInstalled(true);
             
-            if (false === ($output = $geometry->out($adapterKey))) {
-                continue;
-            }
+            $output = $geometry->out($adapterKey);
+            #if ($output === false) {
+            #    continue;
+            #}
 
             $adapterClassPath = '\\geoPHP\\Adapter\\' . $adapterName;
             /** @var \geoPHP\Adapter\GeoAdapter $adapterObj */
@@ -238,7 +249,7 @@ function testAdapters(Geometry $geometry)
 }
 
 /**
- * @param string $geometry
+ * @param Geometry $geometry
  * @return void
  */
 function testGeosMethods(Geometry $geometry)
@@ -270,7 +281,6 @@ function testGeosMethods(Geometry $geometry)
     $beVerbose = getenv("VERBOSE") == 1 || getopt('v');
     
     foreach ($methods as $method) {
-        
         echo $beVerbose ? "    $method \n" : '';
         
         try {
@@ -298,13 +308,12 @@ function testGeosMethods(Geometry $geometry)
 
             // Now check base on type
             if ($geosType === 'object') {
-
                 if ($geosResult->isEmpty()) {
                     if (!$normResult->isEmpty()) {
                         print "\e[33m" . "Result mismatch on " . $method . "\e[39m\n";
                         print 'WKT : ' . $geometry->out('wkt') . "\n";
-                        print 'GEOS : ' . (string) $geosResult . "\n";
-                        print 'NORM : ' . (string) $normResult . "\n";
+                        print 'GEOS : ' . (string) $geosResult->asText() . "\n";
+                        print 'NORM : ' . (string) $normResult->asText() . "\n";
                     }
                     continue;
                 }
@@ -335,11 +344,10 @@ function testGeosMethods(Geometry $geometry)
                 if ($geosResult !== $normResult) {
                     print "\e[33m" . "Output mismatch on " . $method . "\e[39m\n";
                     print 'WKT : ' . $geometry->out('wkt') . "\n";
-                    print 'GEOS : ' . (string) $geosResult . "\n";
-                    print 'NORM : ' . (string) $normResult . "\n";
+                    print 'GEOS : ' . (string) $geosResult->asText() . "\n";
+                    print 'NORM : ' . (string) $normResult->asText() . "\n";
                 }
             }
-            
         } catch (\Exception $e) {
             if (getenv("VERBOSE") == 1 || getopt('v')) {
                 print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
@@ -354,6 +362,7 @@ function testGeosMethods(Geometry $geometry)
 /**
  * @param string $value
  * @param string $format
+ * @return void
  */
 function testDetection(string $value, string $format)
 {
@@ -367,11 +376,4 @@ function testDetection(string $value, string $format)
     }
     // Make sure it loads using auto-detect
     geoPHP::load($value);
-}
-
-function FailOnError($error_level, $error_message, $error_file, $error_line, $error_context)
-{
-    echo "$error_level: $error_message in $error_file on line $error_line\n";
-    echo "\e[31m" . "FAIL" . "\e[39m\n";
-    exit(1);
 }
