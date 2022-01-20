@@ -2,8 +2,8 @@
 
 require '../vendor/autoload.php';
 
-use geoPHP\geoPHP;
-use geoPHP\Geometry\Geometry;
+use GeoPHP\GeoPHP;
+use GeoPHP\Geometry\Geometry;
 
 run_test();
 
@@ -24,7 +24,7 @@ function run_test()
 
     header("Content-type: text");
 
-    if (geoPHP::geosInstalled()) {
+    if (GeoPHP::geosInstalled()) {
         print "GEOS is installed.\n";
     } else {
         print "GEOS is not installed.\n";
@@ -41,7 +41,7 @@ function run_test()
             print '-- Testing ' . $file . "\n";
             
             try {
-                $geometry = geoPHP::load($value, $format);
+                $geometry = GeoPHP::load($value, $format);
             } catch (\Exception $e) {
                  print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
                  continue;
@@ -64,7 +64,7 @@ function run_test()
 }
 
 /**
- * @param \geoPHP\Geometry\Geometry $geometry
+ * @param \GeoPHP\Geometry\Geometry $geometry
  * @return void
  */
 function testGeometry(Geometry $geometry)
@@ -106,7 +106,7 @@ function testGeometry(Geometry $geometry)
         $geometry->getGeos();
         $geometry->asText();
         $geometry->asBinary();
-    } catch (\geoPHP\Exception\UnsupportedMethodException $e) {
+    } catch (\GeoPHP\Exception\UnsupportedMethodException $e) {
         if (getenv("VERBOSE") == 1 || getopt('v')) {
             print "\e[33m\t" . $e->getMessage() . "\e[39m\n";
         }
@@ -154,7 +154,7 @@ function testGeometry(Geometry $geometry)
 }
 
 /**
- * @param \geoPHP\Geometry\Geometry $geometry
+ * @param \GeoPHP\Geometry\Geometry $geometry
  * @return void
  */
 function testAdapters(Geometry $geometry)
@@ -163,7 +163,7 @@ function testAdapters(Geometry $geometry)
     
     try {
         // Test adapter output and input. Do a round-trip and re-test
-        foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
+        foreach (GeoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
             if ($adapter_key == 'google_geocode') {
                 //Don't test google geocoder regularily. Uncomment to test
                 continue;
@@ -173,8 +173,8 @@ function testAdapters(Geometry $geometry)
 
             $output = $geometry->out($adapter_key);
             if ($output) {
-                $adapter_name = '\\geoPHP\\Adapter\\' . $adapter_class;
-                /** @var \geoPHP\Adapter\GeoAdapter $adapter_loader */
+                $adapter_name = '\\GeoPHP\\Adapter\\' . $adapter_class;
+                /** @var \GeoPHP\Adapter\GeoAdapter $adapter_loader */
                 $adapter_loader = new $adapter_name();
                 $testGeom1 = $adapter_loader->read($output);
                 $testGeom2 = $adapter_loader->read($testGeom1->out($adapter_key));
@@ -189,13 +189,13 @@ function testAdapters(Geometry $geometry)
 
         // Test to make sure adapters work the same wether GEOS is turned ON or OFF.
         // Methods cannot be tested if GEOS is not intstalled.
-        if (!geoPHP::geosInstalled()) {
+        if (!GeoPHP::geosInstalled()) {
             return;
         }
         if ($beVerbose) {
             echo "Testing with GEOS\n";
         }
-        foreach (geoPHP::getAdapterMap() as $adapterKey => $adapterName) {
+        foreach (GeoPHP::getAdapterMap() as $adapterKey => $adapterName) {
             if ($adapterKey == 'google_geocode') {
                 //Don't test google geocoder regularily. Uncomment to test
                 continue;
@@ -207,25 +207,25 @@ function testAdapters(Geometry $geometry)
         
         
             // Turn GEOS on
-            geoPHP::geosInstalled(true);
+            GeoPHP::geosInstalled(true);
             
             $output = $geometry->out($adapterKey);
             #if ($output === false) {
             #    continue;
             #}
 
-            $adapterClassPath = '\\geoPHP\\Adapter\\' . $adapterName;
-            /** @var \geoPHP\Adapter\GeoAdapter $adapterObj */
+            $adapterClassPath = '\\GeoPHP\\Adapter\\' . $adapterName;
+            /** @var \GeoPHP\Adapter\GeoAdapter $adapterObj */
             $adapterObj = new $adapterClassPath();
 
             $geosGeom = $adapterObj->read($output);
 
             // Turn GEOS off
-            geoPHP::geosInstalled(false);
+            GeoPHP::geosInstalled(false);
             $phpGeom = $adapterObj->read($output);
 
             // Turn GEOS back On
-            geoPHP::geosInstalled(true);
+            GeoPHP::geosInstalled(true);
 
             // Check to make sure that both give the same results with geos enabled and disabled
             if ($geosGeom->out('wkt') != $phpGeom->out('wkt')) {
@@ -255,7 +255,7 @@ function testAdapters(Geometry $geometry)
 function testGeosMethods(Geometry $geometry)
 {
     // Cannot test methods if GEOS is not intstalled
-    if (!geoPHP::geosInstalled()) {
+    if (!GeoPHP::geosInstalled()) {
         return;
     }
 
@@ -285,18 +285,18 @@ function testGeosMethods(Geometry $geometry)
         
         try {
             // Turn GEOS on
-            geoPHP::geosInstalled(true);
-            /** @var \geoPHP\Geometry\Geometry $geosResult */
+            GeoPHP::geosInstalled(true);
+            /** @var \GeoPHP\Geometry\Geometry $geosResult */
             $geosResult = $geometry->$method();
 
             // Turn GEOS off
-            geoPHP::geosInstalled(false);
+            GeoPHP::geosInstalled(false);
 
-            /** @var \geoPHP\Geometry\Geometry $normResult */
+            /** @var \GeoPHP\Geometry\Geometry $normResult */
             $normResult = $geometry->$method();
 
             // Turn GEOS back On
-            geoPHP::geosInstalled(true);
+            GeoPHP::geosInstalled(true);
 
             $geosType = gettype($geosResult);
             $normType = gettype($normResult);
@@ -318,7 +318,7 @@ function testGeosMethods(Geometry $geometry)
                     continue;
                 }
                 
-                $haussDist = $geosResult->hausdorffDistance(geoPHP::load($normResult->out('wkt'), 'wkt'));
+                $haussDist = $geosResult->hausdorffDistance(GeoPHP::load($normResult->out('wkt'), 'wkt'));
 
                 // Get the length of the diagonal of the bbox - this is used to scale the hausdorff distance
                 // Using Pythagorean theorem
@@ -366,7 +366,7 @@ function testGeosMethods(Geometry $geometry)
  */
 function testDetection(string $value, string $format)
 {
-    $detected = geoPHP::detectFormat($value);
+    $detected = GeoPHP::detectFormat($value);
     if ($detected != $format) {
         if ($detected) {
             print 'detected as "' . $detected . "\" and not as \"$format\" !\n";
@@ -375,5 +375,5 @@ function testDetection(string $value, string $format)
         }
     }
     // Make sure it loads using auto-detect
-    geoPHP::load($value);
+    GeoPHP::load($value);
 }

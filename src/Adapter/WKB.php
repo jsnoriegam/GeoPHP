@@ -1,15 +1,15 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\MultiPoint;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\MultiLineString;
-use geoPHP\Geometry\Polygon;
-use geoPHP\Geometry\MultiPolygon;
-use geoPHP\Exception\InvalidGeometryException;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\MultiPolygon;
+use GeoPHP\Exception\InvalidGeometryException;
 
 /*
  * (c) Patrick Hayes

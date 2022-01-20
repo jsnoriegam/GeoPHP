@@ -1,8 +1,8 @@
 <?php
 
-namespace geoPHP\Tests;
+namespace GeoPHP\Tests;
 
-use \geoPHP\geoPHP;
+use \GeoPHP\GeoPHP;
 use PHPUnit\Framework\TestCase;
 
 class PlaceholdersTest extends TestCase
@@ -19,7 +19,7 @@ class PlaceholdersTest extends TestCase
                 $format = $parts[1];
                 $value = file_get_contents('tests/input/' . $file);
                 //echo "\nloading: " . $file . " for format: " . $format;
-                $geometry = geoPHP::load($value, $format);
+                $geometry = GeoPHP::load($value, $format);
 
                 $placeholders = array(
                     array('name' => 'hasZ'),

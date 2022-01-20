@@ -1,11 +1,11 @@
 <?php
 
-namespace geoPHP\Tests\Geometry;
+namespace GeoPHP\Tests\Geometry;
 
-use geoPHP\Exception\InvalidGeometryException;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\Point;
+use GeoPHP\Exception\InvalidGeometryException;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Point;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -153,9 +153,9 @@ class LineStringTest extends TestCase
         parent::assertEquals(LineString::LINESTRING, $line->geometryType());
 
         parent::assertInstanceOf(LineString::class, $line);
-        parent::assertInstanceOf(\geoPHP\Geometry\Curve::class, $line);
-        parent::assertInstanceOf(\geoPHP\Geometry\Collection::class, $line);
-        parent::assertInstanceOf(\geoPHP\Geometry\Geometry::class, $line);
+        parent::assertInstanceOf(\GeoPHP\Geometry\Curve::class, $line);
+        parent::assertInstanceOf(\GeoPHP\Geometry\Collection::class, $line);
+        parent::assertInstanceOf(\GeoPHP\Geometry\Geometry::class, $line);
     }
 
     /**
@@ -467,7 +467,7 @@ class LineStringTest extends TestCase
             'intersecting line' =>
                 [LineString::fromArray([[-10, 5], [10, 5]]), 0.0],
             'GeometryCollection' =>
-                [new \geoPHP\Geometry\GeometryCollection([LineString::fromArray([[10, 10], [20, 20]])]), 10.0],
+                [new \GeoPHP\Geometry\GeometryCollection([LineString::fromArray([[10, 10], [20, 20]])]), 10.0],
             // TODO: test other types
         ];
     }

@@ -10,10 +10,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\Point;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\Point;
 
 /**
  * PHP Geometry <-> TWKB encoder/decoder

@@ -1,8 +1,8 @@
 <?php
 
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\Exception\InvalidGeometryException;
+use GeoPHP\Exception\InvalidGeometryException;
 
 /**
  * A curve consists of a sequence of Points.

@@ -1,11 +1,11 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
 /**
  * Defines the available GPX types and their allowed elements following the GPX specification
  *
  * @see http://www.topografix.com/gpx/1/1/
- * @package geoPHP\Adapter
+ * @package GeoPHP\Adapter
  */
 class GpxTypes
 {

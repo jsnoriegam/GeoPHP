@@ -1,12 +1,12 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Collection;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\Collection;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
 
 /*
  * Copyright (c) Patrick Hayes

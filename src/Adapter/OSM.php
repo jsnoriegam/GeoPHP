@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Collection;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\MultiPoint;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\MultiLineString;
-use geoPHP\Geometry\Polygon;
-use geoPHP\Geometry\MultiPolygon;
+use GeoPHP\Geometry\Collection;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\MultiPolygon;
 
 /**
  * PHP Geometry <-> OpenStreetMap XML encoder/decoder

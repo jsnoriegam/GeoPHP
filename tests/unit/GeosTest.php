@@ -1,8 +1,8 @@
 <?php
 
-namespace geoPHP\Tests;
+namespace GeoPHP\Tests;
 
-use \geoPHP\geoPHP;
+use \GeoPHP\GeoPHP;
 use PHPUnit\Framework\TestCase;
 
 class GeosTest extends TestCase
@@ -13,7 +13,7 @@ class GeosTest extends TestCase
      */
     public function testGeos()
     {
-        if (!geoPHP::geosInstalled()) {
+        if (!GeoPHP::geosInstalled()) {
             $this->markTestSkipped('GEOS not installed');
         }
 
@@ -30,7 +30,7 @@ class GeosTest extends TestCase
                 $format = $parts[1];
                 $value = file_get_contents('./input/' . $file);
                 echo "\nloading: " . $file . " for format: " . $format;
-                $geometry = geoPHP::load($value, $format);
+                $geometry = GeoPHP::load($value, $format);
 
                 $geosMethods = array(
                     array('name' => 'geos'),
@@ -103,7 +103,7 @@ class GeosTest extends TestCase
                         case 'symDifference':
                         case 'union':
                         case 'simplify':
-                            $this->assertInstanceOf('geoPHP\\Geometry\\Geometry', $geometry->$method_name($argument), $error_message);
+                            $this->assertInstanceOf('GeoPHP\\Geometry\\Geometry', $geometry->$method_name($argument), $error_message);
                             break;
                         case 'distance':
                         case 'hausdorffDistance':

@@ -1,9 +1,9 @@
 <?php
 
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\Exception\InvalidGeometryException;
-use geoPHP\geoPHP;
+use GeoPHP\Exception\InvalidGeometryException;
+use GeoPHP\GeoPHP;
 
 /**
  * Polygon: A polygon is a plane figure that is bounded by a closed path,
@@ -133,7 +133,7 @@ class Polygon extends Surface
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var Point|null $geometry */
-            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            $geometry = GeoPHP::geosToGeometry($geosObj->centroid());
             return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
@@ -290,7 +290,7 @@ class Polygon extends Surface
         }
         
         // all rings (LineStrings) have to be valid itself
-        /** @var \geoPHP\Geometry\LineString $ring */
+        /** @var \GeoPHP\Geometry\LineString $ring */
         foreach ($this->components as $ring) {
             if ($ring->isEmpty()) {
                 continue;

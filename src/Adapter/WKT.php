@@ -1,16 +1,16 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Collection;
-use geoPHP\geoPHP;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\MultiPoint;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\MultiLineString;
-use geoPHP\Geometry\Polygon;
-use geoPHP\Geometry\MultiPolygon;
+use GeoPHP\Geometry\Collection;
+use GeoPHP\GeoPHP;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\MultiPolygon;
 
 /**
  * WKT (Well Known Text) Adapter
@@ -36,7 +36,7 @@ class WKT implements GeoAdapter
      */
     public static function isWktType(string $typeString)
     {
-        foreach (geoPHP::getGeometryList() as $geom => $type) {
+        foreach (GeoPHP::getGeometryList() as $geom => $type) {
             if (strtolower((substr($typeString, 0, strlen($geom)))) == $geom) {
                 return $type;
             }
@@ -66,10 +66,10 @@ class WKT implements GeoAdapter
         }
 
         // If geos is installed, then we take a shortcut and let it parse the WKT
-        if (geoPHP::geosInstalled()) {
+        if (GeoPHP::geosInstalled()) {
             /** @noinspection PhpUndefinedClassInspection */
             $reader = new \GEOSWKTReader();
-            $geometry = geoPHP::geosToGeometry($reader->read($wkt));
+            $geometry = GeoPHP::geosToGeometry($reader->read($wkt));
         } else {
             $geometry = $this->parseTypeAndGetData($wkt);
         }
@@ -289,7 +289,7 @@ class WKT implements GeoAdapter
     public function write(Geometry $geometry): string
     {
         // If geos is installed, then we take a shortcut and let it write the WKT
-        if (geoPHP::geosInstalled()) {
+        if (GeoPHP::geosInstalled()) {
             /** @noinspection PhpUndefinedClassInspection */
             $writer = new \GEOSWKTWriter();
             /** @noinspection PhpUndefinedMethodInspection */

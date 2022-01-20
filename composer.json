@@ -1,5 +1,5 @@
 {
-    "name": "swen100/geophp",
+    "name": "latinosoft/geophp",
     "license": "GPL-3.0-or-later",
     "type": "library",
     "description": "GeoPHP is an open-source native PHP library for doing geometry operations. It is written entirely in PHP and can therefore run on shared hosts. It can read and write a wide variety of formats: (E)WKT, (E)WKB, GeoJSON, KML, GPX, GeoRSS). It works with all Simple-Feature geometries (Point, LineString, Polygon, GeometryCollection etc.) and can be used to get centroids, bounding-boxes, area and a wide variety of other useful information.",
@@ -24,19 +24,19 @@
     ],
     "autoload": {
         "psr-4": {
-            "geoPHP\\": "src/"
+            "GeoPHP\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "geoPHP\\Tests\\": "tests/unit"
+            "GeoPHP\\Tests\\": "tests/unit"
         }
     },
     "require": {
-        "php": ">=7.0.0"
+        "php": ">=7.3.0"
     },
     "require-dev": {
-        "php": ">=7.1.0",
+        "php": ">=7.3.0",
         "phpunit/phpunit": "5.* || 8.*",
         "php-coveralls/php-coveralls": "2.*",
         "squizlabs/php_codesniffer": "3.*",
@@ -61,12 +61,12 @@
             "@test-input",
             "@performance"
         ],
-        "cs": "vendor/bin/phpcs --cache -n -p --standard=PSR2 src/",
-        "cs-warning": "vendor/bin/phpcs --cache -p --standard=PSR2 src/ || true",
-        "cs-fix": "vendor/bin/phpcbf --cache -n -p --standard=PSR2 src/",
+        "cs": "vendor/bin/phpcs --cache -n -p src/",
+        "cs-warning": "vendor/bin/phpcs --cache -p src/ || true",
+        "cs-fix": "vendor/bin/phpcbf --cache -n -p src/",
         "stan" : "vendor/bin/phpstan analyze --level 6 src",
-        "unit": "GEOS_DISABLED=1 vendor/bin/phpunit --color=always --coverage-html build/coverage/",
-        "unit-clover": "GEOS_DISABLED=1 vendor/bin/phpunit --color=always --coverage-clover build/logs/clover.xml",
+        "unit": ["@putenv GEOS_DISABLED=1", "vendor/bin/phpunit --color=always --coverage-html build/coverage/"],
+        "unit-clover": ["@putenv GEOS_DISABLED=1", "vendor/bin/phpunit --color=always --coverage-clover build/logs/clover.xml"],
         "test-input": "cd tests && php test.php && cd ..",
         "performance": "cd tests && php geometryPerformance.php && cd .."
     }

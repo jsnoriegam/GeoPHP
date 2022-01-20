@@ -1,13 +1,13 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Collection;
-use geoPHP\geoPHP;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\Collection;
+use GeoPHP\GeoPHP;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
 
 /*
  * Copyright (c) Patrick Hayes
@@ -100,7 +100,7 @@ class GPX implements GeoAdapter
     /**
      * Parses the GPX XML and returns a geometry
      * @param \DOMDocument $xmlObject
-     * @return GeometryCollection|Geometry Returns the geometry representation of the GPX (@see geoPHP::buildGeometry)
+     * @return GeometryCollection|Geometry Returns the geometry representation of the GPX (@see GeoPHP::buildGeometry)
      */
     protected function geomFromXML($xmlObject): Geometry
     {
@@ -118,7 +118,7 @@ class GPX implements GeoAdapter
             $geometries[] = $trackFromRoute;
         }
 
-        $geometry = geoPHP::buildGeometry($geometries);
+        $geometry = GeoPHP::buildGeometry($geometries);
         if (in_array('metadata', $this->gpxTypes->get('gpxType')) && $xmlObject->getElementsByTagName('metadata')->length === 1) {
             $metadata = $this->parseNodeProperties(
                 $xmlObject->getElementsByTagName('metadata')->item(0),
@@ -130,7 +130,7 @@ class GPX implements GeoAdapter
             $geometry->setData($metadata);
         }
         
-        return geoPHP::geometryReduce($geometry);
+        return GeoPHP::geometryReduce($geometry);
     }
 
     /**

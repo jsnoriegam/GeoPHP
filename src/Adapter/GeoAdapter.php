@@ -1,7 +1,7 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\Geometry;
 
 /*
  * (c) Patrick Hayes 2011

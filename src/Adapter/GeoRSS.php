@@ -1,13 +1,13 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Collection;
-use geoPHP\geoPHP;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\Collection;
+use GeoPHP\GeoPHP;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Polygon;
 
 /*
  * Copyright (c) Patrick Hayes
@@ -109,7 +109,7 @@ class GeoRSS implements GeoAdapter
             throw new \Exception("Invalid / empty GeoRSS.");
         }
 
-        return geoPHP::geometryReduce($geometries);
+        return GeoPHP::geometryReduce($geometries);
     }
 
     /**

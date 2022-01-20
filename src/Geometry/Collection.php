@@ -1,9 +1,9 @@
 <?php
 
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\Exception\InvalidGeometryException;
-use geoPHP\geoPHP;
+use GeoPHP\Exception\InvalidGeometryException;
+use GeoPHP\GeoPHP;
 
 /**
  * Collection: Abstract class for compound geometries
@@ -157,7 +157,7 @@ abstract class Collection extends Geometry
         
         /** @noinspection PhpUndefinedMethodInspection */
         if ($envelope->typeName() === 'Point') {
-            return geoPHP::geosToGeometry($envelope)->getBBox();
+            return GeoPHP::geosToGeometry($envelope)->getBBox();
         }
 
         /** @noinspection PhpUndefinedMethodInspection */

@@ -1,6 +1,6 @@
 <?php
 
-namespace geoPHP\Exception;
+namespace GeoPHP\Exception;
 
 /**
  * Should be thrown if a method is not implemented.

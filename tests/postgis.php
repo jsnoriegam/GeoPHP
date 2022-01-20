@@ -2,7 +2,7 @@
 
 require '../vendor/autoload.php';
 
-use \geoPHP\geoPHP;
+use \GeoPHP\GeoPHP;
 
 // Uncomment to test
 run_test();
@@ -48,7 +48,7 @@ function run_test()
             $value = file_get_contents('./input/' . $file);
             print '---- Testing ' . $file . "\n";
             flush();
-            $geometry = geoPHP::load($value, $format);
+            $geometry = GeoPHP::load($value, $format);
             test_postgis($table, $name, $format, $geometry, $connection, 'wkb');
             $geometry->setSRID(4326);
             test_postgis($table, $name, $format, $geometry, $connection, 'ewkb');
@@ -61,7 +61,7 @@ function run_test()
  * @param string $table
  * @param string $name
  * @param string $type
- * @param \geoPHP\Geometry\Geometry $geom
+ * @param \GeoPHP\Geometry\Geometry $geom
  * @param resource $connection
  * @param string $format
  * @throws Exception
@@ -78,13 +78,13 @@ function test_postgis($table, $name, $type, $geom, $connection, $format)
     $result = pg_fetch_all(pg_query($connection, "SELECT ST_AsBinary(geom) as geom FROM $table WHERE name='$name'")) ?: [];
     foreach ($result as $item) {
         $wkb = pg_unescape_bytea($item['geom']); // Make sure to unescape the hex blob
-        $geom = geoPHP::load($wkb, $format); // We now a full geoPHP Geometry object
+        $geom = GeoPHP::load($wkb, $format); // We now a full geoPHP Geometry object
     }
 
     // SELECT and INSERT directly, with no wrapping functions
     $result = pg_fetch_all(pg_query($connection, "SELECT geom as geom FROM $table WHERE name='$name'")) ?: [];
     foreach ($result as $item) {
-        $geom = geoPHP::load($item['geom'], $format, true); // We now have a geoPHP Geometry
+        $geom = GeoPHP::load($item['geom'], $format, true); // We now have a geoPHP Geometry
         // Let's re-insert directly into postGIS
         $insert_string = $geom->out($format, true);
         pg_query($connection, "INSERT INTO $table (name, type, geom) values ('$name', '$type', '$insert_string')");
@@ -94,7 +94,7 @@ function test_postgis($table, $name, $type, $geom, $connection, $format)
     $result = pg_fetch_all(pg_query($connection, "SELECT ST_AsEWKT(geom) as geom FROM $table WHERE name='$name'")) ?: [];
     foreach ($result as $item) {
         $wkt = $item['geom']; // Make sure to unescape the hex blob
-        $geom = geoPHP::load($item['geom'], 'ewkt'); // We now a full geoPHP Geometry object
+        $geom = GeoPHP::load($item['geom'], 'ewkt'); // We now a full geoPHP Geometry object
         // Let's re-insert directly into postGIS
         $insert_string = $geom->out('ewkt');
         pg_query($connection, "INSERT INTO $table (name, type, geom) values ('$name', '$type', ST_GeomFromEWKT('$insert_string'))");

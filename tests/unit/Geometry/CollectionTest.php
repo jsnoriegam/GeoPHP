@@ -8,14 +8,14 @@
  * @since 2020-03-19
  */
 
-namespace geoPHP\Tests\Geometry;
+namespace GeoPHP\Tests\Geometry;
 
-use geoPHP\Geometry\Geometry;
-use \geoPHP\Geometry\Collection;
-use \geoPHP\Geometry\Point;
-use \geoPHP\Geometry\LineString;
-use \geoPHP\Adapter\WKT;
-use \geoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\Geometry;
+use \GeoPHP\Geometry\Collection;
+use \GeoPHP\Geometry\Point;
+use \GeoPHP\Geometry\LineString;
+use \GeoPHP\Adapter\WKT;
+use \GeoPHP\Geometry\Polygon;
 use \PHPUnit\Framework\TestCase;
 
 /**
@@ -166,7 +166,7 @@ class CollectionTest extends TestCase
     {
         $points = [new Point(1, 2), new Point(3, 4), new Point(5, 6), new Point(1, 2)];
         $components = [
-            new \geoPHP\Geometry\Polygon([new LineString($points)])
+            new \GeoPHP\Geometry\Polygon([new LineString($points)])
         ];
 
         /** @var Collection $stub */

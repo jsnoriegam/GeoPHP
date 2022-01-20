@@ -11,11 +11,11 @@
  */
 require '../vendor/autoload.php';
 
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\Polygon;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\geoPHP;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\GeoPHP;
 
 /**
  * @param string $message

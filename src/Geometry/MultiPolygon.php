@@ -1,7 +1,7 @@
 <?php
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\geoPHP;
+use GeoPHP\GeoPHP;
 
 /**
  * MultiPolygon: A collection of Polygons
@@ -43,7 +43,7 @@ class MultiPolygon extends MultiSurface
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var Point|null $geometry */
-            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            $geometry = GeoPHP::geosToGeometry($geosObj->centroid());
             return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
@@ -93,6 +93,6 @@ class MultiPolygon extends MultiSurface
         foreach ($this->getComponents() as $component) {
             $rings = array_merge($rings, $component->components);
         }
-        return geoPHP::geometryReduce(new MultiLineString($rings));
+        return GeoPHP::geometryReduce(new MultiLineString($rings));
     }
 }

@@ -10,17 +10,17 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\MultiPoint;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\MultiLineString;
-use geoPHP\Geometry\Polygon;
-use geoPHP\Geometry\MultiPolygon;
-use geoPHP\Geometry\MultiGeometry;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\MultiPolygon;
+use GeoPHP\Geometry\MultiGeometry;
 
 /**
  * PHP Geometry <-> TWKB encoder/decoder

@@ -1,6 +1,6 @@
 <?php
 
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
 /**
  * @package GeoPHPGeometry

@@ -1,8 +1,8 @@
 <?php
 
-namespace geoPHP\Tests;
+namespace GeoPHP\Tests;
 
-use \geoPHP\geoPHP;
+use \GeoPHP\GeoPHP;
 use PHPUnit\Framework\TestCase;
 
 class MethodsTest extends TestCase
@@ -19,7 +19,7 @@ class MethodsTest extends TestCase
                 $format = $parts[1];
                 $value = file_get_contents('tests/input/' . $file);
                 //echo "\nloading: " . $file . " for format: " . $format;
-                $geometry = geoPHP::load($value, $format);
+                $geometry = GeoPHP::load($value, $format);
 
                 $methods = [
                     ['name' => 'getArea'],
@@ -64,7 +64,7 @@ class MethodsTest extends TestCase
     }
 
     /**
-     * @param \geoPHP\Geometry\Geometry $geometry
+     * @param \GeoPHP\Geometry\Geometry $geometry
      * @param string $method_name
      * @param string|null $argument
      * @param string $file
@@ -295,14 +295,14 @@ class MethodsTest extends TestCase
     }
 
     /**
-     * @param \geoPHP\Geometry\Geometry $geometry
+     * @param \GeoPHP\Geometry\Geometry $geometry
      * @throws \Exception
      * @return void
      */
     public function methodsTesterWithGeos($geometry)
     {
         // Cannot test methods if GEOS is not intstalled
-        if (!geoPHP::geosInstalled()) {
+        if (!GeoPHP::geosInstalled()) {
             return;
         }
 
@@ -321,15 +321,15 @@ class MethodsTest extends TestCase
 
         foreach ($methods as $method) {
             // Turn GEOS on
-            geoPHP::geosInstalled(true);
+            GeoPHP::geosInstalled(true);
             $geos_result = $geometry->$method();
 
             // Turn GEOS off
-            geoPHP::geosInstalled(false);
+            GeoPHP::geosInstalled(false);
             $norm_result = $geometry->$method();
 
             // Turn GEOS back On
-            geoPHP::geosInstalled(true);
+            GeoPHP::geosInstalled(true);
 
             $geos_type = gettype($geos_result);
             $norm_type = gettype($norm_result);
@@ -341,7 +341,7 @@ class MethodsTest extends TestCase
 
             // Now check base on type
             if ($geos_type == 'object') {
-                $haus_dist = $geos_result->hausdorffDistance(geoPHP::load($norm_result->out('wkt'), 'wkt'));
+                $haus_dist = $geos_result->hausdorffDistance(GeoPHP::load($norm_result->out('wkt'), 'wkt'));
 
                 // Get the length of the diagonal of the bbox - this is used to scale the haustorff distance
                 // Using Pythagorean theorem

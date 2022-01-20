@@ -1,8 +1,8 @@
 <?php
 
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\geoPHP;
+use GeoPHP\GeoPHP;
 
 /**
  * MultiLineString: A collection of LineStrings
@@ -45,7 +45,7 @@ class MultiLineString extends MultiCurve
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var Point|null $geometry */
-            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            $geometry = GeoPHP::geosToGeometry($geosObj->centroid());
             return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }

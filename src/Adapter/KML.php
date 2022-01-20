@@ -1,13 +1,13 @@
 <?php
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
-use geoPHP\Geometry\Collection;
-use geoPHP\geoPHP;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\Point;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\Polygon;
+use GeoPHP\Geometry\Collection;
+use GeoPHP\GeoPHP;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Polygon;
 
 /*
  * Copyright (c) Patrick Hayes
@@ -90,8 +90,8 @@ class KML implements GeoAdapter
                 foreach ($placemark->childNodes as $child) {
                     // Node names are all the same, except for MultiGeometry, which maps to GeometryCollection
                     $nodeName = $child->nodeName === 'multigeometry' ? 'geometrycollection' : $child->nodeName;
-                    if (array_key_exists($nodeName, geoPHP::getGeometryList())) {
-                        $function = 'parse' . geoPHP::getGeometryList()[$nodeName];
+                    if (array_key_exists($nodeName, GeoPHP::getGeometryList())) {
+                        $function = 'parse' . GeoPHP::getGeometryList()[$nodeName];
                         $geometry = $this->$function($child);
                     } elseif ($child->nodeType === 1) {
                         $data[$child->nodeName] = $child->nodeValue;
@@ -113,8 +113,8 @@ class KML implements GeoAdapter
         $nodeName = $this->xmlObject->documentElement->nodeName === 'multigeometry' ?
                 'geometrycollection' : $this->xmlObject->documentElement->nodeName;
 
-        if (array_key_exists($nodeName, geoPHP::getGeometryList())) {
-            $function = 'parse' . geoPHP::getGeometryList()[$nodeName];
+        if (array_key_exists($nodeName, GeoPHP::getGeometryList())) {
+            $function = 'parse' . GeoPHP::getGeometryList()[$nodeName];
             return $this->$function($this->xmlObject->documentElement);
         }
 
@@ -232,7 +232,7 @@ class KML implements GeoAdapter
     protected function parseGeometryCollection(\DOMNode $xml): GeometryCollection
     {
         $components = [];
-        $geometryTypes = geoPHP::getGeometryList();
+        $geometryTypes = GeoPHP::getGeometryList();
         
         foreach ($xml->childNodes as $child) {
             /** @noinspection SpellCheckingInspection */

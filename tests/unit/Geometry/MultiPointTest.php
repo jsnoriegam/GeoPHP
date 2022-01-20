@@ -1,10 +1,10 @@
 <?php
 
-namespace geoPHP\Tests\Geometry;
+namespace GeoPHP\Tests\Geometry;
 
-use \geoPHP\Exception\InvalidGeometryException;
-use \geoPHP\Geometry\Point;
-use \geoPHP\Geometry\MultiPoint;
+use \GeoPHP\Exception\InvalidGeometryException;
+use \GeoPHP\Geometry\Point;
+use \GeoPHP\Geometry\MultiPoint;
 use \PHPUnit\Framework\TestCase;
 
 /**
@@ -47,7 +47,7 @@ class MultiPointTest extends TestCase
     public function providerInvalidComponents()
     {
         return [
-            [[\geoPHP\Geometry\LineString::fromArray([[1,2],[3,4]])]],  // wrong component type
+            [[\GeoPHP\Geometry\LineString::fromArray([[1,2],[3,4]])]],  // wrong component type
         ];
     }
 
@@ -70,11 +70,11 @@ class MultiPointTest extends TestCase
     {
         $multiPoint = new MultiPoint();
 
-        parent::assertEquals(\geoPHP\Geometry\Geometry::MULTI_POINT, $multiPoint->geometryType());
+        parent::assertEquals(\GeoPHP\Geometry\Geometry::MULTI_POINT, $multiPoint->geometryType());
 
-        parent::assertInstanceOf('\geoPHP\Geometry\MultiPoint', $multiPoint);
-        parent::assertInstanceOf('\geoPHP\Geometry\MultiGeometry', $multiPoint);
-        parent::assertInstanceOf('\geoPHP\Geometry\Geometry', $multiPoint);
+        parent::assertInstanceOf('\GeoPHP\Geometry\MultiPoint', $multiPoint);
+        parent::assertInstanceOf('\GeoPHP\Geometry\MultiGeometry', $multiPoint);
+        parent::assertInstanceOf('\GeoPHP\Geometry\Geometry', $multiPoint);
     }
 
     /**
@@ -172,7 +172,7 @@ class MultiPointTest extends TestCase
 
         parent::assertSame($point->dimension(), 0);
 
-        parent::assertEquals($point->boundary(), new \geoPHP\Geometry\GeometryCollection());
+        parent::assertEquals($point->boundary(), new \GeoPHP\Geometry\GeometryCollection());
 
         if (method_exists($this, "assertIsArray")) {
             parent::assertIsArray($point->explode());

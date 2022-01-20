@@ -1,9 +1,9 @@
 <?php
 
-namespace geoPHP\Tests;
+namespace GeoPHP\Tests;
 
-use \geoPHP\geoPHP;
-use \geoPHP\Geometry\Geometry;
+use \GeoPHP\GeoPHP;
+use \GeoPHP\Geometry\Geometry;
 use PHPUnit\Framework\TestCase;
 
 // FIXME file 20120702.gpx contains one MultiLineString but _method_tester() also wants to test Points and LineStrings (ie does nothing)
@@ -18,7 +18,7 @@ class File20120702Test extends TestCase
     {
         $format = 'gpx';
         $value = file_get_contents('tests/input/20120702.gpx');
-        $geometry = geoPHP::load($value, $format);
+        $geometry = GeoPHP::load($value, $format);
 
         $methods = array(
             array('name' => 'area'),

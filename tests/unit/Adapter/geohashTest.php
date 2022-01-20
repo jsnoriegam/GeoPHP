@@ -1,8 +1,8 @@
 <?php
 
-namespace geoPHP\Tests\Adapter;
+namespace GeoPHP\Tests\Adapter;
 
-use \geoPHP\Adapter\GeoHash;
+use \GeoPHP\Adapter\GeoHash;
 use PHPUnit\Framework\TestCase;
 
 class GeoHashTest extends TestCase

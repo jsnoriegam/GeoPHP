@@ -1,8 +1,8 @@
 <?php
 
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\geoPHP;
+use GeoPHP\GeoPHP;
 
 /**
  * MultiGeometry is an abstract collection of geometries
@@ -93,7 +93,7 @@ abstract class MultiGeometry extends Collection
         foreach ($this->components as $component) {
             $componentsBoundaries[] = $component->boundary();
         }
-        return geoPHP::buildGeometry($componentsBoundaries);
+        return GeoPHP::buildGeometry($componentsBoundaries);
     }
 
     /**
@@ -148,7 +148,7 @@ abstract class MultiGeometry extends Collection
      * @param  float|int $radius Default is the semi-major axis of WGS84.
      * @return float the length in meters
      */
-    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
+    public function greatCircleLength($radius = GeoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
         $length = 0.0;
         foreach ($this->components as $component) {

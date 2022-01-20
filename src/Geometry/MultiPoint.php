@@ -1,7 +1,7 @@
 <?php
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\geoPHP;
+use GeoPHP\GeoPHP;
 
 /**
  * A MultiPoint is a 0-dimensional Collection.
@@ -106,7 +106,7 @@ class MultiPoint extends MultiGeometry
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var Point|null $geometry */
-            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            $geometry = GeoPHP::geosToGeometry($geosObj->centroid());
             return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }

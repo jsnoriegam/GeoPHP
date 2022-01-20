@@ -1,13 +1,13 @@
 <?php
 
-namespace geoPHP\Tests\Geometry;
+namespace GeoPHP\Tests\Geometry;
 
-use geoPHP\Exception\InvalidGeometryException;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\LineString;
-use geoPHP\Geometry\MultiPoint;
-use geoPHP\Geometry\Point;
+use GeoPHP\Exception\InvalidGeometryException;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\Point;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -247,10 +247,10 @@ class PointTest extends TestCase
     {
         $point = new Point();
 
-        parent::assertEquals(\geoPHP\Geometry\Geometry::POINT, $point->geometryType());
+        parent::assertEquals(\GeoPHP\Geometry\Geometry::POINT, $point->geometryType());
 
         parent::assertInstanceOf(Point::class, $point);
-        parent::assertInstanceOf(\geoPHP\Geometry\Geometry::class, $point);
+        parent::assertInstanceOf(\GeoPHP\Geometry\Geometry::class, $point);
     }
 
     /**
@@ -481,12 +481,12 @@ class PointTest extends TestCase
     public function testDistance($otherGeometry, $expectedDistance)
     {
         // GEOS dosn't support EMPTY Points
-        $geosAvailable = \geoPHP\geoPHP::geosInstalled();
-        \geoPHP\geoPHP::geosInstalled(false);
+        $geosAvailable = \GeoPHP\GeoPHP::geosInstalled();
+        \GeoPHP\GeoPHP::geosInstalled(false);
         $point = new Point(0, 0);
         
         parent::assertSame($point->distance($otherGeometry), $expectedDistance);
-        \geoPHP\geoPHP::geosInstalled($geosAvailable);
+        \GeoPHP\GeoPHP::geosInstalled($geosAvailable);
     }
 
     /**

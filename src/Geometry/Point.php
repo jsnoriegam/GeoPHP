@@ -1,8 +1,8 @@
 <?php
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\Exception\InvalidGeometryException;
-use geoPHP\geoPHP;
+use GeoPHP\Exception\InvalidGeometryException;
+use GeoPHP\GeoPHP;
 
 /**
  * A Point is a 0-dimensional geometric object and represents a single location in coordinate space.
@@ -487,7 +487,7 @@ class Point extends Geometry
      * @param  float|int $radius
      * @return float 0.0
      */
-    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
+    public function greatCircleLength($radius = GeoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
         return 0.0;
     }

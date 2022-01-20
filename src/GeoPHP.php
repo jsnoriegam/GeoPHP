@@ -6,15 +6,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace geoPHP;
+namespace GeoPHP;
 
-use geoPHP\Adapter\GeoHash;
-use geoPHP\Geometry\Collection;
-use geoPHP\Geometry\Geometry;
-use geoPHP\Geometry\GeometryCollection;
+use GeoPHP\Adapter\GeoHash;
+use GeoPHP\Geometry\Collection;
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
 
 // @codingStandardsIgnoreLine
-class geoPHP
+class GeoPHP
 {
 
     // Earth radius constants in meters
@@ -127,7 +127,7 @@ class geoPHP
                 }
             }
 
-            $detected = geoPHP::detectFormat($data);
+            $detected = GeoPHP::detectFormat($data);
             if (!$detected) {
                 throw new \Exception("Unable to detect the data format.");
             }
@@ -140,7 +140,7 @@ class geoPHP
             throw new \Exception('geoPHP could not find an adapter of type ' . htmlentities($type));
         }
         
-        $adapterType = '\\geoPHP\\Adapter\\' . self::$adapterMap[$type];
+        $adapterType = '\\GeoPHP\\Adapter\\' . self::$adapterMap[$type];
         $adapter = new $adapterType();
 
         // when data is not an array -> just pass it normally
@@ -152,7 +152,7 @@ class geoPHP
             foreach ($data as $item) {
                 $geometries[] = call_user_func_array([$adapter, "read"], array_merge($item, $args));
             }
-            $result = geoPHP::buildGeometry($geometries);
+            $result = GeoPHP::buildGeometry($geometries);
         }
 
         return $result;
@@ -190,14 +190,14 @@ class geoPHP
      */
     public static function geosToGeometry($geos)
     {
-        if (!geoPHP::geosInstalled()) {
+        if (!GeoPHP::geosInstalled()) {
             return null;
         }
         /** @noinspection PhpUndefinedClassInspection */
         $wkbWriter = new \GEOSWKBWriter();
         /** @noinspection PhpUndefinedMethodInspection */
         $wkb = $wkbWriter->writeHEX($geos);
-        $geometry = geoPHP::load($wkb, 'wkb', true);
+        $geometry = GeoPHP::load($wkb, 'wkb', true);
         if ($geometry) {
             $geometry->setGeos($geos);
             return $geometry;
@@ -241,7 +241,7 @@ class geoPHP
             }
         } elseif (is_array($geometries) && count($geometries) === 1) {
             // If it's an array of one, then just parse the one
-            return geoPHP::geometryReduce(array_shift($geometries));
+            return GeoPHP::geometryReduce(array_shift($geometries));
         }
 
         if (!is_array($geometries)) {
@@ -260,7 +260,7 @@ class geoPHP
             if (count($reducedGeometries) === 1) {
                 return $reducedGeometries[0];
             } else {
-                $class = '\\geoPHP\\Geometry\\' .
+                $class = '\\GeoPHP\\Geometry\\' .
                         (strpos($geometryTypes[0], 'Multi') === false ? 'Multi' : '') .
                         $geometryTypes[0];
                 return new $class($reducedGeometries);
@@ -341,7 +341,7 @@ class geoPHP
                 }
             }
             // only non-empty geometries
-            $class = '\\geoPHP\\Geometry\\' . $geometryType;
+            $class = '\\GeoPHP\\Geometry\\' . $geometryType;
             return new $class($validGeometries);
         }
         
@@ -377,7 +377,7 @@ class geoPHP
         // First char is a tab, space or carriage-return. trim it and try again
         if (in_array($bytes[1], [9, 10, 32], true)) {
             $input = ltrim($input);
-            return geoPHP::detectFormat($input);
+            return GeoPHP::detectFormat($input);
         }
 
         // Detect WKB or EWKB -- first byte is 1 (little endian indicator)

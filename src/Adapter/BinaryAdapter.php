@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-namespace geoPHP\Adapter;
+namespace GeoPHP\Adapter;
 
 /**
  * Base class for BinaryReader and BinaryWriter

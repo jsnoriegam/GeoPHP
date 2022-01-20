@@ -1,8 +1,8 @@
 <?php
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\geoPHP;
-use geoPHP\Exception\InvalidGeometryException;
+use GeoPHP\GeoPHP;
+use GeoPHP\Exception\InvalidGeometryException;
 
 /**
  * GeometryCollection: A heterogeneous collection of geometries.
@@ -76,7 +76,7 @@ class GeometryCollection extends MultiGeometry
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var Point|null $geometry */
-            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            $geometry = GeoPHP::geosToGeometry($geosObj->centroid());
             return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
@@ -100,7 +100,7 @@ class GeometryCollection extends MultiGeometry
             }
         }
 
-        $reducedGeometry = geoPHP::geometryReduce($highestDimensionGeometries);
+        $reducedGeometry = GeoPHP::geometryReduce($highestDimensionGeometries);
         if ($reducedGeometry->geometryType() === Geometry::GEOMETRY_COLLECTION) {
             throw new \Exception('Internal error: GeometryCollection->getCentroid() calculation failed.');
         }

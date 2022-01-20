@@ -1,7 +1,7 @@
 <?php
-namespace geoPHP\Geometry;
+namespace GeoPHP\Geometry;
 
-use geoPHP\geoPHP;
+use GeoPHP\GeoPHP;
 
 /**
  * A LineString is defined by a sequence of points, (X,Y) pairs, which define the reference points of the line string.
@@ -77,7 +77,7 @@ class LineString extends Curve
             // @codeCoverageIgnoreStart
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var Point|null $geometry */
-            $geometry = geoPHP::geosToGeometry($geosObj->centroid());
+            $geometry = GeoPHP::geosToGeometry($geosObj->centroid());
             return $geometry !== null ? $geometry : new Point();
             // @codeCoverageIgnoreEnd
         }
@@ -161,7 +161,7 @@ class LineString extends Curve
      * @param  float|int $radius Default is the semi-major axis of WGS84.
      * @return float length in meters
      */
-    public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
+    public function greatCircleLength($radius = GeoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS): float
     {
         $length = 0.0;
         $rad = M_PI / 180;
@@ -207,7 +207,7 @@ class LineString extends Curve
         for ($i = 0; $i < $numPoints; ++$i) {
             $point = $points[$i];
             $nextPoint = $points[$i + 1];
-            $degree = (geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS *
+            $degree = (GeoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS *
                 acos(
                     sin(deg2rad($point->getY() ?? 0)) * sin(deg2rad($nextPoint->getY() ?? 0)) +
                     cos(deg2rad($point->getY() ?? 0)) * cos(deg2rad($nextPoint->getY() ?? 0)) *
@@ -242,9 +242,9 @@ class LineString extends Curve
             $lng1 = $points[$i]->getX() * $rad;
             $lng2 = $points[$i + 1]->getX() * $rad;
 
-            $a = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS;
-            $b = geoPHP::EARTH_WGS84_SEMI_MINOR_AXIS;
-            $f = 1 / geoPHP::EARTH_WGS84_FLATTENING;
+            $a = GeoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS;
+            $b = GeoPHP::EARTH_WGS84_SEMI_MINOR_AXIS;
+            $f = 1 / GeoPHP::EARTH_WGS84_FLATTENING;
             $L = $lng2 - $lng1;
             $U1 = atan((1 - $f) * tan($lat1));
             $U2 = atan((1 - $f) * tan($lat2));
