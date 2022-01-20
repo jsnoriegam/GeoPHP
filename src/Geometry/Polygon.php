@@ -410,6 +410,8 @@ class Polygon extends Surface
 
         if ($geometry->geometryType() === Geometry::LINESTRING) {
             // do nothing
+        } elseif ($geometry->geometryType() === Geometry::POINT) {
+            return true;
         } elseif ($geometry->geometryType() === Geometry::POLYGON) {
             $geometry = $geometry->exteriorRing();
         } else {
